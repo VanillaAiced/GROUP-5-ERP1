@@ -1,0 +1,99 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Edit Purchase Order - LiteWork{% endblock %}
+{% block page_title %}Edit Purchase Order{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Edit Purchase Order {{ order.po_number }}</h2>
+        <a href="{% url 'erp:purchase_order_detail' order.id %}" class="text-gray-600 hover:text-gray-900">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Order Details
+        </a>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="{{ form.vendor.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Vendor *
+                </label>
+                {{ form.vendor }}
+                {% if form.vendor.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.vendor.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                </label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.warehouse.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Warehouse *
+                </label>
+                {{ form.warehouse }}
+                {% if form.warehouse.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.warehouse.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.delivery_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Delivery Date *
+                </label>
+                {{ form.delivery_date }}
+                {% if form.delivery_date.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.delivery_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.reference_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Reference Number
+                </label>
+                {{ form.reference_number }}
+                {% if form.reference_number.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.reference_number.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.payment_terms.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Payment Terms
+                </label>
+                {{ form.payment_terms }}
+                {% if form.payment_terms.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.payment_terms.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                Notes
+            </label>
+            {{ form.notes }}
+            {% if form.notes.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                {% endif %}
+        </div>
+
+        <div class="flex justify-end space-x-4">
+            <a href="{% url 'erp:purchase_order_detail' order.id %}" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+                Cancel
+            </a>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-save mr-2"></i>Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

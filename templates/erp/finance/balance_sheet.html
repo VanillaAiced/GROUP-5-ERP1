@@ -1,0 +1,118 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Balance Sheet - ERP System{% endblock %}
+{% block page_title %}Balance Sheet{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Balance Sheet</h2>
+            <p class="text-gray-600 mt-2">As of {{ end_date|date:"F d, Y" }}</p>
+        </div>
+        <div class="flex space-x-2">
+            <button onclick="window.print();" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <i class="fas fa-print mr-2"></i>Print
+            </button>
+            <a href="{% url 'erp:generate_balance_sheet' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-sync-alt mr-2"></i>New Report
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        <!-- Assets Section -->
+        <div>
+            <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Assets</h3>
+
+            <div class="mb-6">
+                <h4 class="font-semibold text-gray-800 mb-2">Current Assets</h4>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Cash and Cash Equivalents</span>
+                        <span class="text-gray-900">${{ report_data.assets.current_assets|floatformat:2 }}</span>
+                    </div>
+                    <!-- Add more current asset items as needed -->
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <h4 class="font-semibold text-gray-800 mb-2">Fixed Assets</h4>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Property, Plant and Equipment</span>
+                        <span class="text-gray-900">${{ report_data.assets.fixed_assets|floatformat:2 }}</span>
+                    </div>
+                    <!-- Add more fixed asset items as needed -->
+                </div>
+            </div>
+
+            <div class="border-t pt-2 mt-4">
+                <div class="flex justify-between font-bold">
+                    <span>Total Assets</span>
+                    <span>${{ report_data.assets.total_assets|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liabilities and Equity Section -->
+        <div>
+            <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Liabilities and Equity</h3>
+
+            <div class="mb-6">
+                <h4 class="font-semibold text-gray-800 mb-2">Current Liabilities</h4>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Accounts Payable</span>
+                        <span class="text-gray-900">${{ report_data.liabilities.current_liabilities|floatformat:2 }}</span>
+                    </div>
+                    <!-- Add more current liability items as needed -->
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <h4 class="font-semibold text-gray-800 mb-2">Long-Term Liabilities</h4>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Long-Term Debt</span>
+                        <span class="text-gray-900">${{ report_data.liabilities.long_term_liabilities|floatformat:2 }}</span>
+                    </div>
+                    <!-- Add more long-term liability items as needed -->
+                </div>
+            </div>
+
+            <div class="border-t pt-2 mt-4">
+                <div class="flex justify-between font-semibold">
+                    <span>Total Liabilities</span>
+                    <span>${{ report_data.liabilities.total_liabilities|floatformat:2 }}</span>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <h4 class="font-semibold text-gray-800 mb-2">Equity</h4>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Retained Earnings</span>
+                        <span class="text-gray-900">${{ report_data.equity.retained_earnings|floatformat:2 }}</span>
+                    </div>
+                    <!-- Add more equity items as needed -->
+                </div>
+            </div>
+
+            <div class="border-t pt-2 mt-4">
+                <div class="flex justify-between font-semibold">
+                    <span>Total Equity</span>
+                    <span>${{ report_data.equity.total_equity|floatformat:2 }}</span>
+                </div>
+            </div>
+
+            <div class="border-t pt-2 mt-4 border-double border-t-4">
+                <div class="flex justify-between font-bold">
+                    <span>Total Liabilities and Equity</span>
+                    <span>${{ report_data.liabilities.total_liabilities|add:report_data.equity.total_equity|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

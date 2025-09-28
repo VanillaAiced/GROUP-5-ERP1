@@ -1,0 +1,117 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ERP System{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; }
+        .metric-card { transition: transform 0.2s ease-in-out; }
+        .metric-card:hover { transform: translateY(-2px); }
+
+        /* Light mode text colors - ensuring proper visibility */
+        body:not(.dark) { background-color: #f9fafb !important; color: #1f2937 !important; }
+        body:not(.dark) .text-gray-900,
+        body:not(.dark) .text-gray-600,
+        body:not(.dark) p,
+        body:not(.dark) h1,
+        body:not(.dark) h2,
+        body:not(.dark) h3,
+        body:not(.dark) span { color: #1f2937 !important; }
+        body:not(.dark) .bg-white { background-color: #ffffff !important; }
+        body:not(.dark) .metric-card { background-color: #ffffff !important; }
+
+        /* Force all cards in light mode to have proper text contrast */
+        body:not(.dark) .metric-card p,
+        body:not(.dark) .metric-card h2,
+        body:not(.dark) .metric-card h3,
+        body:not(.dark) .metric-card span { color: #1f2937 !important; }
+
+        /* Section titles and labels in light mode */
+        body:not(.dark) .section-title { color: #111827 !important; font-weight: bold !important; }
+        body:not(.dark) .section-label { color: #4b5563 !important; }
+
+        /* Dark mode styling - higher contrast */
+        .dark { background-color: #1a202c !important; color: #f3f4f6 !important; }
+        .dark .bg-white, .dark .bg-gray-50 { background-color: #2d3748 !important; }
+        .dark .metric-card {
+            background-color: #2d3748 !important;
+            border-color: #4a5568 !important;
+        }
+
+        /* Force all text in dark mode to be visible */
+        .dark p,
+        .dark h1,
+        .dark h2,
+        .dark h3,
+        .dark span,
+        .dark .text-gray-600,
+        .dark .text-gray-900 {
+            color: #f3f4f6 !important;
+        }
+
+        /* Section titles and values in dark mode */
+        .dark .section-title { color: #f3f4f6 !important; font-weight: bold !important; }
+        .dark .section-value { color: #f3f4f6 !important; font-weight: bold !important; }
+
+        /* Card specific styles */
+        .card-title { font-weight: bold !important; }
+        .card-value { font-weight: bold !important; font-size: 1.5rem !important; }
+
+        .toggle-checkbox { width: 40px; height: 20px; accent-color: #3498db; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <script>
+        // Dark mode toggle logic
+        function setDarkMode(enabled) {
+            if (enabled) {
+                document.body.classList.add('dark');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                document.body.classList.remove('dark');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+        // Apply dark mode from localStorage on page load
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark');
+        } else {
+            document.body.classList.remove('dark');
+        }
+    </script>
+    <div class="flex h-screen">
+        <!-- Sidebar - Now included as a separate template -->
+        {% include 'erp/includes/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-gray-900">{% block page_title %}Dashboard{% endblock %}</h2>
+                    <div class="flex items-center space-x-4">
+                        <button class="p-2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-bell text-xl"></i>
+                        </button>
+                        <a href="{% url 'erp:settings' %}" class="p-2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-cog text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="flex-1 overflow-y-auto p-6">
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+</body>
+</html>

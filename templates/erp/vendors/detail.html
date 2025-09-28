@@ -1,0 +1,74 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Vendor Detail - LiteWork{% endblock %}
+{% block page_title %}Vendor Detail{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">{{ vendor.name }}</h2>
+        <a href="{% url 'erp:vendor_list' %}" class="text-gray-600 hover:text-gray-900">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Vendors
+        </a>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Vendor Information</h3>
+            <dl class="space-y-3">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Vendor Code</dt>
+                    <dd class="text-sm text-gray-900">{{ vendor.vendor_code }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Name</dt>
+                    <dd class="text-sm text-gray-900">{{ vendor.name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Contact Person</dt>
+                    <dd class="text-sm text-gray-900">{{ vendor.contact_person|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Email</dt>
+                    <dd class="text-sm text-gray-900">{{ vendor.email|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                    <dd class="text-sm text-gray-900">{{ vendor.phone|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Vendor Type</dt>
+                    <dd class="text-sm text-gray-900">{{ vendor.get_vendor_type_display }}</dd>
+                </div>
+            </dl>
+        </div>
+        
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Purchase Orders</h3>
+            <div class="space-y-3">
+                {% for order in purchase_orders %}
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ order.order_number }}</p>
+                            <p class="text-sm text-gray-500">{{ order.order_date|date:"M d, Y" }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-900">${{ order.total_amount|floatformat:2 }}</p>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                {% if order.status == 'completed' %}bg-green-100 text-green-800
+                                {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-center py-4">No purchase orders found</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

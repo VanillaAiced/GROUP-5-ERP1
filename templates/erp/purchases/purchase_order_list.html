@@ -1,0 +1,101 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Purchase Orders - LiteWork{% endblock %}
+{% block page_title %}Purchase Orders{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Purchase Orders</h2>
+        <a href="{% url 'erp:purchase_order_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-plus mr-2"></i>Create Purchase Order
+        </a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PO #</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for po in purchase_orders %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {{ po.po_number }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                            {% if po.status == 'completed' %}bg-green-100 text-green-800
+                            {% elif po.status == 'pending' %}bg-yellow-100 text-yellow-800
+                            {% elif po.status == 'cancelled' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ po.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ${{ po.total_amount|floatformat:2 }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <a href="{% url 'erp:vendor_detail' po.vendor.id %}" class="text-blue-600 hover:text-blue-800">
+                            {{ po.vendor.name }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ po.order_date|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ po.delivery_date|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'erp:purchase_order_detail' po.id %}" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'erp:purchase_order_edit' po.id %}" class="text-gray-600 hover:text-gray-800">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                        No purchase orders found. <a href="{% url 'erp:purchase_order_create' %}" class="text-blue-600 hover:text-blue-800">Create your first purchase order</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if purchase_orders.has_other_pages %}
+    <div class="mt-6 flex justify-center">
+        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+            {% if purchase_orders.has_previous %}
+                <a href="?page={{ purchase_orders.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            {% endif %}
+
+            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                Page {{ purchase_orders.number }} of {{ purchase_orders.paginator.num_pages }}
+            </span>
+
+            {% if purchase_orders.has_next %}
+                <a href="?page={{ purchase_orders.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

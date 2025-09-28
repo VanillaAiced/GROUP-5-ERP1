@@ -1,0 +1,31 @@
+{% extends 'authentication/base.html' %}
+{%  load static %}
+
+{% block content %}
+<div class="w-full max-w-4xl p-10 bg-[#324545] rounded-xl shadow-lg text-white flex flex-col md:flex-row gap-8 items-center">
+    <div class="flex-1 flex flex-col items-center md:items-start">
+        <img src="{% static 'LW.png' %}" alt="Lite WORK Logo" class="h-24 mb-6">
+        <h1 class="text-4xl font-bold mb-4 text-center md:text-left">Welcome to Lite WORK ERP</h1>
+        <p class="text-lg mb-6 text-[#B9D9D9] text-center md:text-left">
+            Streamline your business operations with our all-in-one ERP solution.
+        </p>
+        <ul class="mb-8 space-y-2 text-[#B9D9D9]">
+            <li>✔️ User Management</li>
+            <li>✔️ Inventory Tracking</li>
+            <li>✔️ Sales & Orders</li>
+            <li>✔️ Business Reports</li>
+        </ul>
+        <div class="flex gap-4 flex-wrap">
+            {% if user.is_authenticated %}
+                <a href="{% url 'erp:dashboard' %}" class="px-6 py-3 font-semibold text-white bg-[#628B8B] rounded-full hover:bg-[#729B9B] shadow">Go to Dashboard</a>
+                <a href="{% url 'logout' %}" class="px-6 py-3 font-semibold text-white bg-[#B96B6B] rounded-full hover:bg-[#C97B7B] shadow">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="px-6 py-3 font-semibold text-white bg-[#628B8B] rounded-full hover:bg-[#729B9B] shadow">Login</a>
+                <a href="{% url 'register' %}" class="px-6 py-3 font-semibold text-white bg-[#628B8B] rounded-full hover:bg-[#729B9B] shadow">Register</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="flex-1 hidden md:flex items-center justify-center">
+    </div>
+</div>
+{% endblock %}

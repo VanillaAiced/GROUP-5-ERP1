@@ -1,0 +1,75 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Edit Sales Order Item - LiteWork{% endblock %}
+{% block page_title %}Edit Sales Order Item{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-600">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Item in {{ order.order_number }}</h2>
+        <a href="{% url 'erp:sales_order_detail' order.id %}" class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Order
+        </a>
+    </div>
+    
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="{{ form.product.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Product *
+                </label>
+                {{ form.product }}
+                {% if form.product.errors %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.product.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label for="{{ form.quantity.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Quantity *
+                </label>
+                {{ form.quantity }}
+                {% if form.quantity.errors %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.quantity.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label for="{{ form.unit_price.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Unit Price *
+                </label>
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
+                    {{ form.unit_price }}
+                </div>
+                {% if form.unit_price.errors %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.unit_price.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label for="{{ form.discount_percent.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Discount %
+                </label>
+                <div class="relative">
+                    {{ form.discount_percent }}
+                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">%</span>
+                </div>
+                {% if form.discount_percent.errors %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.discount_percent.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="flex justify-end space-x-4">
+            <a href="{% url 'erp:sales_order_detail' order.id %}" class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+                Cancel
+            </a>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-save mr-2"></i>Update Item
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

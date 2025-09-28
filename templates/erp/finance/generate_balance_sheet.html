@@ -1,0 +1,34 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Generate Balance Sheet - ERP System{% endblock %}
+{% block page_title %}Generate Balance Sheet{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Generate Balance Sheet</h2>
+        <p class="text-gray-600 mt-2">Select a date to generate a balance sheet as of that date</p>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <div class="max-w-md">
+            <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">
+                Report Date *
+            </label>
+            <input type="date" id="end_date" name="end_date" required
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="flex justify-end space-x-4 pt-6">
+            <a href="{% url 'erp:financial_reports' %}" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                Cancel
+            </a>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-file-alt mr-2"></i>Generate Report
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

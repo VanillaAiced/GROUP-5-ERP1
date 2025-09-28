@@ -1,0 +1,134 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Purchase Order Detail - LiteWork{% endblock %}
+{% block page_title %}Purchase Order Detail{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="flex justify-between items-start mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Purchase Order {{ order.order_number }}</h2>
+            <p class="text-gray-600 mt-1">Created on {{ order.created_at|date:"M d, Y" }}</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'erp:purchase_order_list' %}" class="text-gray-600 hover:text-gray-900">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Purchase Orders
+            </a>
+            {% if order.status == 'draft' %}
+            <a href="{% url 'erp:purchase_order_edit' order.id %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-edit mr-2"></i>Edit Order
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Vendor Information -->
+        <div class="bg-gray-50 rounded-lg p-4">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Vendor Information</h3>
+            <div class="space-y-2">
+                <p><span class="font-medium">Name:</span> {{ order.vendor.name }}</p>
+                <p><span class="font-medium">Contact:</span> {{ order.vendor.contact_person|default:"-" }}</p>
+                <p><span class="font-medium">Email:</span> {{ order.vendor.email|default:"-" }}</p>
+                <p><span class="font-medium">Phone:</span> {{ order.vendor.phone|default:"-" }}</p>
+            </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="bg-gray-50 rounded-lg p-4">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Order Details</h3>
+            <div class="space-y-2">
+                <p><span class="font-medium">Status:</span>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                        {% if order.status == 'completed' %}bg-green-100 text-green-800
+                        {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                        {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                </p>
+                <p><span class="font-medium">Delivery Date:</span> {{ order.delivery_date|date:"M d, Y"|default:"-" }}</p>
+                <p><span class="font-medium">Payment Terms:</span> {{ order.payment_terms|default:"-" }}</p>
+                <p><span class="font-medium">Reference:</span> {{ order.reference_number|default:"-" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Items -->
+    <div class="mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Order Items</h3>
+            {% if order.status == 'draft' %}
+            <a href="{% url 'erp:purchase_order_add_item' order.id %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>Add Item
+            </a>
+            {% endif %}
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax Rate</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Received</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        {% if order.status == 'draft' %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for item in items %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ item.product.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ item.quantity }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ item.unit_price|floatformat:2 }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ item.tax_rate }}%</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ item.received_quantity }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ item.line_total|floatformat:2 }}</td>
+                        {% if order.status == 'draft' %}
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex space-x-2">
+                                <a href="{% url 'erp:purchase_order_edit_item' order.id item.id %}" class="text-blue-600 hover:text-blue-900">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'erp:purchase_order_delete_item' order.id item.id %}" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="bg-gray-50">
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-right font-medium">Subtotal:</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ order.subtotal|floatformat:2 }}</td>
+                        {% if order.status == 'draft' %}<td></td>{% endif %}
+                    </tr>
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-right font-medium">Tax Amount:</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ order.tax_amount|floatformat:2 }}</td>
+                        {% if order.status == 'draft' %}<td></td>{% endif %}
+                    </tr>
+                    <tr class="font-bold">
+                        <td colspan="5" class="px-6 py-4 text-right">Total Amount:</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ order.total_amount|floatformat:2 }}</td>
+                        {% if order.status == 'draft' %}<td></td>{% endif %}
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    {% if order.notes %}
+    <div class="bg-gray-50 rounded-lg p-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Notes</h3>
+        <p class="text-gray-600">{{ order.notes }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

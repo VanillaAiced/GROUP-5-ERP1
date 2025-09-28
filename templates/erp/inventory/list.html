@@ -1,0 +1,89 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Inventory - ERP System{% endblock %}
+{% block page_title %}Inventory Management{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Inventory</h2>
+        <a href="{% url 'erp:inventory_transaction_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-plus mr-2"></i>Add Transaction
+        </a>
+    </div>
+
+    <!-- Filter Options -->
+    <div class="mb-6">
+        <form method="get" class="flex space-x-4">
+            <input type="hidden" name="low_stock" value="1" {% if low_stock_filter %}checked{% endif %}>
+            <label class="flex items-center">
+                <input type="checkbox" name="low_stock" value="1" {% if low_stock_filter %}checked{% endif %}
+                       onchange="this.form.submit()" class="mr-2">
+                Show only low stock items
+            </label>
+        </form>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Warehouse</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">On Hand</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reorder Point</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for item in inventory %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.product.name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.product.sku }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.warehouse.name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.quantity_on_hand }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.quantity_available }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.reorder_point }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if item.quantity_available <= item.reorder_point %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                Low Stock
+                            </span>
+                        {% else %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                In Stock
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">No inventory records found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if inventory.has_other_pages %}
+    <div class="mt-6 flex justify-center">
+        <nav class="flex space-x-2">
+            {% if inventory.has_previous %}
+                <a href="?page={{ inventory.previous_page_number }}" class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Previous</a>
+            {% endif %}
+
+            <span class="px-3 py-2 bg-blue-600 text-white rounded">
+                Page {{ inventory.number }} of {{ inventory.paginator.num_pages }}
+            </span>
+
+            {% if inventory.has_next %}
+                <a href="?page={{ inventory.next_page_number }}" class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Next</a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

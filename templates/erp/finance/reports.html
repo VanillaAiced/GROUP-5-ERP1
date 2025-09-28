@@ -1,0 +1,69 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Financial Reports - ERP System{% endblock %}
+{% block page_title %}Financial Reports{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Financial Reports</h2>
+        <p class="text-gray-600 mt-2">Generate and view financial reports</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Balance Sheet -->
+        <div class="bg-blue-50 p-6 rounded-lg border border-blue-100 hover:shadow-md transition-shadow">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Balance Sheet</h3>
+            <p class="text-gray-600 mb-4">View the company's assets, liabilities, and equity at a specific point in time.</p>
+            <a href="{% url 'erp:generate_balance_sheet' %}" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-file-alt mr-2"></i>Generate Report
+            </a>
+        </div>
+
+        <!-- Income Statement -->
+        <div class="bg-green-50 p-6 rounded-lg border border-green-100 hover:shadow-md transition-shadow">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Income Statement</h3>
+            <p class="text-gray-600 mb-4">View the company's revenues, expenses, and profits over a specific period.</p>
+            <a href="#" class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                <i class="fas fa-file-alt mr-2"></i>Generate Report
+            </a>
+        </div>
+
+        <!-- Cash Flow Statement -->
+        <div class="bg-purple-50 p-6 rounded-lg border border-purple-100 hover:shadow-md transition-shadow">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Cash Flow Statement</h3>
+            <p class="text-gray-600 mb-4">View the company's cash inflows and outflows over a specific period.</p>
+            <a href="#" class="inline-block bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                <i class="fas fa-file-alt mr-2"></i>Generate Report
+            </a>
+        </div>
+
+        <!-- Accounts Receivable Aging -->
+        <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-100 hover:shadow-md transition-shadow">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Accounts Receivable Aging</h3>
+            <p class="text-gray-600 mb-4">View outstanding customer invoices categorized by age.</p>
+            <a href="#" class="inline-block bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors">
+                <i class="fas fa-file-alt mr-2"></i>Generate Report
+            </a>
+        </div>
+
+        <!-- Accounts Payable Aging -->
+        <div class="bg-red-50 p-6 rounded-lg border border-red-100 hover:shadow-md transition-shadow">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Accounts Payable Aging</h3>
+            <p class="text-gray-600 mb-4">View outstanding vendor invoices categorized by age.</p>
+            <a href="#" class="inline-block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                <i class="fas fa-file-alt mr-2"></i>Generate Report
+            </a>
+        </div>
+
+        <!-- Trial Balance -->
+        <div class="bg-indigo-50 p-6 rounded-lg border border-indigo-100 hover:shadow-md transition-shadow">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Trial Balance</h3>
+            <p class="text-gray-600 mb-4">View a list of all general ledger accounts with their balances.</p>
+            <a href="#" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                <i class="fas fa-file-alt mr-2"></i>Generate Report
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

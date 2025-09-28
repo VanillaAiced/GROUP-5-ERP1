@@ -1,0 +1,84 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Employee Detail - LiteWork{% endblock %}
+{% block page_title %}Employee Detail{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">{{ employee.user.get_full_name|default:employee.user.username }}</h2>
+        <a href="{% url 'erp:employee_list' %}" class="text-gray-600 hover:text-gray-900">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Employees
+        </a>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Employee Information</h3>
+            <dl class="space-y-3">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Employee ID</dt>
+                    <dd class="text-sm text-gray-900">{{ employee.employee_id }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Name</dt>
+                    <dd class="text-sm text-gray-900">{{ employee.user.get_full_name|default:employee.user.username }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Email</dt>
+                    <dd class="text-sm text-gray-900">{{ employee.user.email }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Position</dt>
+                    <dd class="text-sm text-gray-900">{{ employee.position.title|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Department</dt>
+                    <dd class="text-sm text-gray-900">{{ employee.department.name|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Employment Status</dt>
+                    <dd class="text-sm text-gray-900">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                            {% if employee.employment_status == 'active' %}bg-green-100 text-green-800
+                            {% elif employee.employment_status == 'inactive' %}bg-gray-100 text-gray-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ employee.get_employment_status_display }}
+                        </span>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Hire Date</dt>
+                    <dd class="text-sm text-gray-900">{{ employee.hire_date|date:"M d, Y" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Salary</dt>
+                    <dd class="text-sm text-gray-900">${{ employee.salary|floatformat:2 }}</dd>
+                </div>
+            </dl>
+        </div>
+        
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+            <dl class="space-y-3">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                    <dd class="text-sm text-gray-900">{{ employee.phone|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Address</dt>
+                    <dd class="text-sm text-gray-900">{{ employee.address|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Emergency Contact</dt>
+                    <dd class="text-sm text-gray-900">{{ employee.emergency_contact|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Emergency Phone</dt>
+                    <dd class="text-sm text-gray-900">{{ employee.emergency_phone|default:"-" }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

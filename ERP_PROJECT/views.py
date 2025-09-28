@@ -1,0 +1,1 @@
+#create 404 redirect when user input wrong url apply slug?

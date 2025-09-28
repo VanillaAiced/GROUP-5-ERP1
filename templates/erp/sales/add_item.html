@@ -1,0 +1,633 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}{{ title }} - LiteWork{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-6">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 mb-8">
+            <div class="flex justify-between items-start mb-6">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl">
+                        <i class="fas fa-plus text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
+                        <p class="text-gray-600 dark:text-gray-300 mt-1">Order: <span class="font-semibold text-blue-600 dark:text-blue-400">{{ order.order_number }}</span> for <span class="font-semibold">{{ order.customer.name }}</span></p>
+                    </div>
+                </div>
+                <a href="{% url 'erp:sales_order_detail' order.id %}"
+                   class="inline-flex items-center px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Order
+                </a>
+            </div>
+        </div>
+
+        <!-- Order Summary Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium mb-1">Order Status</p>
+                        <p class="text-2xl font-bold">{{ order.get_status_display }}</p>
+                    </div>
+                    <div class="p-3 bg-blue-400 bg-opacity-30 rounded-xl">
+                        <i class="fas fa-info-circle text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm font-medium mb-1">Current Total</p>
+                        <p class="text-2xl font-bold">${{ order.total_amount|floatformat:2 }}</p>
+                    </div>
+                    <div class="p-3 bg-green-400 bg-opacity-30 rounded-xl">
+                        <i class="fas fa-dollar-sign text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100 text-sm font-medium mb-1">Tax Rate</p>
+                        <p class="text-2xl font-bold">{{ order.tax_rate }}%</p>
+                    </div>
+                    <div class="p-3 bg-purple-400 bg-opacity-30 rounded-xl">
+                        <i class="fas fa-percentage text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-100 text-sm font-medium mb-1">Items Count</p>
+                        <p class="text-2xl font-bold" id="items-count">{{ order.items.count }}</p>
+                    </div>
+                    <div class="p-3 bg-orange-400 bg-opacity-30 rounded-xl">
+                        <i class="fas fa-boxes text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Form -->
+        <form method="post" class="space-y-8" id="add-item-form">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Product Selection Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4">
+                        <h3 class="text-xl font-semibold text-white flex items-center">
+                            <i class="fas fa-box mr-3 text-blue-100"></i>Product Selection
+                        </h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="relative">
+                            <label for="{{ form.product.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
+                                {{ form.product.label }} *
+                            </label>
+                            {{ form.product }}
+                            {% if form.product.errors %}
+                                <div class="mt-2 flex items-center text-red-600">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    <span class="text-sm">{{ form.product.errors.0 }}</span>
+                                </div>
+                            {% endif %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Select the product to add to this order
+                            </p>
+                        </div>
+
+                        <!-- Product Info Display -->
+                        <div id="product-info" class="hidden bg-gray-50 dark:bg-gray-700 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                            <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
+                                <i class="fas fa-tag mr-2 text-blue-600"></i>Product Information
+                            </h4>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">SKU:</span>
+                                    <span id="product-sku" class="font-medium text-gray-900 dark:text-gray-100"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Unit Price:</span>
+                                    <span id="product-price" class="font-medium text-green-600 dark:text-green-400"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Available:</span>
+                                    <span id="product-stock" class="font-medium"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Category:</span>
+                                    <span id="product-category" class="font-medium text-gray-900 dark:text-gray-100"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <label for="{{ form.quantity.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
+                                {{ form.quantity.label }} *
+                            </label>
+                            {{ form.quantity }}
+                            {% if form.quantity.errors %}
+                                <div class="mt-2 flex items-center text-red-600">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    <span class="text-sm">{{ form.quantity.errors.0 }}</span>
+                                </div>
+                            {% endif %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center">
+                                <i class="fas fa-sort-numeric-up mr-1"></i>
+                                Number of units to order
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing and Calculations Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
+                        <h3 class="text-xl font-semibold text-white flex items-center">
+                            <i class="fas fa-calculator mr-3 text-green-100"></i>Pricing & Calculations
+                        </h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="relative">
+                            <label for="{{ form.unit_price.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
+                                {{ form.unit_price.label }} <span class="text-blue-600 dark:text-blue-400 text-xs">(Auto-filled)</span>
+                            </label>
+                            <div class="relative">
+                                {{ form.unit_price }}
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                                    <span class="text-gray-600 dark:text-gray-400 text-lg font-semibold">$</span>
+                                </div>
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none z-10">
+                                    <i class="fas fa-lock text-gray-400 text-sm" title="Auto-filled from product"></i>
+                                </div>
+                            </div>
+                            {% if form.unit_price.errors %}
+                                <div class="mt-2 flex items-center text-red-600">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    <span class="text-sm">{{ form.unit_price.errors.0 }}</span>
+                                </div>
+                            {% endif %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center">
+                                <i class="fas fa-magic mr-1"></i>
+                                Automatically set from selected product's price
+                            </p>
+                        </div>
+
+                        <div class="relative">
+                            <label for="{{ form.discount_percent.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
+                                {{ form.discount_percent.label }} (%)
+                            </label>
+                            <div class="relative">
+                                {{ form.discount_percent }}
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-400 text-sm">%</span>
+                                </div>
+                            </div>
+                            {% if form.discount_percent.errors %}
+                                <div class="mt-2 flex items-center text-red-600">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    <span class="text-sm">{{ form.discount_percent.errors.0 }}</span>
+                                </div>
+                            {% endif %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center">
+                                <i class="fas fa-percentage mr-1"></i>
+                                Item-level discount percentage
+                            </p>
+                        </div>
+
+                        <!-- Live Calculation Display -->
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                            <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
+                                <i class="fas fa-receipt mr-2 text-green-600"></i>Line Total Calculation
+                            </h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400">Subtotal:</span>
+                                    <span id="line-subtotal" class="font-medium text-gray-900 dark:text-gray-100 text-lg">$0.00</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400">Discount:</span>
+                                    <span id="line-discount" class="font-medium text-red-600 dark:text-red-400 text-lg">-$0.00</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-3 border-t border-gray-300 dark:border-gray-500">
+                                    <span class="font-bold text-gray-900 dark:text-gray-100">Line Total:</span>
+                                    <span id="line-total" class="font-bold text-2xl text-green-600 dark:text-green-400">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Warning -->
+            <div id="stock-warning" class="hidden bg-yellow-50 dark:bg-yellow-900 border border-yellow-300 dark:border-yellow-600 rounded-2xl p-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-yellow-100 dark:bg-yellow-800 rounded-lg mr-4">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 dark:text-yellow-400 text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-yellow-800 dark:text-yellow-200 text-lg">Stock Warning</h4>
+                        <p id="stock-warning-text" class="text-yellow-700 dark:text-yellow-300 mt-1"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+                    <div class="flex items-center text-blue-600 dark:text-blue-400">
+                        <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg mr-3">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Adding Item</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">Item will be added and totals recalculated automatically</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="{% url 'erp:sales_order_detail' order.id %}"
+                           class="inline-flex items-center px-6 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 font-semibold">
+                            <i class="fas fa-times mr-2"></i>Cancel
+                        </a>
+                        <button type="submit" id="add-item-btn"
+                                class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                                disabled>
+                            <i class="fas fa-plus mr-2"></i>Add Item to Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Enhanced form styling */
+    select, input[type="number"], input[type="text"] {
+        @apply mt-1 block w-full border-2 border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 p-3 transition-all duration-200;
+    }
+
+    select:focus, input[type="number"]:focus, input[type="text"]:focus {
+        @apply border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800 shadow-lg;
+        transform: translateY(-1px);
+    }
+
+    /* Enhanced styling for unit price input with dollar sign */
+    input[type="number"][id*="unit_price"] {
+        @apply pl-10 pr-10;
+        background-color: #f8f9fa !important;
+        color: #495057 !important;
+        font-weight: 600 !important;
+    }
+
+    /* Dark mode styling for unit price */
+    .dark input[type="number"][id*="unit_price"] {
+        background-color: #4a5568 !important;
+        color: #e2e8f0 !important;
+    }
+
+    /* Dollar sign styling */
+    .unit-price-container .absolute span {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #374151;
+    }
+
+    .dark .unit-price-container .absolute span {
+        color: #d1d5db;
+    }
+
+    /* Animation for form validation */
+    .form-error {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+        0%, 20%, 40%, 60%, 80% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+    }
+
+    /* Loading state for button */
+    .btn-loading {
+        position: relative;
+    }
+
+    .btn-loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        margin-left: -8px;
+        margin-top: -8px;
+        border: 2px solid transparent;
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+// Product data from Django context - Fixed JavaScript syntax
+const inventoryData = {{ inventory_data|safe }};
+const products = {
+    {% for product in products %}
+    "{{ product.id }}": {
+        "name": "{{ product.name|escapejs }}",
+        "sku": "{{ product.sku|escapejs }}",
+        "unit_price": {{ product.unit_price }},
+        "category": "{{ product.category.name|default:'N/A'|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+}; // Fixed: Added missing semicolon and closing brace
+
+document.addEventListener('DOMContentLoaded', function() {
+    const productSelect = document.getElementById('id_product');
+    const quantityInput = document.getElementById('id_quantity');
+    const unitPriceInput = document.getElementById('id_unit_price');
+    const discountInput = document.getElementById('id_discount_percent');
+    const addItemBtn = document.getElementById('add-item-btn');
+    const form = document.getElementById('add-item-form');
+
+    // Initialize form
+    initializeForm();
+
+    // Update product info when product is selected
+    function updateProductInfo() {
+        const productId = productSelect.value;
+        const productInfo = document.getElementById('product-info');
+
+        if (productId && products[productId]) {
+            const product = products[productId];
+            const inventory = inventoryData[productId] || { available: 0, total: 0, reserved: 0 };
+
+            // Show product info with animation
+            productInfo.classList.remove('hidden');
+            productInfo.style.opacity = '0';
+            productInfo.style.transform = 'translateY(10px)';
+
+            setTimeout(() => {
+                productInfo.style.transition = 'all 0.3s ease';
+                productInfo.style.opacity = '1';
+                productInfo.style.transform = 'translateY(0)';
+            }, 10);
+
+            // Populate product information
+            document.getElementById('product-sku').textContent = product.sku;
+            document.getElementById('product-price').textContent = `$${parseFloat(product.unit_price).toFixed(2)}`;
+            document.getElementById('product-category').textContent = product.category;
+
+            // Update stock display with color coding
+            const stockSpan = document.getElementById('product-stock');
+            stockSpan.textContent = `${inventory.available} units`;
+
+            if (inventory.available <= 5) {
+                stockSpan.className = 'font-medium text-red-600 dark:text-red-400';
+            } else if (inventory.available <= 20) {
+                stockSpan.className = 'font-medium text-yellow-600 dark:text-yellow-400';
+            } else {
+                stockSpan.className = 'font-medium text-green-600 dark:text-green-400';
+            }
+
+            // Auto-populate unit price
+            unitPriceInput.value = parseFloat(product.unit_price).toFixed(2);
+
+            // Check stock and validate
+            checkStockAndValidate();
+        } else {
+            // Hide product info with animation
+            productInfo.style.transition = 'all 0.3s ease';
+            productInfo.style.opacity = '0';
+            productInfo.style.transform = 'translateY(-10px)';
+
+            setTimeout(() => {
+                productInfo.classList.add('hidden');
+            }, 300);
+
+            unitPriceInput.value = '';
+        }
+
+        calculateLineTotal();
+    }
+
+    // Check stock availability and validate form
+    function checkStockAndValidate() {
+        const productId = productSelect.value;
+        const quantity = parseInt(quantityInput.value) || 0;
+        const unitPrice = parseFloat(unitPriceInput.value) || 0;
+        const stockWarning = document.getElementById('stock-warning');
+        const stockWarningText = document.getElementById('stock-warning-text');
+
+        let isValid = productId && quantity > 0 && unitPrice > 0;
+
+        // Stock warning logic
+        if (productId && quantity > 0) {
+            const inventory = inventoryData[productId] || { available: 0 };
+
+            if (quantity > inventory.available) {
+                showStockWarning(`Warning: Only ${inventory.available} units available. You are trying to order ${quantity} units.`);
+            } else {
+                hideStockWarning();
+            }
+        } else {
+            hideStockWarning();
+        }
+
+        // Update button state
+        updateButtonState(isValid);
+    }
+
+    function showStockWarning(message) {
+        const stockWarning = document.getElementById('stock-warning');
+        const stockWarningText = document.getElementById('stock-warning-text');
+
+        stockWarningText.textContent = message;
+        stockWarning.classList.remove('hidden');
+        stockWarning.style.opacity = '0';
+        stockWarning.style.transform = 'translateY(-10px)';
+
+        setTimeout(() => {
+            stockWarning.style.transition = 'all 0.3s ease';
+            stockWarning.style.opacity = '1';
+            stockWarning.style.transform = 'translateY(0)';
+        }, 10);
+    }
+
+    function hideStockWarning() {
+        const stockWarning = document.getElementById('stock-warning');
+
+        if (!stockWarning.classList.contains('hidden')) {
+            stockWarning.style.transition = 'all 0.3s ease';
+            stockWarning.style.opacity = '0';
+            stockWarning.style.transform = 'translateY(-10px)';
+
+            setTimeout(() => {
+                stockWarning.classList.add('hidden');
+            }, 300);
+        }
+    }
+
+    function updateButtonState(isValid) {
+        addItemBtn.disabled = !isValid;
+
+        if (isValid) {
+            addItemBtn.className = 'inline-flex items-center px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105';
+        } else {
+            addItemBtn.className = 'inline-flex items-center px-8 py-3 bg-gray-400 text-gray-200 rounded-xl font-semibold cursor-not-allowed opacity-50';
+        }
+    }
+
+    // Calculate line total in real-time
+    function calculateLineTotal() {
+        const quantity = parseInt(quantityInput.value) || 0;
+        const unitPrice = parseFloat(unitPriceInput.value) || 0;
+        const discountPercent = parseFloat(discountInput.value) || 0;
+
+        const subtotal = quantity * unitPrice;
+        const discountAmount = (subtotal * discountPercent) / 100;
+        const lineTotal = subtotal - discountAmount;
+
+        // Update display with smooth number animation
+        animateNumber('line-subtotal', subtotal);
+        animateNumber('line-discount', discountAmount);
+        animateNumber('line-total', lineTotal);
+
+        checkStockAndValidate();
+    }
+
+    function animateNumber(elementId, value) {
+        const element = document.getElementById(elementId);
+        const prefix = elementId === 'line-discount' ? '-$' : '$';
+
+        element.style.transition = 'all 0.3s ease';
+        element.style.transform = 'scale(1.1)';
+        element.textContent = `${prefix}${value.toFixed(2)}`;
+
+        setTimeout(() => {
+            element.style.transform = 'scale(1)';
+        }, 150);
+    }
+
+    function initializeForm() {
+        // Set default discount to 0 if empty
+        if (!discountInput.value) {
+            discountInput.value = '0';
+        }
+
+        // Initial validation
+        checkStockAndValidate();
+    }
+
+    // Event listeners
+    productSelect.addEventListener('change', updateProductInfo);
+    quantityInput.addEventListener('input', calculateLineTotal);
+    unitPriceInput.addEventListener('input', calculateLineTotal);
+    discountInput.addEventListener('input', calculateLineTotal);
+
+    // Enhanced form validation with better UX
+    form.addEventListener('submit', function(e) {
+        const productId = productSelect.value;
+        const quantity = parseInt(quantityInput.value) || 0;
+        const unitPrice = parseFloat(unitPriceInput.value) || 0;
+
+        // Prevent submission if form is invalid
+        if (!productId) {
+            e.preventDefault();
+            showError('Please select a product.');
+            productSelect.focus();
+            productSelect.classList.add('form-error');
+            setTimeout(() => productSelect.classList.remove('form-error'), 500);
+            return;
+        }
+
+        if (quantity <= 0) {
+            e.preventDefault();
+            showError('Please enter a valid quantity.');
+            quantityInput.focus();
+            quantityInput.classList.add('form-error');
+            setTimeout(() => quantityInput.classList.remove('form-error'), 500);
+            return;
+        }
+
+        if (unitPrice <= 0) {
+            e.preventDefault();
+            showError('Please enter a valid unit price.');
+            unitPriceInput.focus();
+            unitPriceInput.classList.add('form-error');
+            setTimeout(() => unitPriceInput.classList.remove('form-error'), 500);
+            return;
+        }
+
+        // Stock confirmation
+        if (productId && inventoryData[productId]) {
+            const available = inventoryData[productId].available;
+            if (quantity > available) {
+                e.preventDefault();
+                const confirmMsg = `Only ${available} units are available. Do you want to proceed with ordering ${quantity} units anyway?`;
+                if (confirm(confirmMsg)) {
+                    // Allow submission after confirmation
+                    submitForm();
+                }
+                return;
+            }
+        }
+
+        // Add loading state
+        submitForm();
+    });
+
+    function submitForm() {
+        addItemBtn.disabled = true;
+        addItemBtn.classList.add('btn-loading');
+        addItemBtn.innerHTML = '<span style="opacity: 0;">Adding Item...</span>';
+
+        // Submit the form
+        form.submit();
+    }
+
+    function showError(message) {
+        // Create or update error notification
+        let errorDiv = document.getElementById('error-notification');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'error-notification';
+            errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 flex items-center transform translate-x-full transition-transform duration-300';
+            document.body.appendChild(errorDiv);
+        }
+
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+
+        // Show notification
+        setTimeout(() => {
+            errorDiv.style.transform = 'translateX(0)';
+        }, 10);
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            errorDiv.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.parentNode.removeChild(errorDiv);
+                }
+            }, 300);
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}
