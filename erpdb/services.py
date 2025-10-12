@@ -210,40 +210,290 @@ class AccountingService:
         # Update journal entry totals
         journal_entry.total_debit = total_debit
         journal_entry.total_credit = total_credit
+        journal_entry.is_posted = True  # Auto-post the entry
         journal_entry.save()
         
         return journal_entry
     
     @staticmethod
+    def calculate_account_balance(account, as_of_date):
+        """Calculate the balance of an account as of a specific date"""
+        # Get all journal lines for this account up to the specified date
+        journal_lines = JournalLine.objects.filter(
+            account=account,
+            journal__date__lte=as_of_date,
+            journal__is_posted=True
+        )
+        
+        # Calculate total debits and credits
+        total_debits = journal_lines.aggregate(total=models.Sum('debit'))['total'] or Decimal('0')
+        total_credits = journal_lines.aggregate(total=models.Sum('credit'))['total'] or Decimal('0')
+        
+        # Calculate balance based on account type
+        if account.account_type in ['asset', 'expense']:
+            # Assets and expenses have debit balances
+            balance = total_debits - total_credits
+        else:
+            # Liabilities, equity, and revenue have credit balances
+            balance = total_credits - total_debits
+        
+        return balance
+
+    @staticmethod
     def generate_balance_sheet(as_of_date):
-        """Generate balance sheet as of a specific date"""
-        # This is a simplified version - in production, you'd have more complex logic
+        """Generate balance sheet as of a specific date with real data"""
         accounts = ChartOfAccounts.objects.filter(is_active=True)
         
         balance_sheet = {
-            'assets': [],
-            'liabilities': [],
-            'equity': []
+            'assets': {
+                'current_assets': [],
+                'fixed_assets': [],
+                'total_current_assets': Decimal('0'),
+                'total_fixed_assets': Decimal('0'),
+                'total_assets': Decimal('0')
+            },
+            'liabilities': {
+                'current_liabilities': [],
+                'long_term_liabilities': [],
+                'total_current_liabilities': Decimal('0'),
+                'total_long_term_liabilities': Decimal('0'),
+                'total_liabilities': Decimal('0')
+            },
+            'equity': {
+                'accounts': [],
+                'total_equity': Decimal('0')
+            },
+            'as_of_date': as_of_date
         }
         
+        # Process each account
         for account in accounts:
-            # Calculate account balance (simplified)
-            balance = Decimal('0')  # This would be calculated from journal entries
+            balance = AccountingService.calculate_account_balance(account, as_of_date)
             
+            if balance == 0:  # Skip accounts with zero balance
+                continue
+                
             account_data = {
                 'account_code': account.account_code,
                 'account_name': account.account_name,
-                'balance': balance
+                'balance': balance,
+                'description': account.description
             }
             
+            # Categorize accounts based on their codes and types
             if account.account_type == 'asset':
-                balance_sheet['assets'].append(account_data)
+                if account.account_code.startswith(('100', '110', '120', '130', '140')):
+                    # Current assets (typically 100-199 range)
+                    balance_sheet['assets']['current_assets'].append(account_data)
+                    balance_sheet['assets']['total_current_assets'] += balance
+                else:
+                    # Fixed assets (typically 150+ range)
+                    balance_sheet['assets']['fixed_assets'].append(account_data)
+                    balance_sheet['assets']['total_fixed_assets'] += balance
+                    
             elif account.account_type == 'liability':
-                balance_sheet['liabilities'].append(account_data)
+                if account.account_code.startswith(('200', '210', '220')):
+                    # Current liabilities (typically 200-299 range)
+                    balance_sheet['liabilities']['current_liabilities'].append(account_data)
+                    balance_sheet['liabilities']['total_current_liabilities'] += balance
+                else:
+                    # Long-term liabilities (typically 250+ range)
+                    balance_sheet['liabilities']['long_term_liabilities'].append(account_data)
+                    balance_sheet['liabilities']['total_long_term_liabilities'] += balance
+                    
             elif account.account_type == 'equity':
-                balance_sheet['equity'].append(account_data)
+                balance_sheet['equity']['accounts'].append(account_data)
+                balance_sheet['equity']['total_equity'] += balance
+        
+        # Calculate totals
+        balance_sheet['assets']['total_assets'] = (
+            balance_sheet['assets']['total_current_assets'] + 
+            balance_sheet['assets']['total_fixed_assets']
+        )
+        
+        balance_sheet['liabilities']['total_liabilities'] = (
+            balance_sheet['liabilities']['total_current_liabilities'] + 
+            balance_sheet['liabilities']['total_long_term_liabilities']
+        )
+        
+        # Calculate retained earnings from P&L if not explicitly tracked
+        if not any(acc['account_name'].lower().find('retained') != -1 for acc in balance_sheet['equity']['accounts']):
+            # Calculate retained earnings from sales and expenses
+            retained_earnings = AccountingService.calculate_retained_earnings(as_of_date)
+            if retained_earnings != 0:
+                balance_sheet['equity']['accounts'].append({
+                    'account_code': '350',
+                    'account_name': 'Retained Earnings',
+                    'balance': retained_earnings,
+                    'description': 'Accumulated profits/losses'
+                })
+                balance_sheet['equity']['total_equity'] += retained_earnings
         
         return balance_sheet
+
+    @staticmethod
+    def calculate_retained_earnings(as_of_date):
+        """Calculate retained earnings from sales and expenses"""
+        # Get all revenue accounts
+        revenue_accounts = ChartOfAccounts.objects.filter(
+            account_type='revenue',
+            is_active=True
+        )
+        
+        # Get all expense accounts
+        expense_accounts = ChartOfAccounts.objects.filter(
+            account_type='expense',
+            is_active=True
+        )
+        
+        total_revenue = Decimal('0')
+        total_expenses = Decimal('0')
+        
+        # Calculate total revenue
+        for account in revenue_accounts:
+            balance = AccountingService.calculate_account_balance(account, as_of_date)
+            total_revenue += balance
+        
+        # Calculate total expenses
+        for account in expense_accounts:
+            balance = AccountingService.calculate_account_balance(account, as_of_date)
+            total_expenses += balance
+        
+        # Retained earnings = Revenue - Expenses
+        return total_revenue - total_expenses
+
+    @staticmethod
+    def create_default_chart_of_accounts():
+        """Create default chart of accounts if none exist"""
+        if ChartOfAccounts.objects.exists():
+            return  # Already exists
+        
+        default_accounts = [
+            # Assets
+            {'code': '100', 'name': 'Cash', 'type': 'asset', 'description': 'Cash on hand and in bank'},
+            {'code': '110', 'name': 'Accounts Receivable', 'type': 'asset', 'description': 'Amounts owed by customers'},
+            {'code': '120', 'name': 'Inventory', 'type': 'asset', 'description': 'Stock on hand'},
+            {'code': '130', 'name': 'Prepaid Expenses', 'type': 'asset', 'description': 'Prepaid insurance, rent, etc.'},
+            {'code': '150', 'name': 'Equipment', 'type': 'asset', 'description': 'Office equipment and machinery'},
+            {'code': '160', 'name': 'Accumulated Depreciation', 'type': 'asset', 'description': 'Depreciation on equipment'},
+            
+            # Liabilities
+            {'code': '200', 'name': 'Accounts Payable', 'type': 'liability', 'description': 'Amounts owed to suppliers'},
+            {'code': '210', 'name': 'Accrued Expenses', 'type': 'liability', 'description': 'Accrued wages, utilities, etc.'},
+            {'code': '220', 'name': 'Short-term Debt', 'type': 'liability', 'description': 'Short-term loans and credit'},
+            {'code': '250', 'name': 'Long-term Debt', 'type': 'liability', 'description': 'Long-term loans and mortgages'},
+            
+            # Equity
+            {'code': '300', 'name': 'Owner\'s Equity', 'type': 'equity', 'description': 'Initial capital investment'},
+            {'code': '350', 'name': 'Retained Earnings', 'type': 'equity', 'description': 'Accumulated profits/losses'},
+            
+            # Revenue
+            {'code': '400', 'name': 'Sales Revenue', 'type': 'revenue', 'description': 'Revenue from sales'},
+            {'code': '410', 'name': 'Service Revenue', 'type': 'revenue', 'description': 'Revenue from services'},
+            
+            # Expenses
+            {'code': '500', 'name': 'Cost of Goods Sold', 'type': 'expense', 'description': 'Direct costs of products sold'},
+            {'code': '510', 'name': 'Salaries and Wages', 'type': 'expense', 'description': 'Employee compensation'},
+            {'code': '520', 'name': 'Rent Expense', 'type': 'expense', 'description': 'Office and warehouse rent'},
+            {'code': '530', 'name': 'Utilities Expense', 'type': 'expense', 'description': 'Electricity, water, internet'},
+            {'code': '540', 'name': 'Office Supplies', 'type': 'expense', 'description': 'Office supplies and materials'},
+            {'code': '550', 'name': 'Depreciation Expense', 'type': 'expense', 'description': 'Depreciation on equipment'},
+        ]
+        
+        for account_data in default_accounts:
+            ChartOfAccounts.objects.create(
+                account_code=account_data['code'],
+                account_name=account_data['name'],
+                account_type=account_data['type'],
+                description=account_data['description']
+            )
+
+    @staticmethod
+    def create_sample_journal_entries(user):
+        """Create sample journal entries for demonstration purposes"""
+        from datetime import date, timedelta
+        
+        # Get some accounts
+        cash_account = ChartOfAccounts.objects.get(account_code='100')
+        ar_account = ChartOfAccounts.objects.get(account_code='110')
+        inventory_account = ChartOfAccounts.objects.get(account_code='120')
+        equipment_account = ChartOfAccounts.objects.get(account_code='150')
+        ap_account = ChartOfAccounts.objects.get(account_code='200')
+        equity_account = ChartOfAccounts.objects.get(account_code='300')
+        sales_account = ChartOfAccounts.objects.get(account_code='400')
+        cogs_account = ChartOfAccounts.objects.get(account_code='500')
+        
+        # Sample journal entries
+        sample_entries = [
+            {
+                'date': date.today() - timedelta(days=30),
+                'description': 'Initial capital investment',
+                'entry_type': 'manual',
+                'lines': [
+                    {'account': cash_account, 'debit': Decimal('100000'), 'credit': Decimal('0'), 'description': 'Initial cash investment'},
+                    {'account': equity_account, 'debit': Decimal('0'), 'credit': Decimal('100000'), 'description': 'Owner equity'},
+                ]
+            },
+            {
+                'date': date.today() - timedelta(days=25),
+                'description': 'Purchase of equipment',
+                'entry_type': 'purchase',
+                'lines': [
+                    {'account': equipment_account, 'debit': Decimal('25000'), 'credit': Decimal('0'), 'description': 'Office equipment'},
+                    {'account': cash_account, 'debit': Decimal('0'), 'credit': Decimal('25000'), 'description': 'Cash payment'},
+                ]
+            },
+            {
+                'date': date.today() - timedelta(days=20),
+                'description': 'Purchase inventory on credit',
+                'entry_type': 'purchase',
+                'lines': [
+                    {'account': inventory_account, 'debit': Decimal('15000'), 'credit': Decimal('0'), 'description': 'Inventory purchase'},
+                    {'account': ap_account, 'debit': Decimal('0'), 'credit': Decimal('15000'), 'description': 'Accounts payable'},
+                ]
+            },
+            {
+                'date': date.today() - timedelta(days=15),
+                'description': 'Sales on credit',
+                'entry_type': 'sales',
+                'lines': [
+                    {'account': ar_account, 'debit': Decimal('8000'), 'credit': Decimal('0'), 'description': 'Accounts receivable'},
+                    {'account': sales_account, 'debit': Decimal('0'), 'credit': Decimal('8000'), 'description': 'Sales revenue'},
+                ]
+            },
+            {
+                'date': date.today() - timedelta(days=10),
+                'description': 'Cost of goods sold',
+                'entry_type': 'sales',
+                'lines': [
+                    {'account': cogs_account, 'debit': Decimal('5000'), 'credit': Decimal('0'), 'description': 'Cost of goods sold'},
+                    {'account': inventory_account, 'debit': Decimal('0'), 'credit': Decimal('5000'), 'description': 'Inventory reduction'},
+                ]
+            },
+            {
+                'date': date.today() - timedelta(days=5),
+                'description': 'Payment to supplier',
+                'entry_type': 'payment',
+                'lines': [
+                    {'account': ap_account, 'debit': Decimal('10000'), 'credit': Decimal('0'), 'description': 'Payment to supplier'},
+                    {'account': cash_account, 'debit': Decimal('0'), 'credit': Decimal('10000'), 'description': 'Cash payment'},
+                ]
+            }
+        ]
+        
+        # Create the journal entries
+        for entry_data in sample_entries:
+            try:
+                AccountingService.create_journal_entry(
+                    date=entry_data['date'],
+                    description=entry_data['description'],
+                    entry_type=entry_data['entry_type'],
+                    lines_data=entry_data['lines'],
+                    user=user
+                )
+            except Exception as e:
+                print(f"Error creating journal entry: {e}")
+                continue
 
 class ReportService:
     @staticmethod

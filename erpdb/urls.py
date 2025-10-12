@@ -61,6 +61,8 @@ urlpatterns = [
     # Financial Reports
     path('reports/', views.financial_reports, name='financial_reports'),
     path('reports/balance-sheet/', views.generate_balance_sheet, name='generate_balance_sheet'),
+    path('reports/chart-of-accounts/', views.chart_of_accounts, name='chart_of_accounts'),
+
     
     # Payment Management
     path('payments/', views.payment_list, name='payment_list'),

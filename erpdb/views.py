@@ -875,38 +875,59 @@ def financial_reports(request):
     return render(request, 'erp/finance/reports.html')
 
 @login_required
+def chart_of_accounts(request):
+    """Display the chart of accounts"""
+    accounts = ChartOfAccounts.objects.filter(is_active=True).order_by('account_code')
+    
+    # Group accounts by type
+    accounts_by_type = {}
+    for account in accounts:
+        if account.account_type not in accounts_by_type:
+            accounts_by_type[account.account_type] = []
+        accounts_by_type[account.account_type].append(account)
+    
+    context = {
+        'accounts_by_type': accounts_by_type,
+        'total_accounts': accounts.count(),
+    }
+    return render(request, 'erp/finance/chart_of_accounts.html', context)
+
+@login_required
 def generate_balance_sheet(request):
     if request.method == 'POST':
         end_date = request.POST.get('end_date')
+
         if end_date:
-            # Simple balance sheet generation
-            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            try:
+                end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
 
-            # This is a simplified version - in a real system you'd calculate actual account balances
-            report_data = {
-                'assets': {
-                    'current_assets': 50000,
-                    'fixed_assets': 100000,
-                    'total_assets': 150000,
-                },
-                'liabilities': {
-                    'current_liabilities': 20000,
-                    'long_term_liabilities': 30000,
-                    'total_liabilities': 50000,
-                },
-                'equity': {
-                    'retained_earnings': 100000,
-                    'total_equity': 100000,
+                # Import the service
+                from .services import AccountingService
+
+                # Ensure we have chart of accounts
+                AccountingService.create_default_chart_of_accounts()
+
+                # Generate the balance sheet with real data
+                report_data = AccountingService.generate_balance_sheet(end_date)
+
+                # Add some sample journal entries if none exist (for demonstration)
+                if not JournalEntry.objects.exists():
+                    AccountingService.create_sample_journal_entries(request.user)
+
+                context = {
+                    'report_data': report_data,
+                    'end_date': end_date,
+                    'title': f'Balance Sheet as of {end_date.strftime("%B %d, %Y")}'
                 }
-            }
+                return render(request, 'erp/finance/balance_sheet.html', context)
 
-            context = {
-                'report_data': report_data,
-                'end_date': end_date,
-            }
-            return render(request, 'erp/finance/balance_sheet.html', context)
+            except ValueError as e:
+                messages.error(request, f'Invalid date format: {e}')
+            except Exception as e:
+                messages.error(request, f'Error generating balance sheet: {e}')
 
     return render(request, 'erp/finance/generate_balance_sheet.html')
+
 
 # API Views for AJAX requests
 @login_required
