@@ -175,6 +175,9 @@ IMAP_USER = os.getenv('IMAP_USER', 'wlite0990@gmail.com')
 IMAP_PASSWORD = os.getenv('IMAP_PASSWORD', 'fvlwllnqfemtadap')
 
 
+# Always set STATIC_ROOT for collectstatic
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 # Static files and Media files configuration
 USE_S3 = os.getenv('USE_S3', 'False') == 'True'
 
@@ -208,8 +211,7 @@ if USE_S3:
 if not USE_S3:
     # Local/Heroku static files settings (fallback)
     STATIC_URL = '/static/'
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    
+
     # Use WhiteNoise storage if available, otherwise use default
     try:
         import whitenoise
