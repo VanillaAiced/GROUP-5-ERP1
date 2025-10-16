@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication',
     'dashboard',
-    'erpdb'
+    'erpdb',
+    'Email',
 ]
 
 MIDDLEWARE = [
@@ -128,6 +129,10 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / 'productionfiles'
 
+# Media files (uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -137,8 +142,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Or your provider
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'vinceyuan58@gmail.com'
-EMAIL_HOST_PASSWORD = 'wsrp tknp avpr xbsd'
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = 'wlite0990@gmail.com'
+EMAIL_HOST_PASSWORD = 'fvlwllnqfemtadap'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-
+# IMAP Settings for Inbox
+IMAP_HOST = 'imap.gmail.com'
+IMAP_PORT = 993
+IMAP_USE_SSL = True
+IMAP_USER = 'wlite0990@gmail.com'
+IMAP_PASSWORD = 'fvlwllnqfemtadap'

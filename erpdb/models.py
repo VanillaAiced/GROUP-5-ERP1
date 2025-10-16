@@ -621,3 +621,210 @@ class FinancialReport(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.start_date} to {self.end_date}"
+
+
+# 10. Lead & Inquiry Management (Email Integration)
+class Lead(models.Model):
+    """Stores sales inquiries from various sources including email"""
+    STATUS_CHOICES = [
+        ('new', 'New'),
+        ('contacted', 'Contacted'),
+        ('qualified', 'Qualified'),
+        ('proposal', 'Proposal Sent'),
+        ('negotiation', 'Negotiation'),
+        ('won', 'Won'),
+        ('lost', 'Lost'),
+    ]
+
+    SOURCE_CHOICES = [
+        ('email', 'Email Inquiry'),
+        ('website', 'Website Form'),
+        ('phone', 'Phone Call'),
+        ('referral', 'Referral'),
+        ('social_media', 'Social Media'),
+        ('trade_show', 'Trade Show'),
+        ('other', 'Other'),
+    ]
+
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('urgent', 'Urgent'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    lead_number = models.CharField(max_length=20, unique=True, blank=True)
+
+    # Contact Information
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    company = models.CharField(max_length=200, blank=True, null=True)
+
+    # Lead Details
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='email')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
+
+    # Product/Service Interest
+    interested_products = models.ManyToManyField(Product, blank=True)
+    estimated_value = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+
+    # Email Integration Fields
+    email_thread_id = models.CharField(max_length=255, blank=True, null=True)
+    original_email = models.TextField(blank=True, null=True)  # Store original email content
+
+    # Assignment & Follow-up
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_leads')
+    next_follow_up = models.DateTimeField(null=True, blank=True)
+
+    # Conversion
+    converted_to_customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
+    converted_to_sales_order = models.ForeignKey('SalesOrder', on_delete=models.SET_NULL, null=True, blank=True)
+    conversion_date = models.DateTimeField(null=True, blank=True)
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_leads')
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status', 'priority']),
+            models.Index(fields=['email']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.lead_number:
+            self.generate_lead_number()
+        super().save(*args, **kwargs)
+
+    def generate_lead_number(self):
+        """Generate unique lead number"""
+        today = timezone.now().date()
+        count = Lead.objects.filter(created_at__date=today).count() + 1
+        self.lead_number = f"LEAD-{today.strftime('%Y%m%d')}-{count:04d}"
+
+    def convert_to_customer(self, user=None):
+        """Convert lead to customer"""
+        if self.converted_to_customer:
+            return self.converted_to_customer
+
+        # Generate customer code
+        customer_count = Customer.objects.count() + 1
+        customer_code = f"CUST-{customer_count:05d}"
+
+        # Create customer
+        customer = Customer.objects.create(
+            customer_code=customer_code,
+            name=self.company if self.company else self.name,
+            email=self.email,
+            phone=self.phone,
+            customer_type='business' if self.company else 'individual',
+            created_by=user or self.created_by
+        )
+
+        self.converted_to_customer = customer
+        self.status = 'won'
+        self.conversion_date = timezone.now()
+        self.save()
+
+        return customer
+
+    def __str__(self):
+        return f"{self.lead_number} - {self.name}"
+
+
+class LeadNote(models.Model):
+    """Notes and follow-up activities for leads"""
+    lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='notes')
+    note = models.TextField()
+    note_type = models.CharField(max_length=20, choices=[
+        ('call', 'Phone Call'),
+        ('email', 'Email'),
+        ('meeting', 'Meeting'),
+        ('note', 'General Note'),
+    ], default='note')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Note for {self.lead.lead_number} - {self.created_at.strftime('%Y-%m-%d')}"
+
+
+class EmailInquiry(models.Model):
+    """Stores raw email inquiries before processing into leads"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('processed', 'Processed to Lead'),
+        ('spam', 'Marked as Spam'),
+        ('archived', 'Archived'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Email Details
+    from_email = models.EmailField()
+    from_name = models.CharField(max_length=200, blank=True, null=True)
+    subject = models.CharField(max_length=500)
+    body = models.TextField()
+    body_html = models.TextField(blank=True, null=True)
+
+    # Email Metadata
+    message_id = models.CharField(max_length=255, unique=True)
+    in_reply_to = models.CharField(max_length=255, blank=True, null=True)
+    received_at = models.DateTimeField()
+
+    # Attachments (stored as JSON list of file paths)
+    attachments = models.JSONField(default=list, blank=True)
+
+    # Processing
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    processed_to_lead = models.ForeignKey(Lead, on_delete=models.SET_NULL, null=True, blank=True)
+    processed_at = models.DateTimeField(null=True, blank=True)
+    processed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # Raw email data
+    raw_email = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-received_at']
+        verbose_name_plural = "Email Inquiries"
+
+    def process_to_lead(self, user=None):
+        """Convert email inquiry to lead"""
+        if self.processed_to_lead:
+            return self.processed_to_lead
+
+        lead = Lead.objects.create(
+            name=self.from_name or self.from_email.split('@')[0],
+            email=self.from_email,
+            subject=self.subject,
+            message=self.body,
+            source='email',
+            email_thread_id=self.message_id,
+            original_email=self.body,
+            created_by=user
+        )
+
+        self.processed_to_lead = lead
+        self.status = 'processed'
+        self.processed_at = timezone.now()
+        self.processed_by = user
+        self.save()
+
+        return lead
+
+    def __str__(self):
+        return f"{self.from_email} - {self.subject}"
+

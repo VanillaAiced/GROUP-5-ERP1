@@ -1,0 +1,96 @@
+{% extends 'erp/base.html' %}
+{% load static %}
+
+{% block title %}Email Settings{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4><i class="fas fa-cog"></i> Email Settings</h4>
+                        <a href="{% url 'inbox' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Inbox
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> These settings are used to connect to your external email account for syncing emails.
+                        </div>
+
+                        <div class="form-group">
+                            <label for="imap_server">IMAP Server</label>
+                            <input type="text" name="imap_server" id="imap_server" value="{{ imap_server }}" class="form-control" placeholder="e.g., imap.gmail.com" readonly>
+                            <small class="form-text text-muted">Currently using system settings. Contact administrator to change.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email_address">Email Address</label>
+                            <input type="email" name="email_address" id="email_address" value="{{ email_address }}" class="form-control" readonly>
+                            <small class="form-text text-muted">Currently using system settings. Contact administrator to change.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="input-group">
+                                <input type="password" name="password" id="password" class="form-control" value="********" readonly>
+                                <div class="input-group-append">
+                                    <span class="input-group-text bg-success text-white" id="password-status">
+                                        <i class="fas fa-check-circle"></i> Configured
+                                    </span>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Password is securely stored in system settings.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Fetch Settings</label>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="auto_fetch" name="auto_fetch" checked disabled>
+                                <label class="custom-control-label" for="auto_fetch">Automatically fetch emails on login</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fetch_limit">Maximum emails to fetch</label>
+                            <input type="number" name="fetch_limit" id="fetch_limit" min="5" max="100" value="20" class="form-control" readonly>
+                            <small class="form-text text-muted">Currently using system default (20 emails).</small>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Email settings are currently managed at the system level. Contact your administrator for changes.
+                        </div>
+
+                        <div class="form-group">
+                            <a href="{% url 'fetch_external_emails' %}" class="btn btn-primary" onclick="event.preventDefault(); document.getElementById('fetch-form').submit();">
+                                <i class="fas fa-sync"></i> Test Connection & Sync Now
+                            </a>
+                        </div>
+                    </form>
+
+                    <form id="fetch-form" action="{% url 'fetch_external_emails' %}" method="post" style="display: none;">
+                        {% csrf_token %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

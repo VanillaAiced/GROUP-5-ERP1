@@ -1,7 +1,7 @@
 {% extends 'erp/base.html' %}
 
-{% block title %}{{ title }} - LiteWork{% endblock %}
-{% block page_title %}{{ title }}{% endblock %}
+{% block title %}Edit Employee - LiteWork{% endblock %}
+{% block page_title %}Edit Employee{% endblock %}
 
 {% block content %}
 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -11,43 +11,90 @@
             <i class="fas fa-arrow-left mr-2"></i>Back to Employees
         </a>
     </div>
-    
+
     <form method="post" class="space-y-6">
         {% csrf_token %}
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label for="user" class="block text-sm font-medium text-gray-700">User *</label>
-                <select name="user" id="user" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">Select a user</option>
-                    {% for user in users %}
-                    <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }} ({{ user.email }})</option>
-                    {% endfor %}
-                </select>
+                {{ form.user }}
+                {% if form.user.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.user.errors.0 }}</p>
+                {% endif %}
             </div>
-            
+
             <div>
                 <label for="employee_id" class="block text-sm font-medium text-gray-700">Employee ID *</label>
-                <input type="text" name="employee_id" id="employee_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                {{ form.employee_id }}
+                {% if form.employee_id.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.employee_id.errors.0 }}</p>
+                {% endif %}
             </div>
-            
+
+            <div>
+                <label for="position" class="block text-sm font-medium text-gray-700">Position *</label>
+                {{ form.position }}
+                {% if form.position.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.position.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="department" class="block text-sm font-medium text-gray-700">Department *</label>
+                {{ form.department }}
+                {% if form.department.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.department.errors.0 }}</p>
+                {% endif %}
+            </div>
+
             <div>
                 <label for="salary" class="block text-sm font-medium text-gray-700">Salary *</label>
-                <input type="number" name="salary" id="salary" step="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                {{ form.salary }}
+                {% if form.salary.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.salary.errors.0 }}</p>
+                {% endif %}
             </div>
-            
+
             <div>
                 <label for="hire_date" class="block text-sm font-medium text-gray-700">Hire Date *</label>
-                <input type="date" name="hire_date" id="hire_date" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                {{ form.hire_date }}
+                {% if form.hire_date.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.hire_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="employment_status" class="block text-sm font-medium text-gray-700">Employment Status</label>
+                {{ form.employment_status }}
+                {% if form.employment_status.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.employment_status.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.phone.errors.0 }}</p>
+                {% endif %}
             </div>
         </div>
-        
+
+        <div>
+            <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+            {{ form.address }}
+            {% if form.address.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.address.errors.0 }}</p>
+            {% endif %}
+        </div>
+
         <div class="flex justify-end space-x-3">
             <a href="{% url 'erp:employee_list' %}" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
                 Cancel
             </a>
             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                Save Employee
+                Save Changes
             </button>
         </div>
     </form>

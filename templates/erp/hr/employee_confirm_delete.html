@@ -1,0 +1,59 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Confirm Delete - Employee{% endblock %}
+{% block page_title %}Confirm Delete Employee{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="text-center mb-8">
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+        </div>
+        <h3 class="text-xl font-medium text-gray-900">Confirm Deletion</h3>
+        <p class="text-gray-500 mt-2">Are you sure you want to delete employee <span class="font-semibold">{{ employee.user.get_full_name|default:employee.user.username }}</span>?</p>
+        <p class="text-red-600 text-sm mt-2">This action cannot be undone.</p>
+    </div>
+
+    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+        <h4 class="font-medium text-gray-900 mb-2">Employee Details:</h4>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <p class="text-sm text-gray-600">Employee ID:</p>
+                <p class="font-medium">{{ employee.employee_id }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Name:</p>
+                <p class="font-medium">{{ employee.user.get_full_name|default:employee.user.username }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Position:</p>
+                <p class="font-medium">{{ employee.position.title }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Department:</p>
+                <p class="font-medium">{{ employee.department.name }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Status:</p>
+                <p class="font-medium">{{ employee.get_employment_status_display }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Hire Date:</p>
+                <p class="font-medium">{{ employee.hire_date|date:"M d, Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-between items-center">
+        <a href="{% url 'erp:employee_detail' employee.id %}" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>Cancel
+        </a>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition-colors">
+                <i class="fas fa-trash mr-2"></i>Delete
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

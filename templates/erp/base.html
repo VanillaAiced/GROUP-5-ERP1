@@ -14,54 +14,128 @@
         .metric-card { transition: transform 0.2s ease-in-out; }
         .metric-card:hover { transform: translateY(-2px); }
 
-        /* Light mode text colors - ensuring proper visibility */
-        body:not(.dark) { background-color: #f9fafb !important; color: #1f2937 !important; }
-        body:not(.dark) .text-gray-900,
-        body:not(.dark) .text-gray-600,
+        /* Light mode - default colors */
+        body:not(.dark) {
+            background-color: #f9fafb !important;
+            color: #1f2937 !important;
+        }
+        body:not(.dark) .bg-white { background-color: #ffffff !important; }
+        body:not(.dark) .bg-gray-50 { background-color: #f9fafb !important; }
+
+        /* Ensure text is visible in light mode */
+        body:not(.dark) .text-gray-900 { color: #111827 !important; }
+        body:not(.dark) .text-gray-800 { color: #1f2937 !important; }
+        body:not(.dark) .text-gray-700 { color: #374151 !important; }
+        body:not(.dark) .text-gray-600 { color: #4b5563 !important; }
+        body:not(.dark) .text-gray-500 { color: #6b7280 !important; }
+        body:not(.dark) .text-gray-400 { color: #9ca3af !important; }
+
+        /* Force visibility for dashboard elements in light mode */
         body:not(.dark) p,
         body:not(.dark) h1,
         body:not(.dark) h2,
         body:not(.dark) h3,
-        body:not(.dark) span { color: #1f2937 !important; }
-        body:not(.dark) .bg-white { background-color: #ffffff !important; }
-        body:not(.dark) .metric-card { background-color: #ffffff !important; }
-
-        /* Force all cards in light mode to have proper text contrast */
-        body:not(.dark) .metric-card p,
-        body:not(.dark) .metric-card h2,
-        body:not(.dark) .metric-card h3,
-        body:not(.dark) .metric-card span { color: #1f2937 !important; }
-
-        /* Section titles and labels in light mode */
-        body:not(.dark) .section-title { color: #111827 !important; font-weight: bold !important; }
-        body:not(.dark) .section-label { color: #4b5563 !important; }
-
-        /* Dark mode styling - higher contrast */
-        .dark { background-color: #1a202c !important; color: #f3f4f6 !important; }
-        .dark .bg-white, .dark .bg-gray-50 { background-color: #2d3748 !important; }
-        .dark .metric-card {
-            background-color: #2d3748 !important;
-            border-color: #4a5568 !important;
+        body:not(.dark) h4,
+        body:not(.dark) h5,
+        body:not(.dark) h6,
+        body:not(.dark) span,
+        body:not(.dark) label,
+        body:not(.dark) div,
+        body:not(.dark) td,
+        body:not(.dark) th {
+            color: #111827 !important;
         }
 
-        /* Force all text in dark mode to be visible */
+        /* Fix for dashboard cards and metrics in light mode */
+        body:not(.dark) .metric-card {
+            background-color: #ffffff !important;
+            color: #111827 !important;
+            border-color: #e5e7eb !important;
+        }
+
+        /* Special case for dashboard counter text */
+        body:not(.dark) .this-month,
+        body:not(.dark) .last-month {
+            color: #1f2937 !important;
+        }
+
+        /* Dark mode - improved contrast */
+        .dark {
+            background-color: #111827 !important;
+            color: #f9fafb !important;
+        }
+
+        /* Dark mode backgrounds */
+        .dark .bg-white { background-color: #1f2937 !important; }
+        .dark .bg-gray-50 { background-color: #1f2937 !important; }
+        .dark .bg-gray-800 { background-color: #1f2937 !important; }
+
+        /* Dark mode text colors - high contrast */
+        .dark .text-gray-900,
+        .dark .text-gray-800,
+        .dark .text-gray-700,
+        .dark .text-gray-600,
+        .dark .text-gray-500 {
+            color: #f9fafb !important;
+        }
+
+        .dark .text-gray-400 { color: #d1d5db !important; }
+        .dark .text-gray-300 { color: #e5e7eb !important; }
+
+        /* Dark mode borders */
+        .dark .border-gray-200 { border-color: #374151 !important; }
+        .dark .border-gray-300 { border-color: #4b5563 !important; }
+        .dark .divide-gray-200 { border-color: #374151 !important; }
+
+        /* Dark mode cards */
+        .dark .metric-card {
+            background-color: #1f2937 !important;
+            border-color: #374151 !important;
+        }
+
+        /* Force visibility for all text elements in dark mode */
         .dark p,
         .dark h1,
         .dark h2,
         .dark h3,
+        .dark h4,
+        .dark h5,
+        .dark h6,
         .dark span,
-        .dark .text-gray-600,
-        .dark .text-gray-900 {
-            color: #f3f4f6 !important;
+        .dark label,
+        .dark td,
+        .dark th {
+            color: #f9fafb !important;
         }
 
-        /* Section titles and values in dark mode */
-        .dark .section-title { color: #f3f4f6 !important; font-weight: bold !important; }
-        .dark .section-value { color: #f3f4f6 !important; font-weight: bold !important; }
+        /* Dark mode table headers */
+        .dark thead {
+            background-color: #374151 !important;
+        }
 
-        /* Card specific styles */
-        .card-title { font-weight: bold !important; }
-        .card-value { font-weight: bold !important; font-size: 1.5rem !important; }
+        .dark th {
+            color: #f9fafb !important;
+        }
+
+        /* Dark mode form inputs */
+        .dark input[type="text"],
+        .dark input[type="email"],
+        .dark input[type="password"],
+        .dark input[type="number"],
+        .dark input[type="date"],
+        .dark input[type="datetime-local"],
+        .dark select,
+        .dark textarea {
+            background-color: #374151 !important;
+            color: #f9fafb !important;
+            border-color: #4b5563 !important;
+        }
+
+        /* Dark mode header */
+        .dark header {
+            background-color: #1f2937 !important;
+            border-color: #374151 !important;
+        }
 
         .toggle-checkbox { width: 40px; height: 20px; accent-color: #3498db; }
     </style>

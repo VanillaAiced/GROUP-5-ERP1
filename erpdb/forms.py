@@ -5,7 +5,7 @@ from .models import (
     SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem,
     ChartOfAccounts, JournalEntry, JournalLine,
     Department, Position, Employee, InventoryTransaction,
-    Payment, Invoice, InvoiceItem
+    Payment, Invoice, InvoiceItem, Lead, LeadNote, EmailInquiry
 )
 from django.forms import inlineformset_factory
 
@@ -47,52 +47,10 @@ class ProductForm(forms.ModelForm):
             'dimensions', 'barcode'
         ]
         widgets = {
-            'sku': forms.TextInput(attrs={
-                'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full',
-                'placeholder': 'SKU'
-            }),
-            'name': forms.TextInput(attrs={
-                'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full',
-                'placeholder': 'Product Name'
-            }),
-            'category': forms.Select(attrs={
-                'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full',
-            }),
-            'product_type': forms.Select(attrs={
-                'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full',
-            }),
-            'unit_price': forms.NumberInput(attrs={
-                'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full',
-                'placeholder': 'Unit Price',
-                'step': '0.01'
-            }),
-            'cost_price': forms.NumberInput(attrs={
-                'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full',
-                'placeholder': 'Cost Price',
-                'step': '0.01'
-            }),
-            'unit_of_measure': forms.TextInput(attrs={
-                'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full',
-                'placeholder': 'Unit of Measure'
-            }),
-            'weight': forms.NumberInput(attrs={
-                'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full',
-                'placeholder': 'Weight',
-                'step': '0.01'
-            }),
-            'dimensions': forms.TextInput(attrs={
-                'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full',
-                'placeholder': 'Dimensions'
-            }),
-            'barcode': forms.TextInput(attrs={
-                'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full',
-                'placeholder': 'Barcode'
-            }),
-            'description': forms.Textarea(attrs={
-                'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full',
-                'placeholder': 'Description',
-                'rows': 3
-            }),
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'unit_price': forms.NumberInput(attrs={'step': '0.01'}),
+            'cost_price': forms.NumberInput(attrs={'step': '0.01'}),
+            'weight': forms.NumberInput(attrs={'step': '0.01'}),
         }
 
 # Sales Order Forms
@@ -191,22 +149,11 @@ class PurchaseOrderForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        dark_classes = 'bg-[#2d3748] dark:bg-[#2d3748] text-gray-100 dark:text-gray-100 border-gray-500 dark:border-gray-500 placeholder:text-gray-300 dark:placeholder:text-gray-300 px-4 py-2'
-        # Vendor (select)
-        self.fields['vendor'].widget.attrs.update({'class': f'mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 {dark_classes}'})
-        # Warehouse (select)
-        self.fields['warehouse'].widget.attrs.update({'class': f'mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 {dark_classes}'})
-        # Delivery Date (input)
-        self.fields['delivery_date'].widget.attrs.update({'class': f'mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 {dark_classes}', 'placeholder': 'YYYY-MM-DD HH:mm'})
-        # Status (select with choices)
-        self.fields['status'].widget = forms.Select(choices=[('', 'Select status')] + list(getattr(PurchaseOrder, 'STATUS_CHOICES', [])))
-        self.fields['status'].widget.attrs.update({'class': f'mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 {dark_classes}'})
-        # Payment Terms (input)
-        self.fields['payment_terms'].widget.attrs.update({'class': f'mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 {dark_classes}'})
-        # Reference Number (input)
-        self.fields['reference_number'].widget.attrs.update({'class': f'mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 {dark_classes}'})
-        # Notes (textarea)
-        self.fields['notes'].widget.attrs.update({'class': f'mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 {dark_classes}', 'placeholder': 'Add any special instructions...'})
+        # Add CSS classes for better styling
+        self.fields['vendor'].widget.attrs.update({'class': 'form-select'})
+        self.fields['warehouse'].widget.attrs.update({'class': 'form-select'})
+        self.fields['status'].widget.attrs.update({'class': 'form-select'})
+        self.fields['notes'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Add any special instructions...'})
 
 # Purchase Order Item Forms
 class PurchaseOrderItemForm(forms.ModelForm):
@@ -446,11 +393,26 @@ class QuickInvoiceForm(forms.ModelForm):
             'subtotal', 'tax_rate', 'notes'
         ]
         widgets = {
-            'invoice_date': forms.DateInput(attrs={'type': 'date'}),
-            'due_date': forms.DateInput(attrs={'type': 'date'}),
-            'subtotal': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
-            'tax_rate': forms.NumberInput(attrs={'step': '0.01', 'min': '0', 'max': '100'}),
-            'notes': forms.Textarea(attrs={'rows': 3}),
+            'invoice_date': forms.DateInput(attrs={
+                'type': 'date',
+            }),
+            'due_date': forms.DateInput(attrs={
+                'type': 'date',
+            }),
+            'subtotal': forms.NumberInput(attrs={
+                'step': '0.01',
+                'min': '0',
+                'placeholder': '0.00'
+            }),
+            'tax_rate': forms.NumberInput(attrs={
+                'step': '0.01',
+                'min': '0',
+                'max': '100',
+                'placeholder': '0.00'
+            }),
+            'notes': forms.Textarea(attrs={
+                'rows': 3,
+            }),
         }
 
     def __init__(self, *args, **kwargs):
@@ -520,28 +482,16 @@ class ProductSearchForm(forms.Form):
     search = forms.CharField(
         max_length=100,
         required=False,
-        widget=forms.TextInput(attrs={
-            'placeholder': 'Search products...',
-            'class': 'bg-gray-800 text-white placeholder-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-inner',
-            'style': 'background-color:#2d3748;color:#ffffff;border-color:#4b5563;',
-        })
+        widget=forms.TextInput(attrs={'placeholder': 'Search products...'})
     )
     category = forms.ModelChoiceField(
         queryset=Category.objects.all(),
         required=False,
-        empty_label="All Categories",
-        widget=forms.Select(attrs={
-            'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-            'style': 'background-color:#2d3748;color:#ffffff;border-color:#4b5563;',
-        })
+        empty_label="All Categories"
     )
     product_type = forms.ChoiceField(
         choices=[('', 'All Types')] + Product.PRODUCT_TYPE_CHOICES,
-        required=False,
-        widget=forms.Select(attrs={
-            'class': 'bg-gray-800 text-white font-bold border border-gray-600 rounded-md px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-            'style': 'background-color:#2d3748;color:#ffffff;border-color:#4b5563;',
-        })
+        required=False
     )
 
 class SalesOrderSearchForm(forms.Form):
@@ -561,4 +511,147 @@ class SalesOrderSearchForm(forms.Form):
     date_to = forms.DateField(
         required=False,
         widget=forms.DateInput(attrs={'type': 'date'})
+    )
+
+
+# Lead & Email Inquiry Forms
+class LeadForm(forms.ModelForm):
+    """Form for creating and editing leads"""
+    class Meta:
+        model = Lead
+        fields = [
+            'name', 'email', 'phone', 'company', 'subject', 'message',
+            'source', 'status', 'priority', 'interested_products',
+            'estimated_value', 'assigned_to', 'next_follow_up'
+        ]
+        widgets = {
+            'message': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Enter inquiry details...'}),
+            'estimated_value': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
+            'next_follow_up': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'interested_products': forms.CheckboxSelectMultiple(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['interested_products'].queryset = Product.objects.filter(is_active=True)
+        self.fields['assigned_to'].queryset = User.objects.filter(is_active=True)
+        self.fields['assigned_to'].required = False
+        self.fields['next_follow_up'].required = False
+
+
+class LeadNoteForm(forms.ModelForm):
+    """Form for adding notes to leads"""
+    class Meta:
+        model = LeadNote
+        fields = ['note', 'note_type']
+        widgets = {
+            'note': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Add a note about this lead...',
+                'class': 'form-control'
+            }),
+            'note_type': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+
+class EmailInquiryForm(forms.ModelForm):
+    """Form for manually creating email inquiries"""
+    class Meta:
+        model = EmailInquiry
+        fields = [
+            'from_email', 'from_name', 'subject', 'body', 'received_at'
+        ]
+        widgets = {
+            'body': forms.Textarea(attrs={'rows': 6, 'placeholder': 'Email message content...'}),
+            'received_at': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Auto-generate message_id if not provided
+        if not self.instance.message_id:
+            import uuid
+            self.instance.message_id = f"manual-{uuid.uuid4()}"
+
+
+class LeadConversionForm(forms.Form):
+    """Form for converting lead to customer"""
+    create_sales_order = forms.BooleanField(
+        required=False,
+        initial=False,
+        label="Create Sales Order",
+        help_text="Automatically create a sales order for this customer"
+    )
+
+    # Customer details (in case we need to override)
+    customer_code = forms.CharField(
+        max_length=20,
+        required=False,
+        help_text="Leave blank to auto-generate"
+    )
+
+    customer_type = forms.ChoiceField(
+        choices=Customer.CUSTOMER_TYPE_CHOICES,
+        initial='individual'
+    )
+
+    credit_limit = forms.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        initial=0,
+        widget=forms.NumberInput(attrs={'step': '0.01'})
+    )
+
+    payment_terms = forms.CharField(
+        max_length=100,
+        required=False,
+        initial="Net 30",
+        help_text="e.g., Net 30, Net 60, COD"
+    )
+
+
+class LeadSearchForm(forms.Form):
+    """Form for searching and filtering leads"""
+    search = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Search by name, email, company...',
+            'class': 'form-control'
+        })
+    )
+
+    status = forms.ChoiceField(
+        choices=[('', 'All Statuses')] + Lead.STATUS_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    source = forms.ChoiceField(
+        choices=[('', 'All Sources')] + Lead.SOURCE_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    priority = forms.ChoiceField(
+        choices=[('', 'All Priorities')] + Lead.PRIORITY_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    assigned_to = forms.ModelChoiceField(
+        queryset=User.objects.filter(is_active=True),
+        required=False,
+        empty_label="All Assignees",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    date_from = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+    )
+
+    date_to = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )

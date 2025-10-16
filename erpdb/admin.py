@@ -4,7 +4,7 @@ from .models import (
     SalesOrder, SalesOrderItem, PurchaseOrder, PurchaseOrderItem,
     ChartOfAccounts, JournalEntry, JournalLine,
     Department, Position, Employee,
-    InventoryTransaction, FinancialReport
+    InventoryTransaction, FinancialReport, Lead, LeadNote, EmailInquiry
 )
 
 # Customer & Vendor Admin
@@ -128,3 +128,68 @@ class FinancialReportAdmin(admin.ModelAdmin):
     list_filter = ['report_type', 'generated_at']
     search_fields = ['name']
     readonly_fields = ['generated_at']
+
+
+# Lead & Email Inquiry Management Admin
+class LeadNoteInline(admin.TabularInline):
+    model = LeadNote
+    extra = 0
+    readonly_fields = ['created_by', 'created_at']
+
+
+@admin.register(Lead)
+class LeadAdmin(admin.ModelAdmin):
+    list_display = ['lead_number', 'name', 'email', 'company', 'status', 'priority', 'source', 'created_at']
+    list_filter = ['status', 'priority', 'source', 'created_at', 'assigned_to']
+    search_fields = ['lead_number', 'name', 'email', 'company', 'subject']
+    readonly_fields = ['id', 'lead_number', 'created_at', 'updated_at', 'conversion_date']
+    inlines = [LeadNoteInline]
+    fieldsets = (
+        ('Contact Information', {
+            'fields': ('lead_number', 'name', 'email', 'phone', 'company')
+        }),
+        ('Lead Details', {
+            'fields': ('subject', 'message', 'source', 'status', 'priority')
+        }),
+        ('Assignment', {
+            'fields': ('assigned_to', 'next_follow_up')
+        }),
+        ('Products & Value', {
+            'fields': ('interested_products', 'estimated_value')
+        }),
+        ('Email Integration', {
+            'fields': ('email_thread_id', 'original_email'),
+            'classes': ('collapse',)
+        }),
+        ('Conversion', {
+            'fields': ('converted_to_customer', 'converted_to_sales_order', 'conversion_date'),
+            'classes': ('collapse',)
+        }),
+        ('Metadata', {
+            'fields': ('created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(EmailInquiry)
+class EmailInquiryAdmin(admin.ModelAdmin):
+    list_display = ['from_email', 'from_name', 'subject', 'status', 'received_at', 'processed_at']
+    list_filter = ['status', 'received_at', 'processed_at']
+    search_fields = ['from_email', 'from_name', 'subject', 'body']
+    readonly_fields = ['id', 'message_id', 'received_at', 'created_at', 'processed_at', 'processed_by']
+    fieldsets = (
+        ('Email Details', {
+            'fields': ('from_email', 'from_name', 'subject', 'body', 'body_html')
+        }),
+        ('Email Metadata', {
+            'fields': ('message_id', 'in_reply_to', 'received_at', 'attachments')
+        }),
+        ('Processing', {
+            'fields': ('status', 'processed_to_lead', 'processed_at', 'processed_by')
+        }),
+        ('Raw Data', {
+            'fields': ('raw_email',),
+            'classes': ('collapse',)
+        }),
+    )
