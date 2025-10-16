@@ -32,7 +32,11 @@
                         </span>
                     {% endif %}
                 </div>
-                <div class="text-2xl font-bold">${{ invoice.total_amount|floatformat:2 }}</div>
+                <div class="text-2xl font-bold">
+                    <span data-currency="{{ invoice.total_amount }}" data-source-currency="USD">${{ invoice.total_amount|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
             </div>
         </div>
     </div>
@@ -142,10 +146,10 @@
                                 {{ item.quantity|floatformat:2 }}
                             </td>
                             <td class="px-6 py-4 text-right text-sm text-gray-900">
-                                ${{ item.unit_price|floatformat:2 }}
+                            <td class="px-6 py-4 text-right text-sm font-medium text-gray-900">
                             </td>
                             <td class="px-6 py-4 text-right text-sm font-medium text-gray-900">
-                                ${{ item.line_total|floatformat:2 }}
+                        </tr>
                             </td>
                         </tr>
                         {% endfor %}
@@ -161,24 +165,32 @@
                 <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Invoice Summary</h3>
                     <div class="space-y-3">
-                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-semibold text-gray-900">
+                                <span data-currency="{{ invoice.subtotal }}" data-source-currency="USD">${{ invoice.subtotal|floatformat:2 }}</span>
+                            </span>
                             <span class="text-sm font-medium text-gray-700">Subtotal:</span>
                             <span class="text-sm font-semibold text-gray-900">${{ invoice.subtotal|floatformat:2 }}</span>
                         </div>
                         {% if invoice.tax_amount %}
-                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-semibold text-gray-900">
+                                <span data-currency="{{ invoice.tax_amount }}" data-source-currency="USD">${{ invoice.tax_amount|floatformat:2 }}</span>
+                            </span>
                             <span class="text-sm font-medium text-gray-700">Tax ({{ invoice.tax_rate }}%):</span>
                             <span class="text-sm font-semibold text-gray-900">${{ invoice.tax_amount|floatformat:2 }}</span>
                         </div>
                         {% endif %}
                         {% if invoice.discount_amount %}
-                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-semibold text-red-600">
+                                <span data-currency="{{ invoice.discount_amount }}" data-source-currency="USD">-${{ invoice.discount_amount|floatformat:2 }}</span>
+                            </span>
                             <span class="text-sm font-medium text-gray-700">Discount:</span>
                             <span class="text-sm font-semibold text-red-600">-${{ invoice.discount_amount|floatformat:2 }}</span>
                         </div>
                         {% endif %}
                         <hr class="border-blue-300">
-                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-bold text-blue-600">
+                                <span data-currency="{{ invoice.total_amount }}" data-source-currency="USD">${{ invoice.total_amount|floatformat:2 }}</span>
+                            </span>
                             <span class="text-lg font-bold text-gray-900">Total Amount:</span>
                             <span class="text-xl font-bold text-blue-600">${{ invoice.total_amount|floatformat:2 }}</span>
                         </div>

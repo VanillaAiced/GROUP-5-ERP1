@@ -37,11 +37,15 @@
                 </div>
                 <div>
                     <dt class="text-base font-bold text-gray-400 uppercase tracking-wide">Unit Price</dt>
-                    <dd class="text-lg text-green-400 font-extrabold flex items-center"><i class="fas fa-dollar-sign mr-2"></i>${{ product.unit_price|floatformat:2 }}</dd>
+                    <dd class="text-lg text-green-400 font-extrabold flex items-center">
+                        <span data-currency="{{ product.unit_price }}" data-source-currency="USD">{{ product.unit_price|floatformat:2 }}</span>
+                    </dd>
                 </div>
                 <div>
                     <dt class="text-base font-bold text-gray-400 uppercase tracking-wide">Cost Price</dt>
-                    <dd class="text-lg text-yellow-400 font-extrabold flex items-center"><i class="fas fa-coins mr-2"></i>${{ product.cost_price|floatformat:2 }}</dd>
+                    <dd class="text-lg text-yellow-400 font-extrabold flex items-center">
+                        <span data-currency="{{ product.cost_price }}" data-source-currency="USD">{{ product.cost_price|floatformat:2 }}</span>
+                    </dd>
                 </div>
             </dl>
         </div>

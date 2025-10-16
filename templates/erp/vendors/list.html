@@ -1,24 +1,24 @@
 {% extends 'erp/base.html' %}
 
 {% block title %}Vendors - ERP System{% endblock %}
-{% block page_title %}Vendors{% endblock %}
+{% block page_title %}<span data-translate="Vendors">Vendors</span>{% endblock %}
 
 {% block content %}
 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-900">Vendors</h2>
+        <h2 class="text-2xl font-bold text-gray-900" data-translate="Vendors">Vendors</h2>
         <a href="{% url 'erp:vendor_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            <i class="fas fa-plus mr-2"></i>Add Vendor
+            <i class="fas fa-plus mr-2"></i><span data-translate="Add Vendor">Add Vendor</span>
         </a>
     </div>
 
     <!-- Search Form -->
     <div class="mb-6">
         <form method="get" class="flex space-x-4">
-            <input type="text" name="search" value="{{ search }}" placeholder="Search vendors..."
+            <input type="text" name="search" value="{{ search }}" data-translate="Search vendors..." placeholder="Search vendors..."
                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
             <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <i class="fas fa-search mr-2"></i>Search
+                <i class="fas fa-search mr-2"></i><span data-translate="Search">Search</span>
             </button>
         </form>
     </div>
@@ -27,12 +27,12 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor Code</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Person</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-translate="Vendor Code">Vendor Code</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-translate="Name">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-translate="Contact Person">Contact Person</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-translate="Email">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-translate="Type">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-translate="Actions">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -44,38 +44,38 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ vendor.email|default:"-" }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         {% if vendor.vendor_type == 'supplier' %}
-                        <span class="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-full bg-blue-500 text-white min-w-[120px]">
-                            {{ vendor.get_vendor_type_display }}
+                        <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-blue-500 text-white">
+                            <span data-translate="{{ vendor.get_vendor_type_display }}">{{ vendor.get_vendor_type_display }}</span>
                         </span>
                         {% elif vendor.vendor_type == 'service_provider' %}
-                        <span class="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-full bg-green-500 text-white min-w-[120px]">
-                            {{ vendor.get_vendor_type_display }}
+                        <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-green-500 text-white">
+                            <span data-translate="{{ vendor.get_vendor_type_display }}">{{ vendor.get_vendor_type_display }}</span>
                         </span>
                         {% elif vendor.vendor_type == 'contractor' %}
-                        <span class="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-full bg-purple-500 text-white min-w-[120px]">
-                            {{ vendor.get_vendor_type_display }}
+                        <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-purple-500 text-white">
+                            <span data-translate="{{ vendor.get_vendor_type_display }}">{{ vendor.get_vendor_type_display }}</span>
                         </span>
                         {% else %}
-                        <span class="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-full bg-gray-500 text-white min-w-[120px]">
-                            {{ vendor.get_vendor_type_display }}
+                        <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-gray-500 text-white">
+                            <span data-translate="{{ vendor.get_vendor_type_display }}">{{ vendor.get_vendor_type_display }}</span>
                         </span>
                         {% endif %}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <a href="{% url 'erp:vendor_detail' vendor.id %}" class="text-blue-600 hover:text-blue-900 mr-3">
-                            <i class="fas fa-eye mr-1"></i>View
+                            <i class="fas fa-eye mr-1"></i><span data-translate="View">View</span>
                         </a>
                         <a href="{% url 'erp:vendor_edit' vendor.id %}" class="text-green-600 hover:text-green-900 mr-3">
-                            <i class="fas fa-edit mr-1"></i>Edit
+                            <i class="fas fa-edit mr-1"></i><span data-translate="Edit">Edit</span>
                         </a>
                         <a href="{% url 'erp:vendor_delete' vendor.id %}" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this vendor?');">
-                            <i class="fas fa-trash mr-1"></i>Delete
+                            <i class="fas fa-trash mr-1"></i><span data-translate="Delete">Delete</span>
                         </a>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">No vendors found</td>
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500" data-translate="No vendors found">No vendors found</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -87,15 +87,15 @@
     <div class="mt-6 flex justify-center">
         <nav class="flex space-x-2">
             {% if vendors.has_previous %}
-                <a href="?page={{ vendors.previous_page_number }}" class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Previous</a>
+                <a href="?page={{ vendors.previous_page_number }}" class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300" data-translate="Previous">Previous</a>
             {% endif %}
 
             <span class="px-3 py-2 bg-blue-600 text-white rounded">
-                Page {{ vendors.number }} of {{ vendors.paginator.num_pages }}
+                <span data-translate="Page">Page</span> {{ vendors.number }} <span data-translate="of">of</span> {{ vendors.paginator.num_pages }}
             </span>
 
             {% if vendors.has_next %}
-                <a href="?page={{ vendors.next_page_number }}" class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Next</a>
+                <a href="?page={{ vendors.next_page_number }}" class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300" data-translate="Next">Next</a>
             {% endif %}
         </nav>
     </div>

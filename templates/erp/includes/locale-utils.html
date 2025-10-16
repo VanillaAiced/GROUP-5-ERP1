@@ -7,12 +7,17 @@
     let exchangeRates = null;
     let lastFetchTime = null;
     const CACHE_DURATION = 3600000; // 1 hour in milliseconds
+    let isInitialized = false;
 
     // Get user preferences from localStorage
     function getLocaleSettings() {
         const savedSettings = localStorage.getItem('languageSettings');
         if (savedSettings) {
-            return JSON.parse(savedSettings);
+            try {
+                return JSON.parse(savedSettings);
+            } catch (e) {
+                console.error('Error parsing language settings:', e);
+            }
         }
         // Default settings
         return {
@@ -198,7 +203,16 @@
 
     // Apply currency formatting to all elements with data-currency attribute
     async function applyCurrencyFormatting() {
+        if (isInitialized) {
+            console.log('🔄 Refreshing currency display...');
+        }
+
         const elements = document.querySelectorAll('[data-currency]');
+
+        if (elements.length === 0) {
+            console.log('ℹ️ No currency elements found on this page');
+            return;
+        }
 
         for (const element of elements) {
             const amount = element.getAttribute('data-currency');
@@ -211,6 +225,9 @@
                 console.error('Error formatting currency:', error);
             }
         }
+
+        isInitialized = true;
+        console.log(`✅ Formatted ${elements.length} currency elements`);
     }
 
     // Apply date formatting to all elements with data-date attribute
@@ -224,28 +241,40 @@
 
     // Initialize formatting on page load
     document.addEventListener('DOMContentLoaded', async function() {
+        console.log('🚀 Initializing locale utilities...');
+
         // Fetch exchange rates on page load (in background)
         fetchExchangeRates().then(() => {
-            console.log('💱 Exchange rates loaded');
+            console.log('💱 Exchange rates loaded successfully');
+        }).catch(err => {
+            console.error('❌ Failed to load exchange rates:', err);
         });
 
         // Apply formatting
-        await applyCurrencyFormatting();
-        applyDateFormatting();
+        try {
+            await applyCurrencyFormatting();
+            applyDateFormatting();
+            console.log('✅ Locale formatting initialized');
+        } catch (error) {
+            console.error('❌ Error initializing locale formatting:', error);
+        }
     });
 
     // Refresh currency display when settings change
     window.addEventListener('storage', function(e) {
         if (e.key === 'languageSettings') {
-            console.log('🔄 Currency settings changed, updating display...');
-            applyCurrencyFormatting();
-            applyDateFormatting();
+            console.log('🔄 Language settings changed, updating display...');
+            setTimeout(() => {
+                applyCurrencyFormatting();
+                applyDateFormatting();
+            }, 100);
         }
     });
 
-    // Expose functions globally
+    // Expose functions globally for manual refresh
     window.getLocaleSettings = getLocaleSettings;
     window.convertCurrency = convertCurrency;
     window.refreshCurrencyDisplay = applyCurrencyFormatting;
+    window.refreshDateDisplay = applyDateFormatting;
 })();
 </script>

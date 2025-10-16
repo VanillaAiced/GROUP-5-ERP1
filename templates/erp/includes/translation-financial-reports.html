@@ -1,0 +1,47 @@
+<script>
+// Translation patch for Financial Reports page
+(function() {
+    if (typeof window.translations === 'undefined') {
+        console.error('Translation system not loaded');
+        return;
+    }
+
+    // Add financial reports placeholder translation
+    const financialReportsTranslations = {
+        en: {
+            'This is a placeholder for the financial reports page. Add your report content here.': 'This is a placeholder for the financial reports page. Add your report content here.',
+        },
+        es: {
+            'This is a placeholder for the financial reports page. Add your report content here.': 'Este es un marcador de posición para la página de informes financieros. Agregue el contenido de su informe aquí.',
+        },
+        fr: {
+            'This is a placeholder for the financial reports page. Add your report content here.': 'Ceci est un espace réservé pour la page de rapports financiers. Ajoutez le contenu de votre rapport ici.',
+        },
+        de: {
+            'This is a placeholder for the financial reports page. Add your report content here.': 'Dies ist ein Platzhalter für die Finanzberichtsseite. Fügen Sie hier Ihren Berichtsinhalt hinzu.',
+        },
+        zh: {
+            'This is a placeholder for the financial reports page. Add your report content here.': '这是财务报告页面的占位符。在此处添加您的报告内容。',
+        },
+        ja: {
+            'This is a placeholder for the financial reports page. Add your report content here.': 'これは財務レポートページのプレースホルダーです。ここにレポートの内容を追加してください。',
+        },
+        ko: {
+            'This is a placeholder for the financial reports page. Add your report content here.': '이것은 재무 보고서 페이지의 자리 표시자입니다. 여기에 보고서 내용을 추가하십시오.',
+        },
+        ar: {
+            'This is a placeholder for the financial reports page. Add your report content here.': 'هذا عنصر نائب لصفحة التقارير المالية. أضف محتوى التقرير الخاص بك هنا.',
+        }
+    };
+
+    // Merge with existing translations
+    Object.keys(financialReportsTranslations).forEach(lang => {
+        if (window.translations && window.translations[lang]) {
+            Object.assign(window.translations[lang], financialReportsTranslations[lang]);
+        }
+    });
+
+    console.log('✅ Financial Reports translations loaded');
+})();
+</script>
+

@@ -8,12 +8,12 @@
     <div class="mb-6">
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Invoice Management</h2>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white" data-translate="Invoice Management">Invoice Management</h2>
                 <p class="text-gray-600 dark:text-gray-400 mt-2">Manage all your sales and purchase invoices</p>
             </div>
             <div class="flex space-x-3">
                 <a href="{% url 'erp:invoice_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-plus mr-2"></i>Create Invoice
+                    <i class="fas fa-plus mr-2"></i><span data-translate="Create Invoice">Create Invoice</span>
                 </a>
                 <a href="{% url 'erp:quick_invoice' %}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
                     <i class="fas fa-bolt mr-2"></i>Quick Invoice
@@ -30,7 +30,7 @@
                     <i class="fas fa-file-invoice-dollar text-2xl text-blue-600 dark:text-blue-400"></i>
                 </div>
                 <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Invoices</p>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400" data-translate="Invoices">Total Invoices</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_invoices|default:0 }}</p>
                 </div>
             </div>
@@ -54,7 +54,7 @@
                     <i class="fas fa-clock text-2xl text-yellow-600 dark:text-yellow-400"></i>
                 </div>
                 <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Invoices</p>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400" data-translate="Pending Invoices">Pending Invoices</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ pending_invoices|default:0 }}</p>
                 </div>
             </div>
@@ -66,7 +66,7 @@
                     <i class="fas fa-exclamation-triangle text-2xl text-red-600 dark:text-red-400"></i>
                 </div>
                 <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Overdue Invoices</p>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400" data-translate="Overdue Invoices">Overdue Invoices</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ overdue_invoices|default:0 }}</p>
                 </div>
             </div>
@@ -77,14 +77,14 @@
     <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
         <form method="get" class="flex flex-wrap items-end gap-4">
             <div class="flex-1 min-w-0">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-translate="Search">Search</label>
                 <input type="text" name="search" value="{{ request.GET.search }}"
                        placeholder="Search invoices..."
                        class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Invoice Type</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-translate="Invoice Type">Invoice Type</label>
                 <select name="invoice_type" class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                     <option value="">All Types</option>
                     <option value="sales" {% if request.GET.invoice_type == 'sales' %}selected{% endif %}>Sales</option>
@@ -93,7 +93,7 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-translate="Status">Status</label>
                 <select name="status" class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                     <option value="">All Statuses</option>
                     <option value="draft" {% if request.GET.status == 'draft' %}selected{% endif %}>Draft</option>
@@ -120,14 +120,14 @@
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Invoice #</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Customer/Vendor</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Due Date</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-translate="Invoice #">Invoice #</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-translate="Type">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-translate="Customer/Vendor">Customer/Vendor</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-translate="Date">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-translate="Due Date">Due Date</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-translate="Amount">Amount</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-translate="Status">Status</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-translate="Actions">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">

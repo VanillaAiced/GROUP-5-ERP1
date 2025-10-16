@@ -277,7 +277,9 @@
                         </div>
                         <div class="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-500">
                             <span class="text-sm text-gray-600 dark:text-gray-300">Total Amount</span>
-                            <span class="text-lg font-bold text-gray-900 dark:text-white">${{ order.total_amount|floatformat:2 }}</span>
+                            <span class="text-lg font-bold text-gray-900 dark:text-white">
+                                <span data-currency="{{ order.total_amount }}" data-source-currency="USD">${{ order.total_amount|floatformat:2 }}</span>
+                            </span>
                         </div>
                     </div>
                     {% endfor %}

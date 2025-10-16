@@ -20,8 +20,14 @@
     {% include 'erp/includes/locale-utils.html' %}
     <!-- Include translation utilities for multi-language support -->
     {% include 'erp/includes/translation-utils.html' %}
+    <!-- Include category and status translations -->
+    {% include 'erp/includes/translation-categories.html' %}
     <!-- Include translation patch for missing sidebar translations -->
     {% include 'erp/includes/translation-patch.html' %}
+    <!-- Include additional translations for all ERP pages -->
+    {% include 'erp/includes/translation-additions.html' %}
+    <!-- Include financial reports translations -->
+    {% include 'erp/includes/translation-financial-reports.html' %}
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
         body { font-family: 'Poppins', sans-serif; }
@@ -124,7 +130,7 @@
             <!-- Header -->
             <header class="bg-white dark:bg-[#232b3e] shadow-sm border-b border-gray-200 dark:border-gray-700 px-6 py-4">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{% block page_title %}Dashboard{% endblock %}</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{% block page_title %}<span data-translate="Dashboard">Dashboard</span>{% endblock %}</h2>
                     <div class="flex items-center space-x-4">
                         <a href="{% url 'erp:settings' %}" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                             <i class="fas fa-cog text-xl"></i>

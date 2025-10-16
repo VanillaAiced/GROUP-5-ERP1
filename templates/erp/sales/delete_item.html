@@ -1,7 +1,7 @@
 {% extends 'erp/base.html' %}
 
 {% block title %}Delete Sales Order Item - LiteWork{% endblock %}
-{% block page_title %}Delete Sales Order Item{% endblock %}
+{% block page_title %}<span data-translate="Delete Sales Order Item">Delete Sales Order Item</span>{% endblock %}
 
 {% block content %}
 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-600">
@@ -40,20 +40,20 @@
                 <p class="text-sm font-medium text-gray-900 dark:text-white">{{ item.product.sku }}</p>
             </div>
             <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Quantity</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Unit Price</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                    <span data-currency="{{ item.unit_price }}" data-source-currency="USD">${{ item.unit_price|floatformat:2 }}</span>
+                </p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Quantity</p>
                 <p class="text-sm font-medium text-gray-900 dark:text-white">{{ item.quantity }}</p>
             </div>
             <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Unit Price</p>
-                <p class="text-sm font-medium text-gray-900 dark:text-white">${{ item.unit_price|floatformat:2 }}</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Discount</p>
-                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ item.discount_percent }}%</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Line Total</p>
-                <p class="text-sm font-medium text-gray-900 dark:text-white">${{ item.line_total|floatformat:2 }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Line Total</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                    <span data-currency="{{ item.line_total }}" data-source-currency="USD">${{ item.line_total|floatformat:2 }}</span>
+                </p>
             </div>
         </div>
     </div>

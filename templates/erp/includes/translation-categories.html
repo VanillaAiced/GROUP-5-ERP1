@@ -1,0 +1,860 @@
+<script>
+// Category and Status Translations for ERP Models
+// This extends the main translation system with all model categories
+
+(function() {
+    // Add category translations to the global translations object
+    if (typeof window.translations !== 'undefined') {
+        // English translations for categories
+        Object.assign(window.translations.en, {
+            // Customer Types
+            'Individual': 'Individual',
+            'Business': 'Business',
+            'Government': 'Government',
+
+            // Vendor Types
+            'Supplier': 'Supplier',
+            'Service Provider': 'Service Provider',
+            'Contractor': 'Contractor',
+
+            // Product Types
+            'Product': 'Product',
+            'Service': 'Service',
+            'Raw Material': 'Raw Material',
+
+            // Order Status
+            'Draft': 'Draft',
+            'Pending': 'Pending',
+            'Confirmed': 'Confirmed',
+            'Shipped': 'Shipped',
+            'Delivered': 'Delivered',
+            'Completed': 'Completed',
+            'Cancelled': 'Cancelled',
+            'Received': 'Received',
+
+            // Invoice Status
+            'Sent': 'Sent',
+            'Paid': 'Paid',
+            'Overdue': 'Overdue',
+
+            // Invoice Types
+            'Sales Invoice': 'Sales Invoice',
+            'Purchase Invoice': 'Purchase Invoice',
+
+            // Account Types
+            'Asset': 'Asset',
+            'Liability': 'Liability',
+            'Equity': 'Equity',
+            'Revenue': 'Revenue',
+            'Expense': 'Expense',
+
+            // Entry Types
+            'Manual Entry': 'Manual Entry',
+            'Sales Entry': 'Sales Entry',
+            'Purchase Entry': 'Purchase Entry',
+            'Payment Entry': 'Payment Entry',
+            'Receipt Entry': 'Receipt Entry',
+            'Adjustment Entry': 'Adjustment Entry',
+
+            // Employment Status
+            'Active': 'Active',
+            'Inactive': 'Inactive',
+            'Terminated': 'Terminated',
+            'On Leave': 'On Leave',
+
+            // Transaction Types
+            'Stock In': 'Stock In',
+            'Stock Out': 'Stock Out',
+            'Transfer': 'Transfer',
+            'Adjustment': 'Adjustment',
+            'Return': 'Return',
+
+            // Payment Methods
+            'Cash': 'Cash',
+            'Check': 'Check',
+            'Bank Transfer': 'Bank Transfer',
+            'Credit Card': 'Credit Card',
+            'Other': 'Other',
+
+            // Payment Types
+            'Receipt': 'Receipt',
+            'Payment': 'Payment',
+
+            // Lead Status
+            'New': 'New',
+            'Contacted': 'Contacted',
+            'Qualified': 'Qualified',
+            'Proposal Sent': 'Proposal Sent',
+            'Negotiation': 'Negotiation',
+            'Won': 'Won',
+            'Lost': 'Lost',
+
+            // Lead Source
+            'Email Inquiry': 'Email Inquiry',
+            'Website Form': 'Website Form',
+            'Phone Call': 'Phone Call',
+            'Referral': 'Referral',
+            'Social Media': 'Social Media',
+            'Trade Show': 'Trade Show',
+
+            // Lead Priority
+            'Low': 'Low',
+            'Medium': 'Medium',
+            'High': 'High',
+            'Urgent': 'Urgent',
+
+            // Report Types
+            'Balance Sheet': 'Balance Sheet',
+            'Income Statement': 'Income Statement',
+            'Cash Flow Statement': 'Cash Flow Statement',
+            'Trial Balance': 'Trial Balance',
+        });
+
+        // Spanish translations
+        Object.assign(window.translations.es, {
+            // Customer Types
+            'Individual': 'Individual',
+            'Business': 'Empresa',
+            'Government': 'Gobierno',
+
+            // Vendor Types
+            'Supplier': 'Proveedor',
+            'Service Provider': 'Proveedor de Servicios',
+            'Contractor': 'Contratista',
+
+            // Product Types
+            'Product': 'Producto',
+            'Service': 'Servicio',
+            'Raw Material': 'Materia Prima',
+
+            // Order Status
+            'Draft': 'Borrador',
+            'Pending': 'Pendiente',
+            'Confirmed': 'Confirmado',
+            'Shipped': 'Enviado',
+            'Delivered': 'Entregado',
+            'Completed': 'Completado',
+            'Cancelled': 'Cancelado',
+            'Received': 'Recibido',
+
+            // Invoice Status
+            'Sent': 'Enviado',
+            'Paid': 'Pagado',
+            'Overdue': 'Vencido',
+
+            // Invoice Types
+            'Sales Invoice': 'Factura de Venta',
+            'Purchase Invoice': 'Factura de Compra',
+
+            // Account Types
+            'Asset': 'Activo',
+            'Liability': 'Pasivo',
+            'Equity': 'Patrimonio',
+            'Revenue': 'Ingresos',
+            'Expense': 'Gastos',
+
+            // Entry Types
+            'Manual Entry': 'Entrada Manual',
+            'Sales Entry': 'Entrada de Ventas',
+            'Purchase Entry': 'Entrada de Compras',
+            'Payment Entry': 'Entrada de Pago',
+            'Receipt Entry': 'Entrada de Recibo',
+            'Adjustment Entry': 'Entrada de Ajuste',
+
+            // Employment Status
+            'Active': 'Activo',
+            'Inactive': 'Inactivo',
+            'Terminated': 'Terminado',
+            'On Leave': 'De Licencia',
+
+            // Transaction Types
+            'Stock In': 'Entrada de Stock',
+            'Stock Out': 'Salida de Stock',
+            'Transfer': 'Transferencia',
+            'Adjustment': 'Ajuste',
+            'Return': 'Devolución',
+
+            // Payment Methods
+            'Cash': 'Efectivo',
+            'Check': 'Cheque',
+            'Bank Transfer': 'Transferencia Bancaria',
+            'Credit Card': 'Tarjeta de Crédito',
+            'Other': 'Otro',
+
+            // Payment Types
+            'Receipt': 'Recibo',
+            'Payment': 'Pago',
+
+            // Lead Status
+            'New': 'Nuevo',
+            'Contacted': 'Contactado',
+            'Qualified': 'Calificado',
+            'Proposal Sent': 'Propuesta Enviada',
+            'Negotiation': 'Negociación',
+            'Won': 'Ganado',
+            'Lost': 'Perdido',
+
+            // Lead Source
+            'Email Inquiry': 'Consulta por Email',
+            'Website Form': 'Formulario Web',
+            'Phone Call': 'Llamada Telefónica',
+            'Referral': 'Referencia',
+            'Social Media': 'Redes Sociales',
+            'Trade Show': 'Feria Comercial',
+
+            // Lead Priority
+            'Low': 'Baja',
+            'Medium': 'Media',
+            'High': 'Alta',
+            'Urgent': 'Urgente',
+
+            // Report Types
+            'Balance Sheet': 'Balance General',
+            'Income Statement': 'Estado de Resultados',
+            'Cash Flow Statement': 'Estado de Flujo de Efectivo',
+            'Trial Balance': 'Balance de Comprobación',
+        });
+
+        // French translations
+        Object.assign(window.translations.fr, {
+            // Customer Types
+            'Individual': 'Individuel',
+            'Business': 'Entreprise',
+            'Government': 'Gouvernement',
+
+            // Vendor Types
+            'Supplier': 'Fournisseur',
+            'Service Provider': 'Prestataire de Services',
+            'Contractor': 'Entrepreneur',
+
+            // Product Types
+            'Product': 'Produit',
+            'Service': 'Service',
+            'Raw Material': 'Matière Première',
+
+            // Order Status
+            'Draft': 'Brouillon',
+            'Pending': 'En Attente',
+            'Confirmed': 'Confirmé',
+            'Shipped': 'Expédié',
+            'Delivered': 'Livré',
+            'Completed': 'Terminé',
+            'Cancelled': 'Annulé',
+            'Received': 'Reçu',
+
+            // Invoice Status
+            'Sent': 'Envoyé',
+            'Paid': 'Payé',
+            'Overdue': 'En Retard',
+
+            // Invoice Types
+            'Sales Invoice': 'Facture de Vente',
+            'Purchase Invoice': 'Facture d\'Achat',
+
+            // Account Types
+            'Asset': 'Actif',
+            'Liability': 'Passif',
+            'Equity': 'Capitaux Propres',
+            'Revenue': 'Revenus',
+            'Expense': 'Dépenses',
+
+            // Entry Types
+            'Manual Entry': 'Entrée Manuelle',
+            'Sales Entry': 'Entrée de Ventes',
+            'Purchase Entry': 'Entrée d\'Achats',
+            'Payment Entry': 'Entrée de Paiement',
+            'Receipt Entry': 'Entrée de Reçu',
+            'Adjustment Entry': 'Entrée d\'Ajustement',
+
+            // Employment Status
+            'Active': 'Actif',
+            'Inactive': 'Inactif',
+            'Terminated': 'Résilié',
+            'On Leave': 'En Congé',
+
+            // Transaction Types
+            'Stock In': 'Entrée de Stock',
+            'Stock Out': 'Sortie de Stock',
+            'Transfer': 'Transfert',
+            'Adjustment': 'Ajustement',
+            'Return': 'Retour',
+
+            // Payment Methods
+            'Cash': 'Espèces',
+            'Check': 'Chèque',
+            'Bank Transfer': 'Virement Bancaire',
+            'Credit Card': 'Carte de Crédit',
+            'Other': 'Autre',
+
+            // Payment Types
+            'Receipt': 'Reçu',
+            'Payment': 'Paiement',
+
+            // Lead Status
+            'New': 'Nouveau',
+            'Contacted': 'Contacté',
+            'Qualified': 'Qualifié',
+            'Proposal Sent': 'Proposition Envoyée',
+            'Negotiation': 'Négociation',
+            'Won': 'Gagné',
+            'Lost': 'Perdu',
+
+            // Lead Source
+            'Email Inquiry': 'Demande par Email',
+            'Website Form': 'Formulaire Web',
+            'Phone Call': 'Appel Téléphonique',
+            'Referral': 'Référence',
+            'Social Media': 'Médias Sociaux',
+            'Trade Show': 'Salon Professionnel',
+
+            // Lead Priority
+            'Low': 'Faible',
+            'Medium': 'Moyenne',
+            'High': 'Élevée',
+            'Urgent': 'Urgent',
+
+            // Report Types
+            'Balance Sheet': 'Bilan',
+            'Income Statement': 'Compte de Résultat',
+            'Cash Flow Statement': 'Tableau de Flux de Trésorerie',
+            'Trial Balance': 'Balance de Vérification',
+        });
+
+        // German translations
+        Object.assign(window.translations.de, {
+            // Customer Types
+            'Individual': 'Einzelperson',
+            'Business': 'Unternehmen',
+            'Government': 'Regierung',
+
+            // Vendor Types
+            'Supplier': 'Lieferant',
+            'Service Provider': 'Dienstleister',
+            'Contractor': 'Auftragnehmer',
+
+            // Product Types
+            'Product': 'Produkt',
+            'Service': 'Dienstleistung',
+            'Raw Material': 'Rohmaterial',
+
+            // Order Status
+            'Draft': 'Entwurf',
+            'Pending': 'Ausstehend',
+            'Confirmed': 'Bestätigt',
+            'Shipped': 'Versendet',
+            'Delivered': 'Geliefert',
+            'Completed': 'Abgeschlossen',
+            'Cancelled': 'Storniert',
+            'Received': 'Empfangen',
+
+            // Invoice Status
+            'Sent': 'Gesendet',
+            'Paid': 'Bezahlt',
+            'Overdue': 'Überfällig',
+
+            // Invoice Types
+            'Sales Invoice': 'Verkaufsrechnung',
+            'Purchase Invoice': 'Einkaufsrechnung',
+
+            // Account Types
+            'Asset': 'Vermögen',
+            'Liability': 'Verbindlichkeit',
+            'Equity': 'Eigenkapital',
+            'Revenue': 'Einnahmen',
+            'Expense': 'Ausgaben',
+
+            // Entry Types
+            'Manual Entry': 'Manuelle Eingabe',
+            'Sales Entry': 'Verkaufseintrag',
+            'Purchase Entry': 'Kaufeintrag',
+            'Payment Entry': 'Zahlungseintrag',
+            'Receipt Entry': 'Belegeintrag',
+            'Adjustment Entry': 'Anpassungseintrag',
+
+            // Employment Status
+            'Active': 'Aktiv',
+            'Inactive': 'Inaktiv',
+            'Terminated': 'Beendet',
+            'On Leave': 'Im Urlaub',
+
+            // Transaction Types
+            'Stock In': 'Wareneingang',
+            'Stock Out': 'Warenausgang',
+            'Transfer': 'Übertragung',
+            'Adjustment': 'Anpassung',
+            'Return': 'Rücksendung',
+
+            // Payment Methods
+            'Cash': 'Bargeld',
+            'Check': 'Scheck',
+            'Bank Transfer': 'Banküberweisung',
+            'Credit Card': 'Kreditkarte',
+            'Other': 'Sonstiges',
+
+            // Payment Types
+            'Receipt': 'Quittung',
+            'Payment': 'Zahlung',
+
+            // Lead Status
+            'New': 'Neu',
+            'Contacted': 'Kontaktiert',
+            'Qualified': 'Qualifiziert',
+            'Proposal Sent': 'Angebot Gesendet',
+            'Negotiation': 'Verhandlung',
+            'Won': 'Gewonnen',
+            'Lost': 'Verloren',
+
+            // Lead Source
+            'Email Inquiry': 'E-Mail-Anfrage',
+            'Website Form': 'Website-Formular',
+            'Phone Call': 'Telefonanruf',
+            'Referral': 'Empfehlung',
+            'Social Media': 'Soziale Medien',
+            'Trade Show': 'Messe',
+
+            // Lead Priority
+            'Low': 'Niedrig',
+            'Medium': 'Mittel',
+            'High': 'Hoch',
+            'Urgent': 'Dringend',
+
+            // Report Types
+            'Balance Sheet': 'Bilanz',
+            'Income Statement': 'Gewinn- und Verlustrechnung',
+            'Cash Flow Statement': 'Kapitalflussrechnung',
+            'Trial Balance': 'Probebilanz',
+        });
+
+        // Chinese translations
+        Object.assign(window.translations.zh, {
+            // Customer Types
+            'Individual': '个人',
+            'Business': '企业',
+            'Government': '政府',
+
+            // Vendor Types
+            'Supplier': '供应商',
+            'Service Provider': '服务提供商',
+            'Contractor': '承包商',
+
+            // Product Types
+            'Product': '产品',
+            'Service': '服务',
+            'Raw Material': '原材料',
+
+            // Order Status
+            'Draft': '草稿',
+            'Pending': '待处理',
+            'Confirmed': '已确认',
+            'Shipped': '已发货',
+            'Delivered': '已交付',
+            'Completed': '已完成',
+            'Cancelled': '已取消',
+            'Received': '已收到',
+
+            // Invoice Status
+            'Sent': '已发送',
+            'Paid': '已付款',
+            'Overdue': '逾期',
+
+            // Invoice Types
+            'Sales Invoice': '销售发票',
+            'Purchase Invoice': '采购发票',
+
+            // Account Types
+            'Asset': '资产',
+            'Liability': '负债',
+            'Equity': '权益',
+            'Revenue': '收入',
+            'Expense': '费用',
+
+            // Entry Types
+            'Manual Entry': '手动输入',
+            'Sales Entry': '销售分录',
+            'Purchase Entry': '采购分录',
+            'Payment Entry': '付款分录',
+            'Receipt Entry': '收款分录',
+            'Adjustment Entry': '调整分录',
+
+            // Employment Status
+            'Active': '在职',
+            'Inactive': '非活跃',
+            'Terminated': '已终止',
+            'On Leave': '休假中',
+
+            // Transaction Types
+            'Stock In': '入库',
+            'Stock Out': '出库',
+            'Transfer': '转移',
+            'Adjustment': '调整',
+            'Return': '退货',
+
+            // Payment Methods
+            'Cash': '现金',
+            'Check': '支票',
+            'Bank Transfer': '银行转账',
+            'Credit Card': '信用卡',
+            'Other': '其他',
+
+            // Payment Types
+            'Receipt': '收据',
+            'Payment': '付款',
+
+            // Lead Status
+            'New': '新建',
+            'Contacted': '已联系',
+            'Qualified': '已验证',
+            'Proposal Sent': '已发送提案',
+            'Negotiation': '谈判中',
+            'Won': '已赢得',
+            'Lost': '已失去',
+
+            // Lead Source
+            'Email Inquiry': '电子邮件查询',
+            'Website Form': '网站表单',
+            'Phone Call': '电话',
+            'Referral': '推荐',
+            'Social Media': '社交媒体',
+            'Trade Show': '贸易展览',
+
+            // Lead Priority
+            'Low': '低',
+            'Medium': '中',
+            'High': '高',
+            'Urgent': '紧急',
+
+            // Report Types
+            'Balance Sheet': '资产负债表',
+            'Income Statement': '损益表',
+            'Cash Flow Statement': '现金流量表',
+            'Trial Balance': '试算表',
+        });
+
+        // Japanese translations
+        Object.assign(window.translations.ja, {
+
+            // Vendor Types
+            'Supplier': 'サプライヤー',
+            'Service Provider': 'サービスプロバイダー',
+            'Contractor': '請負業者',
+
+            // Product Types
+            'Product': '製品',
+            'Service': 'サービス',
+
+            // Common labels
+            'Contact Person': '担当者',
+            'Vendor Code': 'ベンダーコード',
+            'Vendor Type': 'ベンダータイプ',
+            'Vendor Information': 'ベンダー情報',
+            'Back to Vendors': 'ベンダー一覧に戻る',
+            'Recent Purchase Orders': '最近の発注書',
+            'Bank Details': '銀行情報',
+            'Location': '場所',
+            'Raw Material': '原材料',
+
+            // Order Status
+            'Draft': '下書き',
+            'Pending': '保留中',
+            'Confirmed': '確認済み',
+            'Shipped': '発送済み',
+            'Delivered': '配達済み',
+            'Completed': '完了',
+            'Cancelled': 'キャンセル',
+            'Received': '受領済み',
+
+            // Invoice Status
+            'Sent': '送信済み',
+            'Paid': '支払済み',
+            'Overdue': '期限切れ',
+
+            // Invoice Types
+            'Sales Invoice': '売上請求書',
+            'Purchase Invoice': '仕入請求書',
+
+            // Account Types
+            'Asset': '資産',
+            'Liability': '負債',
+            'Equity': '資本',
+            'Revenue': '収益',
+            'Expense': '費用',
+
+            // Entry Types
+            'Manual Entry': '手動入力',
+            'Sales Entry': '売上仕訳',
+            'Purchase Entry': '仕入仕訳',
+            'Payment Entry': '支払仕訳',
+            'Receipt Entry': '受領仕訳',
+            'Adjustment Entry': '調整仕訳',
+
+            // Employment Status
+            'Active': '在職',
+            'Inactive': '非活動',
+            'Terminated': '退職',
+            'On Leave': '休暇中',
+
+            // Transaction Types
+            'Stock In': '入庫',
+            'Stock Out': '出庫',
+            'Transfer': '転送',
+            'Adjustment': '調整',
+            'Return': '返品',
+
+            // Payment Methods
+            'Cash': '現金',
+            'Check': '小切手',
+            'Bank Transfer': '銀行振込',
+            'Credit Card': 'クレジットカード',
+            'Other': 'その他',
+
+            // Payment Types
+            'Receipt': '領収書',
+            'Payment': '支払い',
+
+            // Lead Status
+            'New': '新規',
+            'Contacted': '連絡済み',
+            'Qualified': '適格',
+            'Proposal Sent': '提案送信済み',
+            'Negotiation': '交渉中',
+            'Won': '受注',
+            'Lost': '失注',
+
+            // Lead Source
+            'Email Inquiry': 'メール問い合わせ',
+            'Website Form': 'ウェブサイトフォーム',
+            'Phone Call': '電話',
+            'Referral': '紹介',
+            'Social Media': 'ソーシャルメディア',
+            'Trade Show': '展示会',
+
+            // Lead Priority
+            'Low': '低',
+            'Medium': '中',
+            'High': '高',
+            'Urgent': '緊急',
+
+            // Report Types
+            'Balance Sheet': '貸借対照表',
+            'Income Statement': '損益計算書',
+            'Cash Flow Statement': 'キャッシュフロー計算書',
+            'Trial Balance': '試算表',
+        });
+
+        // Korean translations
+        Object.assign(window.translations.ko, {
+            // Customer Types
+            'Individual': '개인',
+            'Business': '기업',
+            'Government': '정부',
+
+            // Vendor Types
+            'Supplier': '공급업체',
+            'Service Provider': '서비스 제공업체',
+            'Contractor': '계약자',
+
+            // Product Types
+            'Product': '제품',
+            'Service': '서비스',
+            'Raw Material': '원자재',
+
+            // Order Status
+            'Draft': '초안',
+            'Pending': '대기중',
+            'Confirmed': '확인됨',
+            'Shipped': '배송됨',
+            'Delivered': '배달됨',
+            'Completed': '완료됨',
+            'Cancelled': '취소됨',
+            'Received': '수령됨',
+
+            // Invoice Status
+            'Sent': '발송됨',
+            'Paid': '지불됨',
+            'Overdue': '연체됨',
+
+            // Invoice Types
+            'Sales Invoice': '판매 송장',
+            'Purchase Invoice': '구매 송장',
+
+            // Account Types
+            'Asset': '자산',
+            'Liability': '부채',
+            'Equity': '자본',
+            'Revenue': '수익',
+            'Expense': '비용',
+
+            // Entry Types
+            'Manual Entry': '수동 입력',
+            'Sales Entry': '판매 항목',
+            'Purchase Entry': '구매 항목',
+            'Payment Entry': '지불 항목',
+            'Receipt Entry': '영수증 항목',
+            'Adjustment Entry': '조정 항목',
+
+            // Employment Status
+            'Active': '활성',
+            'Inactive': '비활성',
+            'Terminated': '종료됨',
+            'On Leave': '휴가중',
+
+            // Transaction Types
+            'Stock In': '입고',
+            'Stock Out': '출고',
+            'Transfer': '이동',
+            'Adjustment': '조정',
+            'Return': '반품',
+
+            // Payment Methods
+            'Cash': '현금',
+            'Check': '수표',
+            'Bank Transfer': '계좌 이체',
+            'Credit Card': '신용카드',
+            'Other': '기타',
+
+            // Payment Types
+            'Receipt': '영수증',
+            'Payment': '지불',
+
+            // Lead Status
+            'New': '신규',
+            'Contacted': '연락함',
+            'Qualified': '적격',
+            'Proposal Sent': '제안 발송됨',
+            'Negotiation': '협상중',
+            'Won': '성사',
+            'Lost': '실패',
+
+            // Lead Source
+            'Email Inquiry': '이메일 문의',
+            'Website Form': '웹사이트 양식',
+            'Phone Call': '전화',
+            'Referral': '추천',
+            'Social Media': '소셜 미디어',
+            'Trade Show': '전시회',
+
+            // Lead Priority
+            'Low': '낮음',
+            'Medium': '보통',
+            'High': '높음',
+            'Urgent': '긴급',
+
+            // Report Types
+            'Balance Sheet': '대차대조표',
+            'Income Statement': '손익계산서',
+            'Cash Flow Statement': '현금흐름표',
+            'Trial Balance': '시산표',
+        });
+
+        // Arabic translations
+        Object.assign(window.translations.ar, {
+            // Customer Types
+            'Individual': 'فردي',
+            'Business': 'أعمال',
+            'Government': 'حكومي',
+
+            // Vendor Types
+            'Supplier': 'مورد',
+            'Service Provider': 'مزود خدمة',
+            'Contractor': 'مقاول',
+
+            // Product Types
+            'Product': 'منتج',
+            'Service': 'خدمة',
+            'Raw Material': 'مادة خام',
+
+            // Order Status
+            'Draft': 'مسودة',
+            'Pending': 'قيد الانتظار',
+            'Confirmed': 'مؤكد',
+            'Shipped': 'تم الشحن',
+            'Delivered': 'تم التسليم',
+            'Completed': 'مكتمل',
+            'Cancelled': 'ملغى',
+            'Received': 'تم الاستلام',
+
+            // Invoice Status
+            'Sent': 'مرسل',
+            'Paid': 'مدفوع',
+            'Overdue': 'متأخر',
+
+            // Invoice Types
+            'Sales Invoice': 'فاتورة مبيعات',
+            'Purchase Invoice': 'فاتورة شراء',
+
+            // Account Types
+            'Asset': 'أصول',
+            'Liability': 'التزامات',
+            'Equity': 'حقوق ملكية',
+            'Revenue': 'إيرادات',
+            'Expense': 'مصروفات',
+
+            // Entry Types
+            'Manual Entry': 'إدخال يدوي',
+            'Sales Entry': 'قيد مبيعات',
+            'Purchase Entry': 'قيد شراء',
+            'Payment Entry': 'قيد دفع',
+            'Receipt Entry': 'قيد إيصال',
+            'Adjustment Entry': 'قيد تسوية',
+
+            // Employment Status
+            'Active': 'نشط',
+            'Inactive': 'غير نشط',
+            'Terminated': 'منتهي',
+            'On Leave': 'في إجازة',
+
+            // Transaction Types
+            'Stock In': 'إدخال مخزون',
+            'Stock Out': 'صرف مخزون',
+            'Transfer': 'تحويل',
+            'Adjustment': 'تسوية',
+            'Return': 'إرجاع',
+
+            // Payment Methods
+            'Cash': 'نقدي',
+            'Check': 'شيك',
+            'Bank Transfer': 'تحويل بنكي',
+            'Credit Card': 'بطاقة ائتمان',
+            'Other': 'أخرى',
+
+            // Payment Types
+            'Receipt': 'إيصال',
+            'Payment': 'دفع',
+
+            // Lead Status
+            'New': 'جديد',
+            'Contacted': 'تم الاتصال',
+            'Qualified': 'مؤهل',
+            'Proposal Sent': 'تم إرسال العرض',
+            'Negotiation': 'تفاوض',
+            'Won': 'فاز',
+            'Lost': 'خسر',
+
+            // Lead Source
+            'Email Inquiry': 'استفسار بريد إلكتروني',
+            'Website Form': 'نموذج الموقع',
+            'Phone Call': 'مكالمة هاتفية',
+            'Referral': 'إحالة',
+            'Social Media': 'وسائل التواصل الاجتماعي',
+            'Trade Show': 'معرض تجاري',
+
+            // Lead Priority
+            'Low': 'منخفض',
+            'Medium': 'متوسط',
+            'High': 'عالي',
+            'Urgent': 'عاجل',
+
+            // Report Types
+            'Balance Sheet': 'الميزانية العمومية',
+            'Income Statement': 'قائمة الدخل',
+            'Cash Flow Statement': 'قائمة التدفقات النقدية',
+            'Trial Balance': 'ميزان المراجعة',
+        });
+
+        console.log('✅ Category and status translations loaded for all languages');
+    } else {
+        console.warn('⚠️ Main translation system not loaded yet. Categories will be added when available.');
+    }
+})();
+</script>
+

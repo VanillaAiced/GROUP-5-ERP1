@@ -52,16 +52,16 @@
             <div class="relative mb-4 flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                     {% if current_folder == 'inbox' %}
-                        <i class="fas fa-inbox text-blue-500"></i> Inbox
+                        <i class="fas fa-inbox text-blue-500"></i> <span data-translate="Inbox">Inbox</span>
                         {% if unread_count > 0 %}
                             <span class="ml-2 bg-blue-500 text-white text-xs py-1 px-2 rounded-full">{{ unread_count }}</span>
                         {% endif %}
                     {% elif current_folder == 'sent' %}
-                        <i class="fas fa-paper-plane text-blue-500"></i> Sent
+                        <i class="fas fa-paper-plane text-blue-500"></i> <span data-translate="Sent">Sent</span>
                     {% elif current_folder == 'draft' %}
-                        <i class="fas fa-file-alt text-blue-500"></i> Drafts
+                        <i class="fas fa-file-alt text-blue-500"></i> <span data-translate="Drafts">Drafts</span>
                     {% elif current_folder == 'trash' %}
-                        <i class="fas fa-trash text-blue-500"></i> Trash
+                        <i class="fas fa-trash text-blue-500"></i> <span data-translate="Trash">Trash</span>
                     {% endif %}
                 </h2>
                 <button
@@ -69,27 +69,27 @@
                     onclick="openComposeModal()"
                     class="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600 transition-colors duration-300"
                 >
-                    <i class="fas fa-edit mr-2"></i>Compose
+                    <i class="fas fa-edit mr-2"></i><span data-translate="Compose">Compose</span>
                 </button>
             </div>
 
             <div class="relative mb-4">
-                <input type="text" placeholder="Search emails" class="w-full pl-4 pr-10 py-2 rounded-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" data-translate="Search emails" placeholder="Search emails" class="w-full pl-4 pr-10 py-2 rounded-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300"></i>
             </div>
 
             <div class="flex mb-4 border-b dark:border-gray-700">
                 <a href="{% url 'inbox' %}?folder=inbox" class="px-3 py-2 {% if current_folder == 'inbox' %}text-blue-500 border-b-2 border-blue-500 font-medium{% else %}text-gray-500 dark:text-gray-400 hover:text-blue-500{% endif %}">
-                    Inbox
+                    <span data-translate="Inbox">Inbox</span>
                 </a>
                 <a href="{% url 'inbox' %}?folder=sent" class="px-3 py-2 {% if current_folder == 'sent' %}text-blue-500 border-b-2 border-blue-500 font-medium{% else %}text-gray-500 dark:text-gray-400 hover:text-blue-500{% endif %}">
-                    Sent
+                    <span data-translate="Sent">Sent</span>
                 </a>
                 <a href="{% url 'inbox' %}?folder=draft" class="px-3 py-2 {% if current_folder == 'draft' %}text-blue-500 border-b-2 border-blue-500 font-medium{% else %}text-gray-500 dark:text-gray-400 hover:text-blue-500{% endif %}">
-                    Drafts
+                    <span data-translate="Drafts">Drafts</span>
                 </a>
                 <a href="{% url 'inbox' %}?folder=trash" class="px-3 py-2 {% if current_folder == 'trash' %}text-blue-500 border-b-2 border-blue-500 font-medium{% else %}text-gray-500 dark:text-gray-400 hover:text-blue-500{% endif %}">
-                    Trash
+                    <span data-translate="Trash">Trash</span>
                 </a>
             </div>
 
@@ -132,7 +132,7 @@
                 {% else %}
                     <div class="text-center text-gray-500 dark:text-gray-400 p-8">
                         <i class="fas fa-inbox text-4xl mb-2"></i>
-                        <p>No emails in this folder</p>
+                        <p data-translate="No emails in this folder">No emails in this folder</p>
                     </div>
                 {% endif %}
             </div>
@@ -141,12 +141,12 @@
                 <form action="{% url 'fetch_external_emails' %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 py-2 px-4 rounded-full transition-colors mb-2">
-                        <i class="fas fa-sync-alt mr-2"></i>Sync External Emails
+                        <i class="fas fa-sync-alt mr-2"></i><span data-translate="Sync External Emails">Sync External Emails</span>
                     </button>
                 </form>
 
                 <a href="{% url 'email_settings' %}" class="block text-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 py-2 px-4 rounded-full transition-colors">
-                    <i class="fas fa-cog mr-2"></i>Email Settings
+                    <i class="fas fa-cog mr-2"></i><span data-translate="Email Settings">Email Settings</span>
                 </a>
             </div>
         </div>
@@ -156,8 +156,8 @@
             <div id="emailContent" class="flex-grow overflow-y-auto space-y-4 pr-2">
                 <div class="text-center text-gray-500 dark:text-gray-400 mt-20" id="emptyState">
                     <i class="fas fa-envelope-open text-6xl mb-4"></i>
-                    <h5 class="text-xl font-medium">Select an email to view</h5>
-                    <p class="mt-2">Click on an email from the list to view its content</p>
+                    <h5 class="text-xl font-medium" data-translate="Inbox">Inbox</h5>
+                    <p class="mt-2" data-translate="Your inbox messages will appear here.">Your inbox messages will appear here.</p>
                 </div>
 
                 <div id="emailDetails" class="hidden">
@@ -182,7 +182,7 @@
                     <div id="emailBody" class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"></div>
 
                     <div id="attachmentsArea" class="mt-6 hidden">
-                        <h5 class="text-sm font-semibold mb-2 text-gray-900 dark:text-white"><i class="fas fa-paperclip mr-2"></i>Attachments</h5>
+                        <h5 class="text-sm font-semibold mb-2 text-gray-900 dark:text-white"><i class="fas fa-paperclip mr-2"></i><span data-translate="Attachments">Attachments</span></h5>
                         <div id="attachmentsList" class="space-y-2"></div>
                     </div>
                 </div>
@@ -190,7 +190,7 @@
 
             <div class="flex justify-end mt-4">
                 <button id="replyBtn" class="bg-blue-500 text-white py-2 px-6 rounded-full hover:bg-blue-600 transition-colors duration-300 hidden">
-                    <i class="fas fa-reply mr-2"></i>Reply
+                    <i class="fas fa-reply mr-2"></i><span data-translate="Reply">Reply</span>
                 </button>
             </div>
 
@@ -199,10 +199,10 @@
                 <textarea id="replyText" placeholder="Type your reply..." class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2" rows="5"></textarea>
                 <div class="flex justify-between items-center">
                     <button class="text-gray-500 dark:text-gray-400 hover:text-blue-500">
-                        <i class="fas fa-paperclip"></i> Attach File
+                        <i class="fas fa-paperclip"></i> <span data-translate="Attach File">Attach File</span>
                     </button>
                     <button id="sendReplyBtn" class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors duration-300">
-                        Send <i class="fas fa-paper-plane ml-2"></i>
+                        <span data-translate="Send">Send</span> <i class="fas fa-paper-plane ml-2"></i>
                     </button>
                 </div>
             </div>
@@ -216,7 +216,7 @@
         <!-- Modal Header -->
         <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
             <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
-                <i class="fas fa-edit mr-2 text-blue-500"></i>Compose Email
+                <i class="fas fa-edit mr-2 text-blue-500"></i><span data-translate="Compose Email">Compose Email</span>
             </h2>
             <button onclick="closeComposeModal()" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 text-2xl">
                 <i class="fas fa-times"></i>
@@ -229,7 +229,7 @@
             <div class="flex-grow p-6 space-y-4 overflow-y-auto">
                 <!-- To Field -->
                 <div class="flex items-center space-x-3">
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16">To:</label>
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16" data-translate="To">To:</label>
                     <input
                         type="email"
                         name="recipient_email"
@@ -241,7 +241,7 @@
 
                 <!-- Subject Field -->
                 <div class="flex items-center space-x-3">
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16">Subject:</label>
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16" data-translate="Subject">Subject:</label>
                     <input
                         type="text"
                         name="subject"
@@ -253,7 +253,7 @@
 
                 <!-- Message Body -->
                 <div class="space-y-2">
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Message:</label>
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300" data-translate="Message">Message:</label>
                     <textarea
                         name="body"
                         rows="12"
@@ -265,7 +265,7 @@
 
                 <!-- File Attachment -->
                 <div class="flex items-center space-x-3">
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16">Attach:</label>
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 w-16" data-translate="Attach">Attach:</label>
                     <input
                         type="file"
                         name="attachments"
@@ -279,7 +279,7 @@
             <div class="flex justify-between items-center p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                 <div class="flex items-center space-x-4">
                     <button type="button" class="text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors">
-                        <i class="fas fa-paperclip mr-1"></i> Attach
+                        <i class="fas fa-paperclip mr-1"></i> <span data-translate="Attach">Attach</span>
                     </button>
                 </div>
                 <div class="flex space-x-3">
@@ -288,13 +288,13 @@
                         name="save_draft"
                         class="px-6 py-2 border border-blue-500 text-blue-500 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors duration-300"
                     >
-                        <i class="fas fa-save mr-2"></i>Save Draft
+                        <i class="fas fa-save mr-2"></i><span data-translate="Save Draft">Save Draft</span>
                     </button>
                     <button
                         type="submit"
                         class="px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-300"
                     >
-                        <i class="fas fa-paper-plane mr-2"></i>Send Email
+                        <i class="fas fa-paper-plane mr-2"></i><span data-translate="Send Email">Send Email</span>
                     </button>
                 </div>
             </div>

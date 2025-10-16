@@ -1,0 +1,1086 @@
+<script>
+// Additional translations for all ERP pages
+(function() {
+    if (typeof window.translate !== 'function') {
+        console.error('Translation system not loaded');
+        return;
+    }
+
+    // Extend translations object
+    const additionalTranslations = {
+        en: {
+            // Common Actions & Buttons
+            'View': 'View',
+            'Edit': 'Edit',
+            'Delete': 'Delete',
+            'Previous': 'Previous',
+            'Next': 'Next',
+            'Page': 'Page',
+            'of': 'of',
+            'Filter': 'Filter',
+            'Clear': 'Clear',
+            'All Status': 'All Status',
+
+            // Status Messages
+            'All items are well stocked': 'All items are well stocked',
+            'No customers found': 'No customers found',
+            'No vendors found': 'No vendors found',
+            'No products found': 'No products found',
+            'No sales orders found': 'No sales orders found',
+            'No purchase orders found': 'No purchase orders found',
+            'No employees found': 'No employees found',
+            'No payments found': 'No payments found',
+            'No invoices found': 'No invoices found',
+            'No inventory records found': 'No inventory records found',
+            'Your inbox messages will appear here.': 'Your inbox messages will appear here.',
+
+            // Vendor Types
+            'Service Provider': 'Service Provider',
+            'Supplier': 'Supplier',
+            'Contractor': 'Contractor',
+
+            // Order Status
+            'Pending': 'Pending',
+            'Completed': 'Completed',
+            'Cancelled': 'Cancelled',
+            'Draft': 'Draft',
+            'Paid': 'Paid',
+            'Overdue': 'Overdue',
+
+            // Customers
+            'Customer Code': 'Customer Code',
+            'Name': 'Name',
+            'Phone': 'Phone',
+            'Type': 'Type',
+            'Actions': 'Actions',
+            'Individual': 'Individual',
+            'Business': 'Business',
+            'All Types': 'All Types',
+            'Search customers...': 'Search customers...',
+
+            // Vendors
+            'Vendors': 'Vendors',
+            'Add Vendor': 'Add Vendor',
+            'Vendor Code': 'Vendor Code',
+            'Company Name': 'Company Name',
+            'Contact Person': 'Contact Person',
+            'Search vendors...': 'Search vendors...',
+
+            // Products
+            'Product Code': 'Product Code',
+            'Product Name': 'Product Name',
+            'Category': 'Category',
+            'Price': 'Price',
+            'Stock': 'Stock',
+            'Search products...': 'Search products...',
+
+            // Sales Orders
+            'Order Number': 'Order Number',
+            'Customer': 'Customer',
+            'Order Date': 'Order Date',
+            'Total Amount': 'Total Amount',
+            'Status': 'Status',
+
+            // Purchase Orders
+            'Purchase Orders': 'Purchase Orders',
+            'Create Purchase Order': 'Create Purchase Order',
+            'PO Number': 'PO Number',
+            'Vendor': 'Vendor',
+            'Expected Delivery': 'Expected Delivery',
+
+            // Inventory
+            'Inventory Management': 'Inventory Management',
+            'Stock Level': 'Stock Level',
+            'Warehouse': 'Warehouse',
+            'Location': 'Location',
+            'Transactions': 'Transactions',
+
+            // Employees/HR
+            'Employee Code': 'Employee Code',
+            'Employee Name': 'Employee Name',
+            'Department': 'Department',
+            'Position': 'Position',
+            'Hire Date': 'Hire Date',
+            'Salary': 'Salary',
+            'Add Employee': 'Add Employee',
+            'Search employees...': 'Search employees...',
+
+            // Payments
+            'Payments': 'Payments',
+            'Payment Date': 'Payment Date',
+            'Payment Method': 'Payment Method',
+            'Amount': 'Amount',
+            'Payment Status': 'Payment Status',
+            'Create Payment': 'Create Payment',
+
+            // Invoices
+            'Invoices': 'Invoices',
+            'Invoice Management': 'Invoice Management',
+            'Create Invoice': 'Create Invoice',
+            'Invoice Number': 'Invoice Number',
+            'Invoice Date': 'Invoice Date',
+            'Due Date': 'Due Date',
+
+            // Financial Reports
+            'Financial Reports': 'Financial Reports',
+            'Balance Sheet': 'Balance Sheet',
+            'Income Statement': 'Income Statement',
+            'Generate Report': 'Generate Report',
+
+            // Inbox/Email
+            'Inbox': 'Inbox',
+            'Compose': 'Compose',
+            'Sent': 'Sent',
+            'Drafts': 'Drafts',
+            'Trash': 'Trash',
+            'Search emails': 'Search emails',
+            'Subject': 'Subject',
+            'From': 'From',
+            'To': 'To',
+            'Send': 'Send',
+            'Email Functionality': 'Email Functionality',
+            'Email functionality can be configured through the Email module. Check the Email Integration Guide for setup instructions.': 'Email functionality can be configured through the Email module. Check the Email Integration Guide for setup instructions.',
+        },
+        es: {
+            // Common Actions & Buttons
+            'View': 'Ver',
+            'Edit': 'Editar',
+            'Delete': 'Eliminar',
+            'Previous': 'Anterior',
+            'Next': 'Siguiente',
+            'Page': 'Página',
+            'of': 'de',
+            'Filter': 'Filtrar',
+            'Clear': 'Limpiar',
+            'All Status': 'Todos los Estados',
+
+            // Status Messages
+            'All items are well stocked': 'Todos los artículos están bien abastecidos',
+            'No customers found': 'No se encontraron clientes',
+            'No vendors found': 'No se encontraron proveedores',
+            'No products found': 'No se encontraron productos',
+            'No sales orders found': 'No se encontraron órdenes de venta',
+            'No purchase orders found': 'No se encontraron órdenes de compra',
+            'No employees found': 'No se encontraron empleados',
+            'No payments found': 'No se encontraron pagos',
+            'No invoices found': 'No se encontraron facturas',
+            'No inventory records found': 'No se encontraron registros de inventario',
+            'Your inbox messages will appear here.': 'Sus mensajes de bandeja de entrada aparecerán aquí.',
+
+            // Vendor Types
+            'Service Provider': 'Proveedor de Servicios',
+            'Supplier': 'Proveedor',
+            'Contractor': 'Contratista',
+
+            // Order Status
+            'Pending': 'Pendiente',
+            'Completed': 'Completado',
+            'Cancelled': 'Cancelado',
+            'Draft': 'Borrador',
+            'Paid': 'Pagado',
+            'Overdue': 'Vencido',
+
+            // Customers
+            'Customer Code': 'Código de Cliente',
+            'Name': 'Nombre',
+            'Phone': 'Teléfono',
+            'Type': 'Tipo',
+            'Actions': 'Acciones',
+            'Individual': 'Individual',
+            'Business': 'Empresa',
+            'All Types': 'Todos los Tipos',
+            'Search customers...': 'Buscar clientes...',
+
+            // Vendors
+            'Vendors': 'Proveedores',
+            'Add Vendor': 'Agregar Proveedor',
+            'Vendor Code': 'Código de Proveedor',
+            'Company Name': 'Nombre de Empresa',
+            'Contact Person': 'Persona de Contacto',
+            'Search vendors...': 'Buscar proveedores...',
+
+            // Products
+            'Product Code': 'Código de Producto',
+            'Product Name': 'Nombre del Producto',
+            'Category': 'Categoría',
+            'Price': 'Precio',
+            'Stock': 'Stock',
+            'Search products...': 'Buscar productos...',
+
+            // Sales Orders
+            'Order Number': 'Número de Pedido',
+            'Customer': 'Cliente',
+            'Order Date': 'Fecha de Pedido',
+            'Total Amount': 'Monto Total',
+            'Status': 'Estado',
+
+            // Purchase Orders
+            'Purchase Orders': 'Órdenes de Compra',
+            'Create Purchase Order': 'Crear Orden de Compra',
+            'PO Number': 'Número de OC',
+            'Vendor': 'Proveedor',
+            'Expected Delivery': 'Entrega Esperada',
+
+            // Inventory
+            'Inventory Management': 'Gestión de Inventario',
+            'Stock Level': 'Nivel de Stock',
+            'Warehouse': 'Almacén',
+            'Location': 'Ubicación',
+            'Transactions': 'Transacciones',
+
+            // Employees/HR
+            'Employee Code': 'Código de Empleado',
+            'Employee Name': 'Nombre del Empleado',
+            'Department': 'Departamento',
+            'Position': 'Posición',
+            'Hire Date': 'Fecha de Contratación',
+            'Salary': 'Salario',
+            'Add Employee': 'Agregar Empleado',
+            'Search employees...': 'Buscar empleados...',
+
+            // Payments
+            'Payments': 'Pagos',
+            'Payment Date': 'Fecha de Pago',
+            'Payment Method': 'Método de Pago',
+            'Amount': 'Monto',
+            'Payment Status': 'Estado del Pago',
+            'Create Payment': 'Crear Pago',
+
+            // Invoices
+            'Invoices': 'Facturas',
+            'Invoice Management': 'Gestión de Facturas',
+            'Create Invoice': 'Crear Factura',
+            'Invoice Number': 'Número de Factura',
+            'Invoice Date': 'Fecha de Factura',
+            'Due Date': 'Fecha de Vencimiento',
+
+            // Financial Reports
+            'Financial Reports': 'Informes Financieros',
+            'Balance Sheet': 'Balance General',
+            'Income Statement': 'Estado de Resultados',
+            'Generate Report': 'Generar Informe',
+
+            // Inbox/Email
+            'Inbox': 'Bandeja de Entrada',
+            'Compose': 'Redactar',
+            'Sent': 'Enviados',
+            'Drafts': 'Borradores',
+            'Trash': 'Papelera',
+            'Search emails': 'Buscar correos',
+            'Subject': 'Asunto',
+            'From': 'De',
+            'To': 'Para',
+            'Send': 'Enviar',
+            'Email Functionality': 'Funcionalidad de Correo',
+            'Email functionality can be configured through the Email module. Check the Email Integration Guide for setup instructions.': 'La funcionalidad de correo electrónico se puede configurar a través del módulo de correo electrónico. Consulte la Guía de integración de correo electrónico para obtener instrucciones de configuración.',
+        },
+        fr: {
+            // Common Actions & Buttons
+            'View': 'Voir',
+            'Edit': 'Modifier',
+            'Delete': 'Supprimer',
+            'Previous': 'Précédent',
+            'Next': 'Suivant',
+            'Page': 'Page',
+            'of': 'de',
+            'Filter': 'Filtrer',
+            'Clear': 'Effacer',
+            'All Status': 'Tous les Statuts',
+
+            // Status Messages
+            'All items are well stocked': 'Tous les articles sont bien approvisionnés',
+            'No customers found': 'Aucun client trouvé',
+            'No vendors found': 'Aucun fournisseur trouvé',
+            'No products found': 'Aucun produit trouvé',
+            'No sales orders found': 'Aucune commande de vente trouvée',
+            'No purchase orders found': 'Aucune commande d\'achat trouvée',
+            'No employees found': 'Aucun employé trouvé',
+            'No payments found': 'Aucun paiement trouvé',
+            'No invoices found': 'Aucune facture trouvée',
+            'No inventory records found': 'Aucun enregistrement d\'inventaire trouvé',
+            'Your inbox messages will appear here.': 'Vos messages de boîte de réception apparaîtront ici.',
+
+            // Vendor Types
+            'Service Provider': 'Fournisseur de Services',
+            'Supplier': 'Fournisseur',
+            'Contractor': 'Entrepreneur',
+
+            // Order Status
+            'Pending': 'En attente',
+            'Completed': 'Terminé',
+            'Cancelled': 'Annulé',
+            'Draft': 'Brouillon',
+            'Paid': 'Payé',
+            'Overdue': 'En retard',
+
+            // Customers
+            'Customer Code': 'Code Client',
+            'Name': 'Nom',
+            'Phone': 'Téléphone',
+            'Type': 'Type',
+            'Actions': 'Actions',
+            'Individual': 'Individuel',
+            'Business': 'Entreprise',
+            'All Types': 'Tous les Types',
+            'Search customers...': 'Rechercher des clients...',
+
+            // Vendors
+            'Vendors': 'Fournisseurs',
+            'Add Vendor': 'Ajouter Fournisseur',
+            'Vendor Code': 'Code Fournisseur',
+            'Company Name': 'Nom de l\'Entreprise',
+            'Contact Person': 'Personne de Contact',
+            'Search vendors...': 'Rechercher des fournisseurs...',
+
+            // Products
+            'Product Code': 'Code Produit',
+            'Product Name': 'Nom du Produit',
+            'Category': 'Catégorie',
+            'Price': 'Prix',
+            'Stock': 'Stock',
+            'Search products...': 'Rechercher des produits...',
+
+            // Sales Orders
+            'Order Number': 'Numéro de Commande',
+            'Customer': 'Client',
+            'Order Date': 'Date de Commande',
+            'Total Amount': 'Montant Total',
+            'Status': 'Statut',
+
+            // Purchase Orders
+            'Purchase Orders': 'Commandes d\'Achat',
+            'Create Purchase Order': 'Créer une Commande d\'Achat',
+            'PO Number': 'Numéro de BA',
+            'Vendor': 'Fournisseur',
+            'Expected Delivery': 'Livraison Prévue',
+
+            // Inventory
+            'Inventory Management': 'Gestion des Stocks',
+            'Stock Level': 'Niveau de Stock',
+            'Warehouse': 'Entrepôt',
+            'Location': 'Emplacement',
+            'Transactions': 'Transactions',
+
+            // Employees/HR
+            'Employee Code': 'Code Employé',
+            'Employee Name': 'Nom de l\'Employé',
+            'Department': 'Département',
+            'Position': 'Poste',
+            'Hire Date': 'Date d\'Embauche',
+            'Salary': 'Salaire',
+            'Add Employee': 'Ajouter un Employé',
+            'Search employees...': 'Rechercher des employés...',
+
+            // Payments
+            'Payments': 'Paiements',
+            'Payment Date': 'Date de Paiement',
+            'Payment Method': 'Méthode de Paiement',
+            'Amount': 'Montant',
+            'Payment Status': 'Statut du Paiement',
+            'Create Payment': 'Créer un Paiement',
+
+            // Invoices
+            'Invoices': 'Factures',
+            'Invoice Management': 'Gestion des Factures',
+            'Create Invoice': 'Créer une Facture',
+            'Invoice Number': 'Numéro de Facture',
+            'Invoice Date': 'Date de Facture',
+            'Due Date': 'Date d\'Échéance',
+
+            // Financial Reports
+            'Financial Reports': 'Rapports Financiers',
+            'Balance Sheet': 'Bilan',
+            'Income Statement': 'Compte de Résultat',
+            'Generate Report': 'Générer un Rapport',
+
+            // Inbox/Email
+            'Inbox': 'Boîte de Réception',
+            'Compose': 'Composer',
+            'Sent': 'Envoyés',
+            'Drafts': 'Brouillons',
+            'Trash': 'Corbeille',
+            'Search emails': 'Rechercher des e-mails',
+            'Subject': 'Sujet',
+            'From': 'De',
+            'To': 'À',
+            'Send': 'Envoyer',
+            'Email Functionality': 'Fonctionnalité d\'Email',
+            'Email functionality can be configured through the Email module. Check the Email Integration Guide for setup instructions.': 'La fonctionnalité d\'email peut être configurée via le module Email. Consultez le Guide d\'intégration des e-mails pour les instructions de configuration.',
+        },
+        de: {
+            // Common Actions & Buttons
+            'View': 'Ansehen',
+            'Edit': 'Bearbeiten',
+            'Delete': 'Löschen',
+            'Previous': 'Vorherige',
+            'Next': 'Nächste',
+            'Page': 'Seite',
+            'of': 'von',
+            'Filter': 'Filter',
+            'Clear': 'Löschen',
+            'All Status': 'Alle Status',
+
+            // Status Messages
+            'All items are well stocked': 'Alle Artikel sind gut auf Lager',
+            'No customers found': 'Keine Kunden gefunden',
+            'No vendors found': 'Keine Lieferanten gefunden',
+            'No products found': 'Keine Produkte gefunden',
+            'No sales orders found': 'Keine Verkaufsbestellungen gefunden',
+            'No purchase orders found': 'Keine Bestellungen gefunden',
+            'No employees found': 'Keine Mitarbeiter gefunden',
+            'No payments found': 'Keine Zahlungen gefunden',
+            'No invoices found': 'Keine Rechnungen gefunden',
+            'No inventory records found': 'Keine Bestandsaufzeichnungen gefunden',
+            'Your inbox messages will appear here.': 'Ihre Nachrichten im Posteingang erscheinen hier.',
+
+            // Vendor Types
+            'Service Provider': 'Dienstleister',
+            'Supplier': 'Lieferant',
+            'Contractor': 'Auftragnehmer',
+
+            // Order Status
+            'Pending': 'Ausstehend',
+            'Completed': 'Abgeschlossen',
+            'Cancelled': 'Storniert',
+            'Draft': 'Entwurf',
+            'Paid': 'Bezahlt',
+            'Overdue': 'Überfällig',
+
+            // Customers
+            'Customer Code': 'Kundennummer',
+            'Name': 'Name',
+            'Phone': 'Telefon',
+            'Type': 'Typ',
+            'Actions': 'Aktionen',
+            'Individual': 'Individuell',
+            'Business': 'Geschäft',
+            'All Types': 'Alle Typen',
+            'Search customers...': 'Kunden suchen...',
+
+            // Vendors
+            'Vendors': 'Lieferanten',
+            'Add Vendor': 'Lieferant Hinzufügen',
+            'Vendor Code': 'Lieferantennummer',
+            'Company Name': 'Firmenname',
+            'Contact Person': 'Ansprechpartner',
+            'Search vendors...': 'Lieferanten suchen...',
+
+            // Products
+            'Product Code': 'Produktcode',
+            'Product Name': 'Produktname',
+            'Category': 'Kategorie',
+            'Price': 'Preis',
+            'Stock': 'Bestand',
+            'Search products...': 'Produkte suchen...',
+
+            // Sales Orders
+            'Order Number': 'Bestellnummer',
+            'Customer': 'Kunde',
+            'Order Date': 'Bestelldatum',
+            'Total Amount': 'Gesamtbetrag',
+            'Status': 'Status',
+
+            // Purchase Orders
+            'Purchase Orders': 'Bestellungen',
+            'Create Purchase Order': 'Bestellung Erstellen',
+            'PO Number': 'BE-Nummer',
+            'Vendor': 'Lieferant',
+            'Expected Delivery': 'Erwartete Lieferung',
+
+            // Inventory
+            'Inventory Management': 'Bestandsverwaltung',
+            'Stock Level': 'Lagerbestand',
+            'Warehouse': 'Lager',
+            'Location': 'Standort',
+            'Transactions': 'Transaktionen',
+
+            // Employees/HR
+            'Employee Code': 'Mitarbeiternummer',
+            'Employee Name': 'Mitarbeitername',
+            'Department': 'Abteilung',
+            'Position': 'Position',
+            'Hire Date': 'Einstellungsdatum',
+            'Salary': 'Gehalt',
+            'Add Employee': 'Mitarbeiter Hinzufügen',
+            'Search employees...': 'Mitarbeiter suchen...',
+
+            // Payments
+            'Payments': 'Zahlungen',
+            'Payment Date': 'Zahlungsdatum',
+            'Payment Method': 'Zahlungsmethode',
+            'Amount': 'Betrag',
+            'Payment Status': 'Zahlungsstatus',
+            'Create Payment': 'Zahlung Erstellen',
+
+            // Invoices
+            'Invoices': 'Rechnungen',
+            'Invoice Management': 'Rechnungsverwaltung',
+            'Create Invoice': 'Rechnung Erstellen',
+            'Invoice Number': 'Rechnungsnummer',
+            'Invoice Date': 'Rechnungsdatum',
+            'Due Date': 'Fälligkeitsdatum',
+
+            // Financial Reports
+            'Financial Reports': 'Finanzberichte',
+            'Balance Sheet': 'Bilanz',
+            'Income Statement': 'Gewinn- und Verlustrechnung',
+            'Generate Report': 'Bericht Erstellen',
+
+            // Inbox/Email
+            'Inbox': 'Posteingang',
+            'Compose': 'Verfassen',
+            'Sent': 'Gesendet',
+            'Drafts': 'Entwürfe',
+            'Trash': 'Papierkorb',
+            'Search emails': 'E-Mails suchen',
+            'Subject': 'Betreff',
+            'From': 'Von',
+            'To': 'An',
+            'Send': 'Senden',
+            'Email Functionality': 'E-Mail-Funktionalität',
+            'Email functionality can be configured through the Email module. Check the Email Integration Guide for setup instructions.': 'Die E-Mail-Funktionalität kann über das E-Mail-Modul konfiguriert werden. Weitere Informationen finden Sie im E-Mail-Integrationshandbuch.',
+        },
+        zh: {
+            // Common Actions & Buttons
+            'View': '查看',
+            'Edit': '编辑',
+            'Delete': '删除',
+            'Previous': '上一页',
+            'Next': '下一页',
+            'Page': '页',
+            'of': '的',
+            'Filter': '过滤',
+            'Clear': '清除',
+            'All Status': '所有状态',
+
+            // Status Messages
+            'All items are well stocked': '所有物品库存充足',
+            'No customers found': '未找到客户',
+            'No vendors found': '未找到供应商',
+            'No products found': '未找到产品',
+            'No sales orders found': '未找到销售订单',
+            'No purchase orders found': '未找到采购订单',
+            'No employees found': '未找到员工',
+            'No payments found': '未找到付款',
+            'No invoices found': '未找到发票',
+            'No inventory records found': '未找到库存记录',
+            'Your inbox messages will appear here.': '您的收件箱消息将显示在这里。',
+
+            // Vendor Types
+            'Service Provider': '服务提供商',
+            'Supplier': '供应商',
+            'Contractor': '承包商',
+
+            // Order Status
+            'Pending': '待处理',
+            'Completed': '已完成',
+            'Cancelled': '已取消',
+            'Draft': '草稿',
+            'Paid': '已支付',
+            'Overdue': '逾期',
+
+            // Customers
+            'Customer Code': '客户代码',
+            'Name': '姓名',
+            'Phone': '电话',
+            'Type': '类型',
+            'Actions': '操作',
+            'Individual': '个人',
+            'Business': '企业',
+            'All Types': '所有类型',
+            'Search customers...': '搜索客户...',
+
+            // Vendors
+            'Vendors': '供应商',
+            'Add Vendor': '添加供应商',
+            'Vendor Code': '供应商代码',
+            'Company Name': '公司名称',
+            'Contact Person': '联系人',
+            'Search vendors...': '搜索供应商...',
+
+            // Products
+            'Product Code': '产品代码',
+            'Product Name': '产品名称',
+            'Category': '类别',
+            'Price': '价格',
+            'Stock': '库存',
+            'Search products...': '搜索产品...',
+
+            // Sales Orders
+            'Order Number': '订单号',
+            'Customer': '客户',
+            'Order Date': '订单日期',
+            'Total Amount': '总金额',
+            'Status': '状态',
+
+            // Purchase Orders
+            'Purchase Orders': '采购订单',
+            'Create Purchase Order': '创建采购订单',
+            'PO Number': '采购订单号',
+            'Vendor': '供应商',
+            'Expected Delivery': '预期交货',
+
+            // Inventory
+            'Inventory Management': '库存管理',
+            'Stock Level': '库存水平',
+            'Warehouse': '仓库',
+            'Location': '位置',
+            'Transactions': '交易',
+
+            // Employees/HR
+            'Employee Code': '员工代码',
+            'Employee Name': '员工姓名',
+            'Department': '部门',
+            'Position': '职位',
+            'Hire Date': '入职日期',
+            'Salary': '工资',
+            'Add Employee': '添加员工',
+            'Search employees...': '搜索员工...',
+
+            // Payments
+            'Payments': '付款',
+            'Payment Date': '付款日期',
+            'Payment Method': '付款方式',
+            'Amount': '金额',
+            'Payment Status': '付款状态',
+            'Create Payment': '创建付款',
+
+            // Invoices
+            'Invoices': '发票',
+            'Invoice Management': '发票管理',
+            'Create Invoice': '创建发票',
+            'Invoice Number': '发票号码',
+            'Invoice Date': '发票日期',
+            'Due Date': '到期日期',
+
+            // Financial Reports
+            'Financial Reports': '财务报告',
+            'Balance Sheet': '资产负债表',
+            'Income Statement': '损益表',
+            'Generate Report': '生成报告',
+
+            // Inbox/Email
+            'Inbox': '收件箱',
+            'Compose': '撰写',
+            'Sent': '已发送',
+            'Drafts': '草稿',
+            'Trash': '垃圾箱',
+            'Search emails': '搜索邮件',
+            'Subject': '主题',
+            'From': '发件人',
+            'To': '收件人',
+            'Send': '发送',
+            'Email Functionality': '电子邮件功能',
+            'Email functionality can be configured through the Email module. Check the Email Integration Guide for setup instructions.': '电子邮件功能可以通过电子邮件模块进行配置。请查看电子邮件集成指南以获取设置说明。',
+        },
+        ja: {
+            // Common Actions & Buttons
+            'View': '表示',
+            'Edit': '編集',
+            'Delete': '削除',
+            'Previous': '前へ',
+            'Next': '次へ',
+            'Page': 'ページ',
+            'of': 'の',
+            'Filter': 'フィルター',
+            'Clear': 'クリア',
+            'All Status': 'すべてのステータス',
+
+            // Status Messages
+            'All items are well stocked': 'すべてのアイテムは十分に在庫されています',
+            'No customers found': '顧客が見つかりません',
+            'No vendors found': 'ベンダーが見つかりません',
+            'No products found': '製品が見つかりません',
+            'No sales orders found': '販売注文が見つかりません',
+            'No purchase orders found': '購入注文が見つかりません',
+            'No employees found': '従業員が見つかりません',
+            'No payments found': '支払いが見つかりません',
+            'No invoices found': '請求書が見つかりません',
+            'No inventory records found': '在庫記録が見つかりません',
+            'Your inbox messages will appear here.': '受信トレイのメッセージはここに表示されます。',
+
+            // Vendor Types
+            'Service Provider': 'サービスプロバイダー',
+            'Supplier': 'サプライヤー',
+            'Contractor': '請負業者',
+
+            // Order Status
+            'Pending': '保留中',
+            'Completed': '完了',
+            'Cancelled': 'キャンセル',
+            'Draft': 'ドラフト',
+            'Paid': '支払い済み',
+            'Overdue': '期限切れ',
+
+            // Customers
+            'Customer Code': '顧客コード',
+            'Name': '名前',
+            'Phone': '電話',
+            'Type': 'タイプ',
+            'Actions': 'アクション',
+            'Individual': '個人',
+            'Business': '法人',
+            'All Types': 'すべてのタイプ',
+            'Search customers...': '顧客を検索...',
+
+            // Vendors
+            'Vendors': 'ベンダー',
+            'Add Vendor': 'ベンダーを追加',
+            'Vendor Code': 'ベンダーコード',
+            'Company Name': '会社名',
+            'Contact Person': '担当者',
+            'Search vendors...': 'ベンダーを検索...',
+
+            // Products
+            'Product Code': '製品コード',
+            'Product Name': '製品名',
+            'Category': 'カテゴリ',
+            'Price': '価格',
+            'Stock': '在庫',
+            'Search products...': '製品を検索...',
+
+            // Sales Orders
+            'Order Number': '注文番号',
+            'Customer': '顧客',
+            'Order Date': '注文日',
+            'Total Amount': '合計金額',
+            'Status': 'ステータス',
+
+            // Purchase Orders
+            'Purchase Orders': '発注書',
+            'Create Purchase Order': '発注書を作成',
+            'PO Number': '発注書番号',
+            'Vendor': 'ベンダー',
+            'Expected Delivery': '配送予定',
+
+            // Inventory
+            'Inventory Management': '在庫管理',
+            'Stock Level': '在庫レベル',
+            'Warehouse': '倉庫',
+            'Location': '場所',
+            'Transactions': '取引',
+
+            // Employees/HR
+            'Employee Code': '従業員コード',
+            'Employee Name': '従業員名',
+            'Department': '部署',
+            'Position': '役職',
+            'Hire Date': '入社日',
+            'Salary': '給与',
+            'Add Employee': '従業員を追加',
+            'Search employees...': '従業員を検索...',
+
+            // Payments
+            'Payments': '支払い',
+            'Payment Date': '支払日',
+            'Payment Method': '支払方法',
+            'Amount': '金額',
+            'Payment Status': '支払状況',
+            'Create Payment': '支払いを作成',
+
+            // Invoices
+            'Invoices': '請求書',
+            'Invoice Management': '請求書管理',
+            'Create Invoice': '請求書を作成',
+            'Invoice Number': '請求書番号',
+            'Invoice Date': '請求書日付',
+            'Due Date': '支払期限',
+
+            // Financial Reports
+            'Financial Reports': '財務報告',
+            'Balance Sheet': '貸借対照表',
+            'Income Statement': '損益計算書',
+            'Generate Report': 'レポートを生成',
+
+            // Inbox/Email
+            'Inbox': '受信トレイ',
+            'Compose': '作成',
+            'Sent': '送信済み',
+            'Drafts': '下書き',
+            'Trash': 'ゴミ箱',
+            'Search emails': 'メールを検索',
+            'Subject': '件名',
+            'From': '差出人',
+            'To': '宛先',
+            'Send': '送信',
+            'Email Functionality': 'メール機能',
+            'Email functionality can be configured through the Email module. Check the Email Integration Guide for setup instructions.': 'メール機能はメールモジュールを通じて設定できます。設定手順については、メール統合ガイドを確認してください。',
+        },
+        ko: {
+            // Common Actions & Buttons
+            'View': '보기',
+            'Edit': '편집',
+            'Delete': '삭제',
+            'Previous': '이전',
+            'Next': '다음',
+            'Page': '페이지',
+            'of': '의',
+            'Filter': '필터',
+            'Clear': '지우기',
+            'All Status': '모든 상태',
+
+            // Status Messages
+            'All items are well stocked': '모든 품목이 잘 재고되어 있습니다',
+            'No customers found': '고객을 찾을 수 없습니다',
+            'No vendors found': '공급업체를 찾을 수 없습니다',
+            'No products found': '제품을 찾을 수 없습니다',
+            'No sales orders found': '판매 주문을 찾을 수 없습니다',
+            'No purchase orders found': '구매 주문을 찾을 수 없습니다',
+            'No employees found': '직원을 찾을 수 없습니다',
+            'No payments found': '지불을 찾을 수 없습니다',
+            'No invoices found': '송장을 찾을 수 없습니다',
+            'No inventory records found': '재고 기록을 찾을 수 없습니다',
+            'Your inbox messages will appear here.': '받은 편지함 메시지가 여기 나타납니다.',
+
+            // Vendor Types
+            'Service Provider': '서비스 제공자',
+            'Supplier': '공급자',
+            'Contractor': '계약자',
+
+            // Order Status
+            'Pending': '보류 중',
+            'Completed': '완료',
+            'Cancelled': '취소됨',
+            'Draft': '초안',
+            'Paid': '지급됨',
+            'Overdue': '연체',
+
+            // Customers
+            'Customer Code': '고객 코드',
+            'Name': '이름',
+            'Phone': '전화',
+            'Type': '유형',
+            'Actions': '작업',
+            'Individual': '개인',
+            'Business': '사업',
+            'All Types': '모든 유형',
+            'Search customers...': '고객 검색...',
+
+            // Vendors
+            'Vendors': '공급업체',
+            'Add Vendor': '공급업체 추가',
+            'Vendor Code': '공급업체 코드',
+            'Company Name': '회사명',
+            'Contact Person': '담당자',
+            'Search vendors...': '공급업체 검색...',
+
+            // Products
+            'Product Code': '제품 코드',
+            'Product Name': '제품명',
+            'Category': '카테고리',
+            'Price': '가격',
+            'Stock': '재고',
+            'Search products...': '제품 검색...',
+
+            // Sales Orders
+            'Order Number': '주문 번호',
+            'Customer': '고객',
+            'Order Date': '주문 날짜',
+            'Total Amount': '총 금액',
+            'Status': '상태',
+
+            // Purchase Orders
+            'Purchase Orders': '구매 주문',
+            'Create Purchase Order': '구매 주문 생성',
+            'PO Number': '구매 주문 번호',
+            'Vendor': '공급업체',
+            'Expected Delivery': '예상 배송',
+
+            // Inventory
+            'Inventory Management': '재고 관리',
+            'Stock Level': '재고 수준',
+            'Warehouse': '창고',
+            'Location': '위치',
+            'Transactions': '거래',
+
+            // Employees/HR
+            'Employee Code': '직원 코드',
+            'Employee Name': '직원 이름',
+            'Department': '부서',
+            'Position': '직위',
+            'Hire Date': '입사일',
+            'Salary': '급여',
+            'Add Employee': '직원 추가',
+            'Search employees...': '직원 검색...',
+
+            // Payments
+            'Payments': '결제',
+            'Payment Date': '결제일',
+            'Payment Method': '결제 방법',
+            'Amount': '금액',
+            'Payment Status': '결제 상태',
+            'Create Payment': '결제 생성',
+
+            // Invoices
+            'Invoices': '송장',
+            'Invoice Management': '송장 관리',
+            'Create Invoice': '송장 생성',
+            'Invoice Number': '송장 번호',
+            'Invoice Date': '송장 날짜',
+            'Due Date': '만기일',
+
+            // Financial Reports
+            'Financial Reports': '재무 보고서',
+            'Balance Sheet': '대차대조표',
+            'Income Statement': '손익계산서',
+            'Generate Report': '보고서 생성',
+
+            // Inbox/Email
+            'Inbox': '받은편지함',
+            'Compose': '작성',
+            'Sent': '보낸편지함',
+            'Drafts': '임시보관함',
+            'Trash': '휴지통',
+            'Search emails': '이메일 검색',
+            'Subject': '제목',
+            'From': '보낸사람',
+            'To': '받는사람',
+            'Send': '보내기',
+            'Email Functionality': '이메일 기능',
+            'Email functionality can be configured through the Email module. Check the Email Integration Guide for setup instructions.': '이메일 기능은 이메일 모듈을 통해 구성할 수 있습니다. 설정 지침은 이메일 통합 가이드를 확인하십시오.',
+        },
+        ar: {
+            // Common Actions & Buttons
+            'View': 'عرض',
+            'Edit': 'تعديل',
+            'Delete': 'حذف',
+            'Previous': 'السابق',
+            'Next': 'التالي',
+            'Page': 'صفحة',
+            'of': 'من',
+            'Filter': 'تصفية',
+            'Clear': 'مسح',
+            'All Status': 'جميع الحالات',
+
+            // Status Messages
+            'All items are well stocked': 'جميع العناصر متوفرة بشكل جيد',
+            'No customers found': 'لم يتم العثور على عملاء',
+            'No vendors found': 'لم يتم العثور على موردين',
+            'No products found': 'لم يتم العثور على منتجات',
+            'No sales orders found': 'لم يتم العثور على أوامر البيع',
+            'No purchase orders found': 'لم يتم العثور على أوامر الشراء',
+            'No employees found': 'لم يتم العثور على موظفين',
+            'No payments found': 'لم يتم العثور على مدفوعات',
+            'No invoices found': 'لم يتم العثور على فواتير',
+            'No inventory records found': 'لم يتم العثور على سجلات المخزون',
+            'Your inbox messages will appear here.': 'ستظهر رسائل صندوق الوارد هنا.',
+
+            // Vendor Types
+            'Service Provider': 'مزود الخدمة',
+            'Supplier': 'مورد',
+            'Contractor': 'مقاول',
+
+            // Order Status
+            'Pending': 'معلق',
+            'Completed': 'مكتمل',
+            'Cancelled': 'ملغى',
+            'Draft': 'مسودة',
+            'Paid': 'مدفوع',
+            'Overdue': 'متأخر',
+
+            // Customers
+            'Customer Code': 'رمز العميل',
+            'Name': 'الاسم',
+            'Phone': 'الهاتف',
+            'Type': 'النوع',
+            'Actions': 'الإجراءات',
+            'Individual': 'فردي',
+            'Business': 'تجاري',
+            'All Types': 'جميع الأنواع',
+            'Search customers...': 'البحث عن العملاء...',
+
+            // Vendors
+            'Vendors': 'الموردون',
+            'Add Vendor': 'إضافة مورد',
+            'Vendor Code': 'رمز المورد',
+            'Company Name': 'اسم الشركة',
+            'Contact Person': 'الشخص المسؤول',
+            'Search vendors...': 'البحث عن الموردين...',
+
+            // Products
+            'Product Code': 'رمز المنتج',
+            'Product Name': 'اسم المنتج',
+            'Category': 'الفئة',
+            'Price': 'السعر',
+            'Stock': 'المخزون',
+            'Search products...': 'البحث عن المنتجات...',
+
+            // Sales Orders
+            'Order Number': 'رقم الطلب',
+            'Customer': 'العميل',
+            'Order Date': 'تاريخ الطلب',
+            'Total Amount': 'المبلغ الإجمالي',
+            'Status': 'الحالة',
+
+            // Purchase Orders
+            'Purchase Orders': 'أوامر الشراء',
+            'Create Purchase Order': 'إنشاء أمر شراء',
+            'PO Number': 'رقم أمر الشراء',
+            'Vendor': 'المورد',
+            'Expected Delivery': 'التسليم المتوقع',
+
+            // Inventory
+            'Inventory Management': 'إدارة المخزون',
+            'Stock Level': 'مستوى المخزون',
+            'Warehouse': 'المستودع',
+            'Location': 'الموقع',
+            'Transactions': 'المعاملات',
+
+            // Employees/HR
+            'Employee Code': 'رمز الموظف',
+            'Employee Name': 'اسم الموظف',
+            'Department': 'القسم',
+            'Position': 'المنصب',
+            'Hire Date': 'تاريخ التوظيف',
+            'Salary': 'الراتب',
+            'Add Employee': 'إضافة موظف',
+            'Search employees...': 'البحث عن الموظفين...',
+
+            // Payments
+            'Payments': 'المدفوعات',
+            'Payment Date': 'تاريخ الدفع',
+            'Payment Method': 'طريقة الدفع',
+            'Amount': 'المبلغ',
+            'Payment Status': 'حالة الدفع',
+            'Create Payment': 'إنشاء دفعة',
+
+            // Invoices
+            'Invoices': 'الفواتير',
+            'Invoice Management': 'إدارة الفواتير',
+            'Create Invoice': 'إنشاء فاتورة',
+            'Invoice Number': 'رقم الفاتورة',
+            'Invoice Date': 'تاريخ الفاتورة',
+            'Due Date': 'تاريخ الاستحقاق',
+
+            // Financial Reports
+            'Financial Reports': 'التقارير المالية',
+            'Balance Sheet': 'الميزانية العمومية',
+            'Income Statement': 'بيان الدخل',
+            'Generate Report': 'إنشاء تقرير',
+
+            // Inbox/Email
+            'Inbox': 'صندوق الوارد',
+            'Compose': 'إنشاء',
+            'Sent': 'المرسل',
+            'Drafts': 'المسودات',
+            'Trash': 'سلة المهملات',
+            'Search emails': 'البحث في الرسائل',
+            'Subject': 'الموضوع',
+            'From': 'من',
+            'To': 'إلى',
+            'Send': 'إرسال',
+            'Email Functionality': 'وظائف البريد الإلكتروني',
+            'Email functionality can be configured through the Email module. Check the Email Integration Guide for setup instructions.': 'يمكن تكوين وظيفة البريد الإلكتروني من خلال وحدة البريد الإلكتروني. تحقق من دليل تكامل البريد الإلكتروني للحصول على تعليمات الإعداد.',
+        }
+    };
+
+    // Merge with existing translations
+    Object.keys(additionalTranslations).forEach(lang => {
+        if (window.translations && window.translations[lang]) {
+            Object.assign(window.translations[lang], additionalTranslations[lang]);
+        }
+    });
+
+    console.log('✅ Additional translations loaded for all pages');
+})();
+</script>

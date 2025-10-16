@@ -1,7 +1,7 @@
 {% extends 'erp/base.html' %}
 
 {% block title %}Purchase Orders - LiteWork{% endblock %}
-{% block page_title %}Purchase Orders{% endblock %}
+{% block page_title %}<span data-translate="Purchase Orders">Purchase Orders</span>{% endblock %}
 
 {% block content %}
 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -38,7 +38,9 @@
                             {{ order.get_status_display }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{ order.total_amount|floatformat:2 }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <span data-currency="{{ order.total_amount }}" data-source-currency="USD">${{ order.total_amount|floatformat:2 }}</span>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <a href="{% url 'erp:purchase_order_detail' order.id %}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
                     </td>
