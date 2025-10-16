@@ -353,8 +353,24 @@
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
 
-        // Show first tab by default
-        document.getElementById('account-tab').classList.remove('hidden');
+        // Check if we should open a specific tab (e.g., after settings save)
+        const activeTab = localStorage.getItem('activeSettingsTab') || 'account';
+
+        // Hide all tabs first
+        tabContents.forEach(content => content.classList.add('hidden'));
+        tabButtons.forEach(btn => btn.classList.remove('tab-active'));
+
+        // Show the active tab
+        const activeButton = document.querySelector(`[data-tab="${activeTab}"]`);
+        const activeContent = document.getElementById(activeTab + '-tab');
+
+        if (activeButton && activeContent) {
+            activeButton.classList.add('tab-active');
+            activeContent.classList.remove('hidden');
+        }
+
+        // Clear the flag after opening the tab
+        localStorage.removeItem('activeSettingsTab');
 
         tabButtons.forEach(button => {
             button.addEventListener('click', function() {
@@ -389,6 +405,9 @@
 
                 localStorage.setItem('languageSettings', JSON.stringify(settings));
 
+                // Remember to open Language & Currency tab after refresh
+                localStorage.setItem('activeSettingsTab', 'language');
+
                 // Apply translations immediately
                 if (typeof applyTranslations === 'function') {
                     applyTranslations();
@@ -399,7 +418,13 @@
                     refreshCurrencyDisplay();
                 }
 
+                // Show success message and auto-refresh
                 alert('Settings saved successfully!');
+
+                // Auto-refresh the page to apply all changes
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
             });
         }
     });
