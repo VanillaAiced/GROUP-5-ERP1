@@ -1,9 +1,13 @@
 from django.urls import path
 from . import views
+from .test_views import test_code_generation
 
 app_name = 'erp'
 
 urlpatterns = [
+    # Test Routes
+    path('test/codes/', test_code_generation, name='test_codes'),
+
     # Dashboard
     path('', views.dashboard, name='dashboard'),
     
@@ -30,6 +34,12 @@ urlpatterns = [
     path('products/<uuid:product_id>/', views.product_detail, name='product_detail'),
     path('products/<uuid:product_id>/edit/', views.product_edit, name='product_edit'),
     path('products/<uuid:product_id>/delete/', views.product_delete, name='product_delete'),
+
+    # Payment Management
+    path('payments/', views.payment_list, name='payment_list'),
+    path('payments/create/', views.payment_create, name='payment_create'),
+    path('payments/<uuid:payment_id>/', views.payment_detail, name='payment_detail'),
+    path('payments/<uuid:payment_id>/edit/', views.payment_edit, name='payment_edit'),
 
     # API Endpoints for AJAX calls
     path('api/customer/<uuid:customer_id>/', views.get_customer_data, name='api_get_customer_data'),
@@ -69,7 +79,11 @@ urlpatterns = [
     # Payment Management
     path('payments/', views.payment_list, name='payment_list'),
     path('payments/create/', views.payment_create, name='payment_create'),
-    
+    path('payments/<uuid:payment_id>/', views.payment_detail, name='payment_detail'),
+    path('payments/<uuid:payment_id>/edit/', views.payment_edit, name='payment_edit'),
+    path('payments/<uuid:payment_id>/email-receipt/', views.email_payment_receipt, name='email_payment_receipt'),
+    path('payments/batch/', views.batch_payment_operations, name='batch_payment_operations'),
+
     # Invoice Management
     path('invoices/', views.invoice_list, name='invoice_list'),
     path('invoices/create/', views.invoice_create, name='invoice_create'),
@@ -122,4 +136,7 @@ urlpatterns = [
 
     # Customer Delete
     path('customers/<uuid:customer_id>/delete/', views.customer_delete, name='customer_delete'),
+
+    # Test Auto Codes
+    path('test-auto-codes/', views.test_auto_codes, name='test_auto_codes'),
 ]

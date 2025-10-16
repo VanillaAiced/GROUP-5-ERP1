@@ -4,78 +4,326 @@
 {% block page_title %}Add Item to Purchase Order{% endblock %}
 
 {% block content %}
-<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-600">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Add Item to {{ order.order_number }}</h2>
-        <a href="{% url 'erp:purchase_order_detail' order.id %}" class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
-            <i class="fas fa-arrow-left mr-2"></i>Back to Order
-        </a>
-    </div>
-    
-    <form method="post" class="space-y-6">
-        {% csrf_token %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label for="{{ form.product.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Product *
-                </label>
-                {{ form.product }}
-                {% if form.product.errors %}
-                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.product.errors.0 }}</p>
-                {% endif %}
-            </div>
-            
-            <div>
-                <label for="{{ form.quantity.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Quantity *
-                </label>
-                {{ form.quantity }}
-                {% if form.quantity.errors %}
-                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.quantity.errors.0 }}</p>
-                {% endif %}
-            </div>
-            
-            <div>
-                <label for="{{ form.unit_cost.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Unit Cost *
-                </label>
-                <div class="relative">
-                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
-                    {{ form.unit_cost }}
+<div class="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-6">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 mb-8">
+            <div class="flex justify-between items-start mb-6">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl">
+                        <i class="fas fa-plus text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Add Item to Purchase Order</h1>
+                        <p class="text-gray-600 dark:text-gray-300 mt-1">Order: <span class="font-semibold text-purple-600 dark:text-purple-400">{{ order.po_number }}</span> from <span class="font-semibold">{{ order.vendor.name }}</span></p>
+                    </div>
                 </div>
-                {% if form.unit_cost.errors %}
-                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.unit_cost.errors.0 }}</p>
-                {% endif %}
+                <a href="{% url 'erp:purchase_order_detail' order_id=order.id %}"
+                   class="inline-flex items-center px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Order
+                </a>
             </div>
         </div>
-        
-        <div class="flex justify-end space-x-4">
-            <a href="{% url 'erp:purchase_order_detail' order.id %}" class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
-                Cancel
-            </a>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                <i class="fas fa-plus mr-2"></i>Add Item
-            </button>
+
+        <!-- Order Summary Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100 text-sm font-medium mb-1">Order Status</p>
+                        <p class="text-2xl font-bold">{{ order.get_status_display }}</p>
+                    </div>
+                    <div class="p-3 bg-purple-400 bg-opacity-30 rounded-xl">
+                        <i class="fas fa-info-circle text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm font-medium mb-1">Current Total</p>
+                        <p class="text-2xl font-bold">${{ order.total_amount|floatformat:2 }}</p>
+                    </div>
+                    <div class="p-3 bg-green-400 bg-opacity-30 rounded-xl">
+                        <i class="fas fa-dollar-sign text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium mb-1">Tax Rate</p>
+                        <p class="text-2xl font-bold">{{ order.tax_rate }}%</p>
+                    </div>
+                    <div class="p-3 bg-blue-400 bg-opacity-30 rounded-xl">
+                        <i class="fas fa-percentage text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-100 text-sm font-medium mb-1">Items Count</p>
+                        <p class="text-2xl font-bold">{{ order.items.count }}</p>
+                    </div>
+                    <div class="p-3 bg-orange-400 bg-opacity-30 rounded-xl">
+                        <i class="fas fa-boxes text-xl"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
+
+        <!-- Main Form -->
+        <form method="post" class="space-y-8" id="add-item-form">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Product Selection Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-500 to-indigo-600 px-6 py-4">
+                        <h3 class="text-xl font-semibold text-white flex items-center">
+                            <i class="fas fa-box mr-3 text-purple-100"></i>Product Selection
+                        </h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="relative">
+                            <label for="{{ form.product.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
+                                {{ form.product.label }} *
+                            </label>
+                            {{ form.product }}
+                            {% if form.product.errors %}
+                                <div class="mt-2 flex items-center text-red-600">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    <span class="text-sm">{{ form.product.errors.0 }}</span>
+                                </div>
+                            {% endif %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Select the product to add to this purchase order
+                            </p>
+                        </div>
+
+                        <!-- Product Info Display -->
+                        <div id="product-info" class="hidden bg-gray-50 dark:bg-gray-700 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                            <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
+                                <i class="fas fa-tag mr-2 text-purple-600"></i>Product Information
+                            </h4>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">SKU:</span>
+                                    <span id="product-sku" class="font-medium text-gray-900 dark:text-gray-100"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Cost Price:</span>
+                                    <span id="product-cost" class="font-medium text-green-600 dark:text-green-400"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Unit Price:</span>
+                                    <span id="product-price" class="font-medium text-blue-600 dark:text-blue-400"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Category:</span>
+                                    <span id="product-category" class="font-medium text-gray-900 dark:text-gray-100"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <label for="{{ form.quantity.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
+                                {{ form.quantity.label }} *
+                            </label>
+                            {{ form.quantity }}
+                            {% if form.quantity.errors %}
+                                <div class="mt-2 flex items-center text-red-600">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    <span class="text-sm">{{ form.quantity.errors.0 }}</span>
+                                </div>
+                            {% endif %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center">
+                                <i class="fas fa-sort-numeric-up mr-1"></i>
+                                Number of units to purchase
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing and Calculations Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
+                        <h3 class="text-xl font-semibold text-white flex items-center">
+                            <i class="fas fa-calculator mr-3 text-green-100"></i>Pricing & Discount
+                        </h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="relative">
+                            <label for="{{ form.unit_price.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
+                                {{ form.unit_price.label }} *
+                            </label>
+                            <div class="relative">
+                                {{ form.unit_price }}
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                                    <span class="text-gray-600 dark:text-gray-400 text-lg font-semibold">$</span>
+                                </div>
+                            </div>
+                            {% if form.unit_price.errors %}
+                                <div class="mt-2 flex items-center text-red-600">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    <span class="text-sm">{{ form.unit_price.errors.0 }}</span>
+                                </div>
+                            {% endif %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center">
+                                <i class="fas fa-dollar-sign mr-1"></i>
+                                Purchase price per unit (can be negotiated with vendor)
+                            </p>
+                        </div>
+
+                        <div class="relative">
+                            <label for="{{ form.discount_percent.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
+                                {{ form.discount_percent.label }} (%)
+                            </label>
+                            <div class="relative">
+                                {{ form.discount_percent }}
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-400 text-sm">%</span>
+                                </div>
+                            </div>
+                            {% if form.discount_percent.errors %}
+                                <div class="mt-2 flex items-center text-red-600">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    <span class="text-sm">{{ form.discount_percent.errors.0 }}</span>
+                                </div>
+                            {% endif %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center">
+                                <i class="fas fa-percentage mr-1"></i>
+                                Item-level discount percentage (if negotiated)
+                            </p>
+                        </div>
+
+                        <!-- Line Total Preview -->
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-500">
+                            <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+                                <i class="fas fa-receipt mr-2 text-blue-600 dark:text-blue-400"></i>Line Total Preview
+                            </h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Quantity:</span>
+                                    <span id="preview-quantity" class="font-medium text-gray-900 dark:text-gray-100">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Unit Price:</span>
+                                    <span id="preview-price" class="font-medium text-gray-900 dark:text-gray-100">$0.00</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Subtotal:</span>
+                                    <span id="preview-subtotal" class="font-medium text-gray-900 dark:text-gray-100">$0.00</span>
+                                </div>
+                                <div class="flex justify-between text-orange-600 dark:text-orange-400">
+                                    <span>Discount:</span>
+                                    <span id="preview-discount">-$0.00</span>
+                                </div>
+                                <div class="flex justify-between pt-3 border-t-2 border-blue-300 dark:border-blue-500">
+                                    <span class="font-bold text-gray-900 dark:text-gray-100">Line Total:</span>
+                                    <span id="preview-total" class="font-bold text-xl text-green-600 dark:text-green-400">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+                    <div class="flex items-center text-purple-600 dark:text-purple-400">
+                        <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg mr-3">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Add Product</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-400">Item will be added to the purchase order</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="{% url 'erp:purchase_order_detail' order_id=order.id %}"
+                           class="inline-flex items-center px-6 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 font-semibold">
+                            <i class="fas fa-times mr-2"></i>Cancel
+                        </a>
+                        <button type="submit"
+                                class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
+                            <i class="fas fa-plus mr-2"></i>Add Item
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-fill unit cost when product is selected
     const productSelect = document.getElementById('{{ form.product.id_for_label }}');
-    const unitCostInput = document.getElementById('{{ form.unit_cost.id_for_label }}');
-    
+    const quantityInput = document.getElementById('{{ form.quantity.id_for_label }}');
+    const unitPriceInput = document.getElementById('{{ form.unit_price.id_for_label }}');
+    const discountInput = document.getElementById('{{ form.discount_percent.id_for_label }}');
+    const productInfo = document.getElementById('product-info');
+
+    // Auto-fill unit price when product is selected
     productSelect.addEventListener('change', function() {
         if (this.value) {
             fetch(`/erp/api/products/${this.value}/`)
                 .then(response => response.json())
                 .then(data => {
-                    unitCostInput.value = data.cost_price;
+                    // Use cost_price for purchase orders
+                    unitPriceInput.value = data.cost_price;
+
+                    // Show product info
+                    document.getElementById('product-sku').textContent = data.sku;
+                    document.getElementById('product-cost').textContent = '$' + parseFloat(data.cost_price).toFixed(2);
+                    document.getElementById('product-price').textContent = '$' + parseFloat(data.unit_price).toFixed(2);
+                    document.getElementById('product-category').textContent = data.category;
+                    productInfo.classList.remove('hidden');
+
+                    // Update preview
+                    updatePreview();
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading product data. Please try again.');
+                });
+        } else {
+            productInfo.classList.add('hidden');
+            unitPriceInput.value = '';
+            updatePreview();
         }
     });
+
+    // Update preview on input changes
+    quantityInput.addEventListener('input', updatePreview);
+    unitPriceInput.addEventListener('input', updatePreview);
+    discountInput.addEventListener('input', updatePreview);
+
+    function updatePreview() {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const unitPrice = parseFloat(unitPriceInput.value) || 0;
+        const discountPercent = parseFloat(discountInput.value) || 0;
+
+        const subtotal = quantity * unitPrice;
+        const discountAmount = (subtotal * discountPercent) / 100;
+        const lineTotal = subtotal - discountAmount;
+
+        document.getElementById('preview-quantity').textContent = quantity;
+        document.getElementById('preview-price').textContent = '$' + unitPrice.toFixed(2);
+        document.getElementById('preview-subtotal').textContent = '$' + subtotal.toFixed(2);
+        document.getElementById('preview-discount').textContent = '-$' + discountAmount.toFixed(2);
+        document.getElementById('preview-total').textContent = '$' + lineTotal.toFixed(2);
+    }
+
+    // Initialize preview
+    updatePreview();
 });
 </script>
 {% endblock %}
+

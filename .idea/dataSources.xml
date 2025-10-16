@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="erp@127.0.0.1" uuid="f170e54f-2f97-48cf-a6a8-8d1340b8982f">
+    <data-source source="LOCAL" name="postgres@localhost" uuid="f170e54f-2f97-48cf-a6a8-8d1340b8982f">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <remarks>wip</remarks>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://127.0.0.1:5432/erp</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
     <data-source source="LOCAL" name="Django default" uuid="bf221d75-2b81-4cce-872c-3c2570b55c93">

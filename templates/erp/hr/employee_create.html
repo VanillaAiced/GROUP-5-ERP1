@@ -4,169 +4,131 @@
 {% block page_title %}Create Employee{% endblock %}
 
 {% block content %}
-<!-- Outer Card with Border - Same as Vendors List -->
-<div class="bg-white dark:bg-gray-750 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-600 p-6">
-    <!-- Header Section -->
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Create New Employee</h2>
-            <p class="text-gray-600 dark:text-gray-300 mt-1">Add a new employee to the system</p>
-        </div>
-        <a href="{% url 'erp:employee_list' %}"
-           class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg">
-            <i class="fas fa-arrow-left mr-2"></i>Back to Employees
-        </a>
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Create New Employee</h2>
+        <p class="text-gray-600 mt-2">Add a new employee to the system</p>
     </div>
 
-    <!-- Main Form -->
-    <form method="post" id="employee-form">
+    <form method="post" class="space-y-6">
         {% csrf_token %}
 
-        <!-- Basic Information Section -->
-        <div class="bg-gray-100 dark:bg-gray-700 rounded-xl border border-gray-300 dark:border-gray-600 p-6 mb-6">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="{{ form.user.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                        User Account *
-                    </label>
-                    {{ form.user }}
-                    {% if form.user.errors %}
-                        <div class="mt-2 flex items-center text-red-400">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            <span class="text-sm">{{ form.user.errors.0 }}</span>
-                        </div>
-                    {% endif %}
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="{{ form.user.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    User Account *
+                </label>
+                {{ form.user }}
+                {% if form.user.errors %}
+                    {% for error in form.user.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
 
-                <div>
-                    <label for="{{ form.employee_id.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                        Employee ID *
-                    </label>
-                    {{ form.employee_id }}
-                    {% if form.employee_id.errors %}
-                        <div class="mt-2 flex items-center text-red-400">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            <span class="text-sm">{{ form.employee_id.errors.0 }}</span>
-                        </div>
-                    {% endif %}
-                </div>
+            <div>
+                <label for="{{ form.employee_id.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Employee ID *
+                </label>
+                {{ form.employee_id }}
+                {% if form.employee_id.errors %}
+                    {% for error in form.employee_id.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
 
-                <div>
-                    <label for="{{ form.position.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                        Position *
-                    </label>
-                    {{ form.position }}
-                    {% if form.position.errors %}
-                        <div class="mt-2 flex items-center text-red-400">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            <span class="text-sm">{{ form.position.errors.0 }}</span>
-                        </div>
-                    {% endif %}
-                </div>
+            <div>
+                <label for="{{ form.position.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Position *
+                </label>
+                {{ form.position }}
+                {% if form.position.errors %}
+                    {% for error in form.position.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
 
-                <div>
-                    <label for="{{ form.department.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                        Department *
-                    </label>
-                    {{ form.department }}
-                    {% if form.department.errors %}
-                        <div class="mt-2 flex items-center text-red-400">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            <span class="text-sm">{{ form.department.errors.0 }}</span>
-                        </div>
-                    {% endif %}
-                </div>
+            <div>
+                <label for="{{ form.department.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Department *
+                </label>
+                {{ form.department }}
+                {% if form.department.errors %}
+                    {% for error in form.department.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.hire_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Hire Date *
+                </label>
+                {{ form.hire_date }}
+                {% if form.hire_date.errors %}
+                    {% for error in form.hire_date.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.salary.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Salary *
+                </label>
+                {{ form.salary }}
+                {% if form.salary.errors %}
+                    {% for error in form.salary.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.employment_status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Employment Status
+                </label>
+                {{ form.employment_status }}
+            </div>
+
+            <div>
+                <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Phone
+                </label>
+                {{ form.phone }}
             </div>
         </div>
 
-        <!-- Employment Details Section -->
-        <div class="bg-gray-100 dark:bg-gray-700 rounded-xl border border-gray-300 dark:border-gray-600 p-6 mb-6">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Employment Details</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label for="{{ form.hire_date.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                        Hire Date *
-                    </label>
-                    {{ form.hire_date }}
-                    {% if form.hire_date.errors %}
-                        <div class="mt-2 flex items-center text-red-400">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            <span class="text-sm">{{ form.hire_date.errors.0 }}</span>
-                        </div>
-                    {% endif %}
-                </div>
+        <div>
+            <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                Address
+            </label>
+            {{ form.address }}
+        </div>
 
-                <div>
-                    <label for="{{ form.salary.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                        Salary *
-                    </label>
-                    {{ form.salary }}
-                    {% if form.salary.errors %}
-                        <div class="mt-2 flex items-center text-red-400">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            <span class="text-sm">{{ form.salary.errors.0 }}</span>
-                        </div>
-                    {% endif %}
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="{{ form.emergency_contact.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Emergency Contact
+                </label>
+                {{ form.emergency_contact }}
+            </div>
 
-                <div>
-                    <label for="{{ form.employment_status.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                        Employment Status
-                    </label>
-                    {{ form.employment_status }}
-                </div>
+            <div>
+                <label for="{{ form.emergency_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Emergency Phone
+                </label>
+                {{ form.emergency_phone }}
             </div>
         </div>
 
-        <!-- Contact Information Section -->
-        <div class="bg-gray-100 dark:bg-gray-700 rounded-xl border border-gray-300 dark:border-gray-600 p-6 mb-6">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Contact Information</h3>
-            <div class="space-y-4">
-                <div>
-                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                        Phone
-                    </label>
-                    {{ form.phone }}
-                </div>
-
-                <div>
-                    <label for="{{ form.address.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                        Address
-                    </label>
-                    {{ form.address }}
-                </div>
-            </div>
-        </div>
-
-        <!-- Emergency Contact Section -->
-        <div class="bg-gray-100 dark:bg-gray-700 rounded-xl border border-gray-300 dark:border-gray-600 p-6 mb-6">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Emergency Contact</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="{{ form.emergency_contact.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                        Emergency Contact Name
-                    </label>
-                    {{ form.emergency_contact }}
-                </div>
-
-                <div>
-                    <label for="{{ form.emergency_phone.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                        Emergency Phone
-                    </label>
-                    {{ form.emergency_phone }}
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex justify-end space-x-4">
-            <a href="{% url 'erp:employee_list' %}"
-               class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium">
+        <div class="flex justify-end space-x-4 pt-6">
+            <a href="{% url 'erp:employee_list' %}" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
                 Cancel
             </a>
-            <button type="submit"
-                    class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 font-semibold flex items-center justify-center">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-save mr-2"></i>Create Employee
             </button>
         </div>
@@ -174,104 +136,23 @@
 </div>
 
 <style>
-    .bg-gray-750 {
-        background-color: #2D3748;
-    }
-    .bg-gray-650 {
-        background-color: #4A5568;
-    }
-
-    /* Form Input Styles - Same as Vendors List */
-    #employee-form input[type="text"],
-    #employee-form input[type="email"],
-    #employee-form input[type="number"],
-    #employee-form input[type="date"],
-    #employee-form select,
-    #employee-form textarea {
+    input[type="text"], input[type="email"], input[type="number"], input[type="date"], textarea, select {
         width: 100%;
-        padding: 0.75rem 1rem;
-        background-color: white;
-        border: 1px solid #D1D5DB;
-        border-radius: 0.5rem;
-        color: #1F2937;
-        font-size: 0.95rem;
-        transition: all 0.2s;
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
     }
 
-    .dark #employee-form input[type="text"],
-    .dark #employee-form input[type="email"],
-    .dark #employee-form input[type="number"],
-    .dark #employee-form input[type="date"],
-    .dark #employee-form select,
-    .dark #employee-form textarea {
-        background-color: #4A5568;
-        border-color: #6B7280;
-        color: #E5E7EB;
-    }
-
-    /* Select dropdown arrow */
-    #employee-form select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239CA3AF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 0.5rem center;
-        background-repeat: no-repeat;
-        background-size: 1.5em 1.5em;
-        padding-right: 2.5rem;
-    }
-
-    .dark #employee-form select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239CA3AF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-    }
-
-    #employee-form input:focus,
-    #employee-form select:focus,
-    #employee-form textarea:focus {
+    input:focus, textarea:focus, select:focus {
         outline: none;
-        ring: 2px;
-        ring-color: #3B82F6;
-        border-color: #3B82F6;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    #employee-form textarea {
-        min-height: 100px;
+    textarea {
         resize: vertical;
-    }
-
-    #employee-form input::placeholder,
-    #employee-form textarea::placeholder {
-        color: #9CA3AF;
-    }
-
-    /* Date input styling for dark mode */
-    .dark input[type="date"] {
-        color-scheme: dark;
+        min-height: 80px;
     }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('employee-form');
-
-    form.addEventListener('submit', function(e) {
-        const user = document.getElementById('id_user').value;
-        const employeeId = document.getElementById('id_employee_id').value;
-
-        if (!user || user.trim() === '') {
-            e.preventDefault();
-            alert('Please select a user account.');
-            document.getElementById('id_user').focus();
-            return;
-        }
-
-        if (!employeeId || employeeId.trim() === '') {
-            e.preventDefault();
-            alert('Please enter an employee ID.');
-            document.getElementById('id_employee_id').focus();
-            return;
-        }
-    });
-});
-</script>
 {% endblock %}

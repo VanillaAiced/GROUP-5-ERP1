@@ -1,138 +1,118 @@
 {% extends 'erp/base.html' %}
 
-{% block title %}{{ title }} - LiteWork{% endblock %}
-{% block page_title %}{{ title }}{% endblock %}
+{% block title %}Edit Invoice - {{ invoice.invoice_number }}{% endblock %}
+{% block page_title %}Edit Invoice{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-white p-6">
-    <div class="max-w-4xl mx-auto">
-        <!-- Header Section -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 mb-8">
-            <div class="flex justify-between items-start mb-6">
-                <div class="flex items-center space-x-4">
-                    <div class="p-3 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl">
-                        <i class="fas fa-edit text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
-                        <p class="text-gray-600 dark:text-gray-300 mt-1">Update invoice information</p>
-                    </div>
-                </div>
-                <a href="{% url 'erp:invoice_detail' invoice.id %}"
-                   class="inline-flex items-center px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 font-medium">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to Invoice
-                </a>
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Edit Invoice: {{ invoice.invoice_number }}</h2>
+        <a href="{% url 'erp:invoice_detail' invoice.id %}" class="text-gray-600 hover:text-gray-900">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Invoice
+        </a>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="vendor" class="block text-sm font-medium text-gray-700 mb-2">
+                    Vendor *
+                </label>
+                <select id="vendor" name="vendor" required>
+                    {% for vendor in vendors %}
+                    <option value="{{ vendor.id }}" {% if invoice.vendor.id == vendor.id %}selected{% endif %}>
+                        {{ vendor.name }} ({{ vendor.vendor_code }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="invoice_date" class="block text-sm font-medium text-gray-700 mb-2">
+                    Invoice Date *
+                </label>
+                <input type="date" id="invoice_date" name="invoice_date"
+                    value="{{ invoice.invoice_date|date:'Y-m-d' }}" required>
+            </div>
+
+            <div>
+                <label for="due_date" class="block text-sm font-medium text-gray-700 mb-2">
+                    Due Date *
+                </label>
+                <input type="date" id="due_date" name="due_date"
+                    value="{{ invoice.due_date|date:'Y-m-d' }}" required>
+            </div>
+
+            <div>
+                <label for="total_amount" class="block text-sm font-medium text-gray-700 mb-2">
+                    Total Amount *
+                </label>
+                <input type="number" id="total_amount" name="total_amount"
+                    value="{{ invoice.total_amount }}" step="0.01" required>
+            </div>
+
+            <div>
+                <label for="tax_rate" class="block text-sm font-medium text-gray-700 mb-2">
+                    Tax Rate
+                </label>
+                <input type="number" id="tax_rate" name="tax_rate"
+                    value="{{ invoice.tax_rate }}" step="0.01">
+            </div>
+
+            <div>
+                <label for="purchase_order" class="block text-sm font-medium text-gray-700 mb-2">
+                    Purchase Order
+                </label>
+                <select id="purchase_order" name="purchase_order">
+                    <option value="">-- Select Purchase Order --</option>
+                    {% for po in purchase_orders %}
+                    <option value="{{ po.id }}" {% if invoice.purchase_order.id == po.id %}selected{% endif %}>
+                        {{ po.po_number }}
+                    </option>
+                    {% endfor %}
+                </select>
             </div>
         </div>
 
-        <!-- Edit Form -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
-            <form method="post" class="space-y-6">
-                {% csrf_token %}
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="{{ form.invoice_type.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
-                            {{ form.invoice_type.label }}
-                        </label>
-                        {{ form.invoice_type }}
-                        {% if form.invoice_type.errors %}
-                            <div class="mt-2 flex items-center text-red-600">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
-                                <span class="text-sm">{{ form.invoice_type.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label for="{{ form.customer.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
-                            {{ form.customer.label }}
-                        </label>
-                        {{ form.customer }}
-                        {% if form.customer.errors %}
-                            <div class="mt-2 flex items-center text-red-600">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
-                                <span class="text-sm">{{ form.customer.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label for="{{ form.vendor.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
-                            {{ form.vendor.label }}
-                        </label>
-                        {{ form.vendor }}
-                        {% if form.vendor.errors %}
-                            <div class="mt-2 flex items-center text-red-600">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
-                                <span class="text-sm">{{ form.vendor.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label for="{{ form.invoice_date.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
-                            {{ form.invoice_date.label }}
-                        </label>
-                        {{ form.invoice_date }}
-                        {% if form.invoice_date.errors %}
-                            <div class="mt-2 flex items-center text-red-600">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
-                                <span class="text-sm">{{ form.invoice_date.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label for="{{ form.due_date.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
-                            {{ form.due_date.label }}
-                        </label>
-                        {{ form.due_date }}
-                        {% if form.due_date.errors %}
-                            <div class="mt-2 flex items-center text-red-600">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
-                                <span class="text-sm">{{ form.due_date.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div>
-                    <label for="{{ form.notes.id_for_label }}" class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
-                        {{ form.notes.label }}
-                    </label>
-                    {{ form.notes }}
-                    {% if form.notes.errors %}
-                        <div class="mt-2 flex items-center text-red-600">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            <span class="text-sm">{{ form.notes.errors.0 }}</span>
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="flex justify-end space-x-4 pt-6">
-                    <a href="{% url 'erp:invoice_detail' invoice.id %}"
-                       class="inline-flex items-center px-6 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 font-semibold">
-                        Cancel
-                    </a>
-                    <button type="submit"
-                            class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
-                        <i class="fas fa-save mr-2"></i>Update Invoice
-                    </button>
-                </div>
-            </form>
+        <div>
+            <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                Notes
+            </label>
+            <textarea id="notes" name="notes" rows="3">{{ invoice.notes }}</textarea>
         </div>
-    </div>
+
+        <div class="flex justify-end space-x-4 pt-6">
+            <a href="{% url 'erp:invoice_detail' invoice.id %}" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                Cancel
+            </a>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-save mr-2"></i>Update Invoice
+            </button>
+        </div>
+    </form>
 </div>
 
 <style>
-    select, input[type="date"], textarea {
-        @apply mt-1 block w-full border-2 border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-gray-100 p-3 transition-all duration-200;
+    input[type="text"], input[type="date"], input[type="number"], textarea, select {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
     }
 
-    select:focus, input[type="date"]:focus, textarea:focus {
-        @apply border-purple-500 ring-2 ring-purple-200 dark:ring-purple-800 shadow-lg;
-        transform: translateY(-1px);
+    input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 80px;
     }
 </style>
 {% endblock %}
+

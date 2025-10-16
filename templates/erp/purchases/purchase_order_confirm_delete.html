@@ -1,7 +1,7 @@
 {% extends 'erp/base.html' %}
 
 {% block title %}Confirm Delete - Purchase Order{% endblock %}
-{% block page_title %}<span data-translate="Confirm Delete Purchase Order">Confirm Delete Purchase Order</span>{% endblock %}
+{% block page_title %}Confirm Delete Purchase Order{% endblock %}
 
 {% block content %}
 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -31,9 +31,7 @@
             </div>
             <div>
                 <p class="text-sm text-gray-600">Total Amount:</p>
-                <p class="font-medium">
-                    <span data-currency="{{ order.total_amount }}" data-source-currency="USD">${{ order.total_amount|floatformat:2 }}</span>
-                </p>
+                <p class="font-medium">${{ order.total_amount|floatformat:2 }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-600">Order Date:</p>

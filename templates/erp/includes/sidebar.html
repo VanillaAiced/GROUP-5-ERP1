@@ -1,6 +1,6 @@
 {% load static %}
 <!-- Sidebar Navigation -->
-<div class="sidebar-nav w-64 flex flex-col min-h-0 overflow-y-auto" style="background-color: #1a202c !important;">
+<div class="sidebar-nav w-64 flex flex-col" style="background-color: #1a202c !important;">
     <div class="p-6 border-b border-gray-700">
         <div class="flex items-center justify-center">
             <img src="{% static 'LW.png' %}" alt="Lite Work Logo" class="w-50 h-16 object-contain" />
@@ -10,76 +10,76 @@
         <!-- Dashboard -->
         <a href="{% url 'erp:dashboard' %}" class="flex items-center px-4 py-3 rounded-lg sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}bg-blue-600{% else %}hover:bg-gray-700 transition-colors{% endif %}" style="color: white !important;">
             <i class="fas fa-home mr-3"></i>
-            <span data-translate="Dashboard">Dashboard</span>
+            <span>Dashboard</span>
         </a>
 
         <!-- Communications -->
         <div class="mt-6">
-            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-2" data-translate="Communications">Communications</h3>
+            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-2">Communications</h3>
             <a href="{% url 'inbox' %}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if 'inbox' in request.resolver_match.url_name or 'email' in request.resolver_match.url_name %}bg-blue-600{% else %}hover:bg-gray-700 transition-colors{% endif %}" style="color: white !important;">
                 <i class="fas fa-inbox mr-3"></i>
-                <span data-translate="Email Inbox">Email Inbox</span>
+                <span>Email Inbox</span>
             </a>
         </div>
 
         <!-- CRM -->
         <div class="mt-6">
-            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-2" data-translate="Customer Relations">Customer Relations</h3>
+            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-2">Customer Relations</h3>
             <a href="{% url 'erp:customer_list' %}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if 'customer' in request.resolver_match.url_name %}bg-blue-600{% else %}hover:bg-gray-700 transition-colors{% endif %}" style="color: white !important;">
                 <i class="fas fa-users mr-3"></i>
-                <span data-translate="Customers">Customers</span>
+                <span>Customers</span>
             </a>
             <a href="{% url 'erp:vendor_list' %}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if 'vendor' in request.resolver_match.url_name %}bg-blue-600{% else %}hover:bg-gray-700 transition-colors{% endif %}" style="color: white !important;">
                 <i class="fas fa-truck mr-3"></i>
-                <span data-translate="Vendors">Vendors</span>
+                <span>Vendors</span>
             </a>
         </div>
         <!-- Sales & Marketing -->
         <div class="mt-6">
-            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-2" data-translate="Sales">Sales</h3>
+            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-2">Sales & Marketing</h3>
             <a href="{% url 'erp:sales_order_list' %}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if 'sales' in request.resolver_match.url_name %}bg-blue-600{% else %}hover:bg-gray-700 transition-colors{% endif %}" style="color: white !important;">
                 <i class="fas fa-shopping-cart mr-3"></i>
-                <span data-translate="Sales Orders">Sales Orders</span>
+                <span>Sales Orders</span>
             </a>
             <a href="{% url 'erp:product_list' %}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if 'product' in request.resolver_match.url_name %}bg-blue-600{% else %}hover:bg-gray-700 transition-colors{% endif %}" style="color: white !important;">
                 <i class="fas fa-box mr-3"></i>
-                <span data-translate="Products">Products</span>
+                <span>Products</span>
             </a>
         </div>
         <!-- Procurement -->
         <div class="mt-6">
-            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-2" data-translate="Purchases">Purchases</h3>
+            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-2">Procurement</h3>
             <a href="{% url 'erp:purchase_order_list' %}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if 'purchase' in request.resolver_match.url_name %}bg-blue-600{% else %}hover:bg-gray-700 transition-colors{% endif %}" style="color: white !important;">
                 <i class="fas fa-file-invoice mr-3"></i>
-                <span data-translate="Purchase Orders">Purchase Orders</span>
+                <span>Purchase Orders</span>
             </a>
             <a href="{% url 'erp:inventory_list' %}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if 'inventory' in request.resolver_match.url_name %}bg-blue-600{% else %}hover:bg-gray-700 transition-colors{% endif %}" style="color: white !important;">
                 <i class="fas fa-warehouse mr-3"></i>
-                <span data-translate="Inventory">Inventory</span>
+                <span>Inventory</span>
             </a>
         </div>
         <!-- Human Resources -->
         <div class="mt-6">
-            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-2" data-translate="HR">HR</h3>
+            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-2">Human Resources</h3>
             <a href="{% url 'erp:employee_list' %}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if 'employee' in request.resolver_match.url_name %}bg-blue-600{% else %}hover:bg-gray-700 transition-colors{% endif %}" style="color: white !important;">
                 <i class="fas fa-user-tie mr-3"></i>
-                <span data-translate="Employees">Employees</span>
+                <span>Employees</span>
             </a>
         </div>
         <!-- Finance & Accounting -->
         <div class="mt-6">
-            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-2" data-translate="Finance">Finance</h3>
+            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-2">Finance</h3>
             <a href="{% url 'erp:payment_list' %}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if 'payment' in request.resolver_match.url_name %}bg-blue-600{% else %}hover:bg-gray-700 transition-colors{% endif %}" style="color: white !important;">
                 <i class="fas fa-credit-card mr-3"></i>
-                <span data-translate="Payments">Payments</span>
+                <span>Payments</span>
             </a>
             <a href="{% url 'erp:invoice_list' %}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if 'invoice' in request.resolver_match.url_name %}bg-blue-600{% else %}hover:bg-gray-700 transition-colors{% endif %}" style="color: white !important;">
                 <i class="fas fa-file-invoice-dollar mr-3"></i>
-                <span data-translate="Invoices">Invoices</span>
+                <span>Invoices</span>
             </a>
             <a href="{% url 'erp:financial_reports' %}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if 'financial' in request.resolver_match.url_name %}bg-blue-600{% else %}hover:bg-gray-700 transition-colors{% endif %}" style="color: white !important;">
                 <i class="fas fa-chart-line mr-3"></i>
-                <span data-translate="Reports">Reports</span>
+                <span>Reports</span>
             </a>
         </div>
     </nav>

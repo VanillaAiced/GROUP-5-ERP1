@@ -1,8 +1,101 @@
 {% extends 'erp/base.html' %}
+
 {% block title %}Financial Reports{% endblock %}
+{% block page_title %}Financial Reports{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <h2 data-translate="Financial Reports">Financial Reports</h2>
-    <p data-translate="This is a placeholder for the financial reports page. Add your report content here.">This is a placeholder for the financial reports page. Add your report content here.</p>
+<div class="space-y-6">
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-2">Total Revenue (This Month)</h3>
+            <p class="text-3xl font-bold text-green-600">${{ total_revenue|floatformat:2 }}</p>
+            <p class="text-sm text-gray-500 mt-2">Compared to last month:
+                {% if revenue_change > 0 %}
+                <span class="text-green-600">↑ {{ revenue_change }}%</span>
+                {% else %}
+                <span class="text-red-600">↓ {{ revenue_change_abs }}%</span>
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-2">Total Expenses (This Month)</h3>
+            <p class="text-3xl font-bold text-red-600">${{ total_expenses|floatformat:2 }}</p>
+            <p class="text-sm text-gray-500 mt-2">Compared to last month:
+                {% if expenses_change > 0 %}
+                <span class="text-red-600">↑ {{ expenses_change }}%</span>
+                {% else %}
+                <span class="text-green-600">↓ {{ expenses_change_abs }}%</span>
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-2">Net Profit (This Month)</h3>
+            <p class="text-3xl font-bold {% if net_profit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                ${{ net_profit|floatformat:2 }}
+            </p>
+            <p class="text-sm text-gray-500 mt-2">Profit Margin: {{ profit_margin|floatformat:1 }}%</p>
+        </div>
+    </div>
+
+    <!-- Accounts Receivable Section -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6">
+            <h3 class="text-xl font-semibold mb-4">Accounts Receivable</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for status in receivables_by_status %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ status.status }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${{ status.total_amount|floatformat:2 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ status.count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6">
+            <h3 class="text-xl font-semibold mb-4">Recent Transactions</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for transaction in recent_transactions %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ transaction.date|date:"M d, Y" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ transaction.type }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ transaction.reference }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap {% if transaction.transaction_amount >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                ${{ transaction.display_amount|floatformat:2 }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

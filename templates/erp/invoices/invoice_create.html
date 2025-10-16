@@ -10,6 +10,26 @@
         <p class="text-gray-600 mt-2">Create a new invoice with detailed line items and professional formatting</p>
     </div>
 
+    <!-- Display Django Messages/Errors -->
+    {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="p-4 mb-2 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-800{% elif message.tags == 'success' %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Display Form Errors -->
+    {% if form.non_field_errors %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <form method="post" id="invoice-form" class="space-y-8">
         {% csrf_token %}
 
@@ -198,55 +218,72 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize formset
-    let itemCount = {{ formset.total_form_count }};
-    const maxForms = parseInt('{{ formset.max_num }}') || 1000;
-    const minForms = parseInt('{{ formset.min_num }}') || 0;
+    let itemCount = document.querySelectorAll('.invoice-item').length;
     const totalFormsInput = document.getElementById('id_invoiceitem_set-TOTAL_FORMS');
-    const initialFormsInput = document.getElementById('id_invoiceitem_set-INITIAL_FORMS');
-    const maxFormsInput = document.getElementById('id_invoiceitem_set-MAX_NUM_FORMS');
+
+    // Set initial form count correctly
+    if (totalFormsInput) {
+        totalFormsInput.value = itemCount;
+    }
 
     // Function to update form count
     function updateFormCount() {
         const visibleItems = document.querySelectorAll('.invoice-item:not([style*="display: none"])').length;
-        totalFormsInput.value = visibleItems;
+        if (totalFormsInput) {
+            totalFormsInput.value = visibleItems;
+        }
     }
 
     // Add new item row
-    document.getElementById('add-item').addEventListener('click', function() {
-        if (itemCount >= maxForms) {
-            alert('Maximum number of items reached');
-            return;
-        }
+    const addButton = document.getElementById('add-item');
+    if (addButton) {
+        addButton.addEventListener('click', function(e) {
+            e.preventDefault();
 
-        // Clone the first row
-        const template = document.querySelector('.invoice-item').cloneNode(true);
+            // Clone the first row
+            const firstItem = document.querySelector('.invoice-item');
+            if (!firstItem) return;
 
-        // Clear values and update IDs
-        template.querySelectorAll('input, select').forEach(input => {
-            const oldName = input.name;
-            const newName = oldName.replace(/invoiceitem_set-\d+-/, `invoiceitem_set-${itemCount}-`);
-            input.name = newName;
-            input.id = `id_${newName}`;
-            input.value = '';
-            if (input.type === 'checkbox') {
-                input.checked = false;
+            const template = firstItem.cloneNode(true);
+
+            // Clear values and update IDs
+            template.querySelectorAll('input, select, textarea').forEach(input => {
+                const oldName = input.name;
+                if (oldName) {
+                    const newName = oldName.replace(/invoiceitem_set-\d+-/, `invoiceitem_set-${itemCount}-`);
+                    input.name = newName;
+                    input.id = `id_${newName}`;
+                }
+
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+            });
+
+            // Reset line total
+            const lineTotalSpan = template.querySelector('.line-total');
+            if (lineTotalSpan) {
+                lineTotalSpan.textContent = '$0.00';
             }
+
+            // Show the new row
+            template.style.display = '';
+
+            document.getElementById('invoice-items').appendChild(template);
+            itemCount++;
+            updateFormCount();
+            calculateTotals();
         });
-
-        // Reset line total
-        template.querySelector('.line-total').textContent = '$0.00';
-
-        // Show the new row
-        template.style.display = '';
-
-        document.getElementById('invoice-items').appendChild(template);
-        itemCount++;
-        updateFormCount();
-    });
+    }
 
     // Delete item row
     document.addEventListener('click', function(e) {
         if (e.target.closest('.delete-item')) {
+            e.preventDefault();
             const row = e.target.closest('.invoice-item');
             const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
 
@@ -268,10 +305,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Calculate line total
     function calculateLineTotal(row) {
-        const quantity = parseFloat(row.querySelector('input[name$="quantity"]').value) || 0;
-        const unitPrice = parseFloat(row.querySelector('input[name$="unit_price"]').value) || 0;
+        const quantityInput = row.querySelector('input[name$="quantity"]');
+        const unitPriceInput = row.querySelector('input[name$="unit_price"]');
+        const lineTotalSpan = row.querySelector('.line-total');
+
+        if (!quantityInput || !unitPriceInput || !lineTotalSpan) return 0;
+
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const unitPrice = parseFloat(unitPriceInput.value) || 0;
         const lineTotal = quantity * unitPrice;
-        row.querySelector('.line-total').textContent = '$' + lineTotal.toFixed(2);
+        lineTotalSpan.textContent = '$' + lineTotal.toFixed(2);
         return lineTotal;
     }
 
@@ -282,13 +325,18 @@ document.addEventListener('DOMContentLoaded', function() {
             subtotal += calculateLineTotal(row);
         });
 
-        const taxRate = parseFloat(document.getElementById('id_tax_rate').value) || 0;
+        const taxRateInput = document.getElementById('id_tax_rate');
+        const taxRate = taxRateInput ? parseFloat(taxRateInput.value) || 0 : 0;
         const taxAmount = (subtotal * taxRate) / 100;
         const total = subtotal + taxAmount;
 
-        document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
-        document.getElementById('tax-amount').textContent = '$' + taxAmount.toFixed(2);
-        document.getElementById('total-amount').textContent = '$' + total.toFixed(2);
+        const subtotalSpan = document.getElementById('subtotal');
+        const taxAmountSpan = document.getElementById('tax-amount');
+        const totalAmountSpan = document.getElementById('total-amount');
+
+        if (subtotalSpan) subtotalSpan.textContent = '$' + subtotal.toFixed(2);
+        if (taxAmountSpan) taxAmountSpan.textContent = '$' + taxAmount.toFixed(2);
+        if (totalAmountSpan) totalAmountSpan.textContent = '$' + total.toFixed(2);
     }
 
     // Calculate totals when inputs change
@@ -319,9 +367,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Toggle customer/vendor fields based on invoice type
+    const invoiceTypeSelect = document.getElementById('id_invoice_type');
+    const customerField = document.getElementById('customer-field');
+    const vendorField = document.getElementById('vendor-field');
+
+    if (invoiceTypeSelect && customerField && vendorField) {
+        invoiceTypeSelect.addEventListener('change', function() {
+            if (this.value === 'sales') {
+                customerField.classList.remove('hidden');
+                vendorField.classList.add('hidden');
+            } else if (this.value === 'purchase') {
+                customerField.classList.add('hidden');
+                vendorField.classList.remove('hidden');
+            } else {
+                customerField.classList.remove('hidden');
+                vendorField.classList.add('hidden');
+            }
+        });
+
+        // Trigger on load
+        invoiceTypeSelect.dispatchEvent(new Event('change'));
+    }
+
     // Style form inputs
-    document.querySelectorAll('select, input[type="text"], input[type="number"], input[type="date"]').forEach(input => {
-        input.className = 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm';
+    document.querySelectorAll('select, input[type="text"], input[type="number"], input[type="date"], textarea').forEach(input => {
+        if (!input.className || input.className === '') {
+            input.className = 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm';
+        }
     });
 
     // Special styling for price inputs
@@ -329,8 +402,50 @@ document.addEventListener('DOMContentLoaded', function() {
         input.className = 'pl-7 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm';
     });
 
+    // Hide DELETE checkboxes
+    document.querySelectorAll('input[name$="-DELETE"]').forEach(function(checkbox) {
+        checkbox.style.display = 'none';
+    });
+
     // Initial calculations
     calculateTotals();
+
+    // Form validation before submit
+    const invoiceForm = document.getElementById('invoice-form');
+    if (invoiceForm) {
+        invoiceForm.addEventListener('submit', function(e) {
+            // Check if at least one visible item exists
+            const visibleItems = document.querySelectorAll('.invoice-item:not([style*="display: none"])').length;
+            if (visibleItems < 1) {
+                e.preventDefault();
+                alert('Please add at least one invoice item.');
+                return false;
+            }
+
+            // Validate that visible items have required fields
+            let hasError = false;
+            document.querySelectorAll('.invoice-item:not([style*="display: none"])').forEach(row => {
+                const quantityInput = row.querySelector('input[name$="quantity"]');
+                const unitPriceInput = row.querySelector('input[name$="unit_price"]');
+
+                if (quantityInput && (!quantityInput.value || parseFloat(quantityInput.value) <= 0)) {
+                    hasError = true;
+                }
+                if (unitPriceInput && (!unitPriceInput.value || parseFloat(unitPriceInput.value) < 0)) {
+                    hasError = true;
+                }
+            });
+
+            if (hasError) {
+                e.preventDefault();
+                alert('Please ensure all invoice items have valid quantity and unit price.');
+                return false;
+            }
+
+            // Update form count one final time before submission
+            updateFormCount();
+        });
+    }
 });
 </script>
 {% endblock %}

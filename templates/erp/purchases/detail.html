@@ -84,14 +84,10 @@
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">{{ item.product.name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ item.quantity }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span data-currency="{{ item.unit_price }}" data-source-currency="USD">${{ item.unit_price|floatformat:2 }}</span>
-                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ item.unit_price|floatformat:2 }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ item.tax_rate }}%</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ item.received_quantity }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span data-currency="{{ item.line_total }}" data-source-currency="USD">${{ item.line_total|floatformat:2 }}</span>
-                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ item.line_total|floatformat:2 }}</td>
                         {% if order.status == 'draft' %}
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex space-x-2">
@@ -110,23 +106,17 @@
                 <tfoot class="bg-gray-50">
                     <tr>
                         <td colspan="5" class="px-6 py-4 text-right font-medium">Subtotal:</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span data-currency="{{ order.subtotal }}" data-source-currency="USD">${{ order.subtotal|floatformat:2 }}</span>
-                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ order.subtotal|floatformat:2 }}</td>
                         {% if order.status == 'draft' %}<td></td>{% endif %}
                     </tr>
                     <tr>
                         <td colspan="5" class="px-6 py-4 text-right font-medium">Tax Amount:</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span data-currency="{{ order.tax_amount }}" data-source-currency="USD">${{ order.tax_amount|floatformat:2 }}</span>
-                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ order.tax_amount|floatformat:2 }}</td>
                         {% if order.status == 'draft' %}<td></td>{% endif %}
                     </tr>
                     <tr class="font-bold">
                         <td colspan="5" class="px-6 py-4 text-right">Total Amount:</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span data-currency="{{ order.total_amount }}" data-source-currency="USD">${{ order.total_amount|floatformat:2 }}</span>
-                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ order.total_amount|floatformat:2 }}</td>
                         {% if order.status == 'draft' %}<td></td>{% endif %}
                     </tr>
                 </tfoot>

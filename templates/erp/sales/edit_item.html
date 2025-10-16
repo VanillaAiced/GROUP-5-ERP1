@@ -1,16 +1,13 @@
 {% extends 'erp/base.html' %}
 
 {% block title %}Edit Sales Order Item - LiteWork{% endblock %}
-{% block page_title %}<span data-translate="Edit Sales Order Item">Edit Sales Order Item</span>{% endblock %}
+{% block page_title %}Edit Sales Order Item{% endblock %}
 
 {% block content %}
-<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-600">
     <div class="flex justify-between items-center mb-6">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Item in {{ order.order_number }}</h2>
-            <p class="text-gray-600 dark:text-gray-300 mt-2">Order: <span class="font-semibold">{{ order.order_number }}</span> for <span class="font-semibold">{{ order.customer.name }}</span></p>
-        </div>
-        <a href="{% url 'erp:sales_order_detail' order.id %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center font-medium">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Item in {{ order.order_number }}</h2>
+        <a href="{% url 'erp:sales_order_detail' order.id %}" class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
             <i class="fas fa-arrow-left mr-2"></i>Back to Order
         </a>
     </div>
@@ -19,98 +16,60 @@
         {% csrf_token %}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <label for="{{ form.product.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
+                <label for="{{ form.product.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Product *
                 </label>
                 {{ form.product }}
                 {% if form.product.errors %}
-                    {% for error in form.product.errors %}
-                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                    {% endfor %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.product.errors.0 }}</p>
                 {% endif %}
             </div>
             
             <div>
-                <label for="{{ form.quantity.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
+                <label for="{{ form.quantity.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Quantity *
                 </label>
                 {{ form.quantity }}
                 {% if form.quantity.errors %}
-                    {% for error in form.quantity.errors %}
-                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                    {% endfor %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.quantity.errors.0 }}</p>
                 {% endif %}
             </div>
             
             <div>
-                <label for="{{ form.unit_price.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
+                <label for="{{ form.unit_price.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Unit Price *
                 </label>
-                {{ form.unit_price }}
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
+                    {{ form.unit_price }}
+                </div>
                 {% if form.unit_price.errors %}
-                    {% for error in form.unit_price.errors %}
-                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                    {% endfor %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.unit_price.errors.0 }}</p>
                 {% endif %}
             </div>
             
             <div>
-                <label for="{{ form.discount_percent.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                    Discount (%)
+                <label for="{{ form.discount_percent.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Discount %
                 </label>
-                {{ form.discount_percent }}
+                <div class="relative">
+                    {{ form.discount_percent }}
+                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">%</span>
+                </div>
                 {% if form.discount_percent.errors %}
-                    {% for error in form.discount_percent.errors %}
-                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                    {% endfor %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.discount_percent.errors.0 }}</p>
                 {% endif %}
             </div>
         </div>
         
-        <div class="flex justify-end space-x-4 pt-6">
-            <a href="{% url 'erp:sales_order_detail' order.id %}" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+        <div class="flex justify-end space-x-4">
+            <a href="{% url 'erp:sales_order_detail' order.id %}" class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
                 Cancel
             </a>
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-save mr-2"></i>Update Item
             </button>
         </div>
     </form>
 </div>
-
-<style>
-    input[type="text"],
-    input[type="email"],
-    input[type="number"],
-    textarea,
-    select {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #d1d5db;
-        border-radius: 0.375rem;
-        font-size: 0.875rem;
-        background-color: white;
-        color: #1f2937;
-    }
-
-    .dark input[type="text"],
-    .dark input[type="email"],
-    .dark input[type="number"],
-    .dark textarea,
-    .dark select {
-        background-color: #374151;
-        color: #f9fafb;
-        border-color: #4b5563;
-    }
-
-    input[type="text"]:focus,
-    input[type="email"]:focus,
-    input[type="number"]:focus,
-    textarea:focus,
-    select:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-</style>
 {% endblock %}

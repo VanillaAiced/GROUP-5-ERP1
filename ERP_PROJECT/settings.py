@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'storages',
     'authentication',
     'dashboard',
     'erpdb',
@@ -122,6 +121,18 @@ USE_I18N = True
 USE_TZ = True
 
 
+STATIC_URL = 'static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'staticfiles',
+]
+
+STATIC_ROOT = BASE_DIR / 'productionfiles'
+
+# Media files (uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -142,39 +153,3 @@ IMAP_PORT = 993
 IMAP_USE_SSL = True
 IMAP_USER = 'wlite0990@gmail.com'
 IMAP_PASSWORD = 'fvlwllnqfemtadap'
-
-# AWS S3 Configuration
-USE_S3 = os.getenv('USE_S3', 'False') == 'True'
-
-if USE_S3:
-    # AWS Settings
-    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-
-    # S3 Settings
-    AWS_S3_OBJECT_PARAMETERS = {
-        'CacheControl': 'max-age=86400',
-    }
-    AWS_DEFAULT_ACL = 'public-read'
-    AWS_QUERYSTRING_AUTH = False
-
-    # Static files (CSS, JavaScript, Images)
-    STATICFILES_STORAGE = 'ERP_PROJECT.storage_backends.StaticStorage'
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
-
-    # Media files (User uploads)
-    DEFAULT_FILE_STORAGE = 'ERP_PROJECT.storage_backends.MediaStorage'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-else:
-    # Local development settings
-    STATIC_URL = 'static/'
-    STATICFILES_DIRS = [
-        BASE_DIR / 'staticfiles',
-    ]
-    STATIC_ROOT = BASE_DIR / 'productionfiles'
-
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'

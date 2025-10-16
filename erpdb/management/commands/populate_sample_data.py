@@ -706,33 +706,39 @@ class Command(BaseCommand):
         # Clear existing purchase orders
         PurchaseOrder.objects.all().delete()
 
+        # Get first warehouse for purchase orders
+        warehouses = Warehouse.objects.all()
+        if not warehouses.exists():
+            self.stdout.write(self.style.WARNING('No warehouses found, skipping purchase orders'))
+            return []
+
         # Create 8 purchase orders with random items
         purchase_orders = []
         for i in range(1, 9):
             # Pick a random vendor
             vendor = random.choice(vendors)
+            warehouse = random.choice(warehouses)
 
             # Create an order with a recent date
             days_ago = random.randint(1, 60)
             order_date = timezone.now() - timedelta(days=days_ago)
 
-            # Random status
-            status_choices = ['draft', 'pending', 'approved', 'ordered', 'received', 'completed']
-            status_weights = [0.1, 0.2, 0.2, 0.2, 0.2, 0.1]  # More weight to middle statuses
+            # Random status - fix the status choices to match model
+            status_choices = ['draft', 'pending', 'confirmed', 'received', 'completed']
+            status_weights = [0.1, 0.2, 0.3, 0.2, 0.2]
             status = random.choices(status_choices, weights=status_weights, k=1)[0]
 
             # Create the order
             order = PurchaseOrder.objects.create(
-                order_number=f'PO{i:06d}',
+                po_number=f'PO{i:06d}',
                 vendor=vendor,
-                order_date=order_date,
+                warehouse=warehouse,
                 status=status,
                 notes=f'Sample purchase order {i}',
                 created_by=created_by
             )
 
             # Add 1-5 random products to the order
-            subtotal = Decimal('0')
             num_items = random.randint(1, 5)
 
             for _ in range(num_items):
@@ -742,27 +748,16 @@ class Command(BaseCommand):
                 # Random quantity
                 quantity = random.randint(5, 50)
 
-                # Add the item
-                item = PurchaseOrderItem.objects.create(
+                # Add the item - use correct field name unit_price
+                PurchaseOrderItem.objects.create(
                     purchase_order=order,
                     product=product,
                     quantity=quantity,
-                    unit_cost=product.cost_price
+                    unit_price=product.cost_price
                 )
 
-                # Update order subtotal
-                subtotal += item.line_total
-
-            # Calculate tax and total
-            tax_rate = Decimal('0.08')  # 8% tax rate
-            tax_amount = subtotal * tax_rate
-            total_amount = subtotal + tax_amount
-
-            # Update the order with calculated totals
-            order.subtotal = subtotal
-            order.tax_amount = tax_amount
-            order.total_amount = total_amount
-            order.save()
+            # Calculate totals using model method
+            order.calculate_totals()
 
             purchase_orders.append(order)
 
@@ -944,7 +939,7 @@ class Command(BaseCommand):
                 paid_amount=order.total_amount if random.choice([True, False]) else Decimal('0'),
                 vendor=order.vendor,
                 purchase_order=order,
-                notes=f'Invoice for purchase order {order.order_number}',
+                notes=f'Invoice for purchase order {order.po_number}',
                 created_by=created_by
             )
             invoices.append(invoice)
