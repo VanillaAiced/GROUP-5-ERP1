@@ -1,0 +1,158 @@
+<script>
+// Translation Patch - Adds missing sidebar translations
+// This supplements the main translation-utils.html file
+
+(function() {
+    // Wait for the main translation system to load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add missing translations to the global translations object if it exists
+        if (window.translate) {
+            console.log('✅ Translation patch loaded - adding missing sidebar translations');
+
+            // We'll manually apply translations for items that might be missing
+            const missingTranslations = {
+                en: {
+                    'Communications': 'Communications',
+                    'Email Inbox': 'Email Inbox',
+                    'Customer Relations': 'Customer Relations',
+                    'Vendors': 'Vendors',
+                    'Purchase Orders': 'Purchase Orders',
+                    'Payments': 'Payments',
+                    'Invoices': 'Invoices',
+                    'Reports': 'Reports',
+                    'Low Stock Alert': 'Low Stock Alert'
+                },
+                es: {
+                    'Communications': 'Comunicaciones',
+                    'Email Inbox': 'Bandeja de Entrada',
+                    'Customer Relations': 'Relaciones con Clientes',
+                    'Vendors': 'Proveedores',
+                    'Purchase Orders': 'Órdenes de Compra',
+                    'Payments': 'Pagos',
+                    'Invoices': 'Facturas',
+                    'Reports': 'Informes',
+                    'Low Stock Alert': 'Alerta de Bajo Stock'
+                },
+                fr: {
+                    'Communications': 'Communications',
+                    'Email Inbox': 'Boîte de Réception',
+                    'Customer Relations': 'Relations Clients',
+                    'Vendors': 'Fournisseurs',
+                    'Purchase Orders': 'Bons de Commande',
+                    'Payments': 'Paiements',
+                    'Invoices': 'Factures',
+                    'Reports': 'Rapports',
+                    'Low Stock Alert': 'Alerte Stock Faible'
+                },
+                de: {
+                    'Communications': 'Kommunikation',
+                    'Email Inbox': 'E-Mail-Posteingang',
+                    'Customer Relations': 'Kundenbeziehungen',
+                    'Vendors': 'Lieferanten',
+                    'Purchase Orders': 'Bestellungen',
+                    'Payments': 'Zahlungen',
+                    'Invoices': 'Rechnungen',
+                    'Reports': 'Berichte',
+                    'Low Stock Alert': 'Niedriger Bestandsalarm'
+                },
+                zh: {
+                    'Communications': '通讯',
+                    'Email Inbox': '电子邮件收件箱',
+                    'Customer Relations': '客户关系',
+                    'Vendors': '供应商',
+                    'Purchase Orders': '采购订单',
+                    'Payments': '付款',
+                    'Invoices': '发票',
+                    'Reports': '报告',
+                    'Low Stock Alert': '低库存警报'
+                },
+                ja: {
+                    'Communications': 'コミュニケーション',
+                    'Email Inbox': 'メール受信トレイ',
+                    'Customer Relations': '顧客関係',
+                    'Vendors': 'ベンダー',
+                    'Purchase Orders': '発注書',
+                    'Payments': '支払い',
+                    'Invoices': '請求書',
+                    'Reports': 'レポート',
+                    'Low Stock Alert': '在庫不足警告'
+                },
+                ko: {
+                    'Communications': '커뮤니케이션',
+                    'Email Inbox': '이메일 받은편지함',
+                    'Customer Relations': '고객 관계',
+                    'Vendors': '공급업체',
+                    'Purchase Orders': '구매 주문',
+                    'Payments': '결제',
+                    'Invoices': '송장',
+                    'Reports': '보고서',
+                    'Low Stock Alert': '재고 부족 경고'
+                },
+                ar: {
+                    'Communications': 'الاتصالات',
+                    'Email Inbox': 'صندوق البريد الإلكتروني',
+                    'Customer Relations': 'علاقات العملاء',
+                    'Vendors': 'الموردون',
+                    'Purchase Orders': 'أوامر الشراء',
+                    'Payments': 'المدفوعات',
+                    'Invoices': 'الفواتير',
+                    'Reports': 'التقارير',
+                    'Low Stock Alert': 'تنبيه المخزون المنخفض'
+                }
+            };
+
+            // Manual translation function for missing items
+            function patchTranslate(text, lang) {
+                if (!lang || lang === 'en') return text;
+                if (missingTranslations[lang] && missingTranslations[lang][text]) {
+                    return missingTranslations[lang][text];
+                }
+                return text;
+            }
+
+            // Apply patch translations to all elements
+            function applyPatchTranslations() {
+                const lang = window.getCurrentLanguage ? window.getCurrentLanguage() : 'en';
+                if (lang === 'en') return;
+
+                document.querySelectorAll('[data-translate]').forEach(element => {
+                    const originalText = element.getAttribute('data-translate');
+                    const patchedTranslation = patchTranslate(originalText, lang);
+
+                    // Only update if we have a translation
+                    if (patchedTranslation !== originalText) {
+                        if (element.childNodes.length === 1 && element.childNodes[0].nodeType === 3) {
+                            element.textContent = patchedTranslation;
+                        } else {
+                            // Find text nodes and update them
+                            element.childNodes.forEach(node => {
+                                if (node.nodeType === 3) {
+                                    const trimmed = node.textContent.trim();
+                                    if (trimmed === originalText) {
+                                        node.textContent = patchedTranslation;
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
+                console.log('🔧 Patch translations applied');
+            }
+
+            // Apply patch after a short delay to ensure main translations have run
+            setTimeout(applyPatchTranslations, 150);
+
+            // Re-apply when main translation system updates
+            const originalApply = window.applyTranslations;
+            if (originalApply) {
+                window.applyTranslations = function() {
+                    originalApply();
+                    setTimeout(applyPatchTranslations, 50);
+                };
+            }
+        }
+    });
+})();
+</script>
+

@@ -1,0 +1,732 @@
+<script>
+// Translation System for LiteWork ERP
+// Supports multiple languages with automatic text replacement
+
+(function() {
+    // Translation dictionaries
+    const translations = {
+        en: {
+            // Navigation
+            'Dashboard': 'Dashboard',
+            'Sales': 'Sales',
+            'Purchases': 'Purchases',
+            'Inventory': 'Inventory',
+            'Finance': 'Finance',
+            'HR': 'HR',
+            'Settings': 'Settings',
+
+            // Dashboard
+            'Customers': 'Customers',
+            'Sales Orders': 'Sales Orders',
+            'Products': 'Products',
+            'Employees': 'Employees',
+            'Monthly Sales': 'Monthly Sales',
+            'This Month': 'This Month',
+            'Last Month': 'Last Month',
+            'Quick Actions': 'Quick Actions',
+            'Add Customer': 'Add Customer',
+            'Create Sales Order': 'Create Sales Order',
+            'Add Product': 'Add Product',
+            'Recent Sales Orders': 'Recent Sales Orders',
+            'Recent Purchases': 'Recent Purchases',
+            'Low Stock Items': 'Low Stock Items',
+            'Pending Invoices': 'Pending Invoices',
+
+            // Settings Page
+            'Account & Security': 'Account & Security',
+            'Language & Currency': 'Language & Currency',
+            'Account Information': 'Account Information',
+            'Username': 'Username',
+            'Email': 'Email',
+            'Password': 'Password',
+            'Edit': 'Edit',
+            'Update': 'Update',
+            'Save': 'Save',
+            'Save Changes': 'Save Changes',
+            'Update your password': 'Update your password',
+            'Account Protection': 'Account Protection',
+            '2-step Verification': '2-step Verification',
+            'Enable 2-step verification to send security code to the email and phone number provided above whenever logging in.': 'Enable 2-step verification to send security code to the email and phone number provided above whenever logging in.',
+            'Application Settings': 'Application Settings',
+            'Dark Mode': 'Dark Mode',
+            'Toggle between light and dark mode for better viewing experience.': 'Toggle between light and dark mode for better viewing experience.',
+            'Logout': 'Logout',
+            'Sign out from your current session': 'Sign out from your current session',
+
+            // Language & Currency Settings
+            'Language Preferences': 'Language Preferences',
+            'Display Language': 'Display Language',
+            'Choose your preferred language for the application interface': 'Choose your preferred language for the application interface',
+            'Date Format': 'Date Format',
+            'Choose how dates are displayed throughout the system': 'Choose how dates are displayed throughout the system',
+            'Currency Settings': 'Currency Settings',
+            'Default Currency': 'Default Currency',
+            'Set the primary currency for transactions and reports': 'Set the primary currency for transactions and reports',
+            'Currency Display': 'Currency Display',
+            'Choose how currency amounts are formatted': 'Choose how currency amounts are formatted',
+            'Decimal Separator': 'Decimal Separator',
+            'Choose decimal and thousand separators': 'Choose decimal and thousand separators',
+            'Regional Settings': 'Regional Settings',
+            'Time Zone': 'Time Zone',
+            'Set your local time zone for accurate timestamps': 'Set your local time zone for accurate timestamps',
+            'Time Format': 'Time Format',
+            'Choose between 12-hour and 24-hour time format': 'Choose between 12-hour and 24-hour time format',
+
+            // Common Actions
+            'View': 'View',
+            'Delete': 'Delete',
+            'Cancel': 'Cancel',
+            'Confirm': 'Confirm',
+            'Search': 'Search',
+            'Filter': 'Filter',
+            'Export': 'Export',
+            'Print': 'Print',
+            'New': 'New',
+            'Add': 'Add',
+            'Remove': 'Remove',
+            'Close': 'Close',
+        },
+        es: {
+            // Navigation
+            'Dashboard': 'Tablero',
+            'Sales': 'Ventas',
+            'Purchases': 'Compras',
+            'Inventory': 'Inventario',
+            'Finance': 'Finanzas',
+            'HR': 'RRHH',
+            'Settings': 'Configuración',
+
+            // Dashboard
+            'Customers': 'Clientes',
+            'Sales Orders': 'Órdenes de Venta',
+            'Products': 'Productos',
+            'Employees': 'Empleados',
+            'Monthly Sales': 'Ventas Mensuales',
+            'This Month': 'Este Mes',
+            'Last Month': 'Mes Pasado',
+            'Quick Actions': 'Acciones Rápidas',
+            'Add Customer': 'Agregar Cliente',
+            'Create Sales Order': 'Crear Orden de Venta',
+            'Add Product': 'Agregar Producto',
+            'Recent Sales Orders': 'Órdenes de Venta Recientes',
+            'Recent Purchases': 'Compras Recientes',
+            'Low Stock Items': 'Artículos con Poco Stock',
+            'Pending Invoices': 'Facturas Pendientes',
+
+            // Settings Page
+            'Account & Security': 'Cuenta y Seguridad',
+            'Language & Currency': 'Idioma y Moneda',
+            'Account Information': 'Información de la Cuenta',
+            'Username': 'Nombre de Usuario',
+            'Email': 'Correo Electrónico',
+            'Password': 'Contraseña',
+            'Edit': 'Editar',
+            'Update': 'Actualizar',
+            'Save': 'Guardar',
+            'Save Changes': 'Guardar Cambios',
+            'Update your password': 'Actualiza tu contraseña',
+            'Account Protection': 'Protección de Cuenta',
+            '2-step Verification': 'Verificación en 2 Pasos',
+            'Enable 2-step verification to send security code to the email and phone number provided above whenever logging in.': 'Habilite la verificación en 2 pasos para enviar el código de seguridad al correo electrónico y número de teléfono proporcionados al iniciar sesión.',
+            'Application Settings': 'Configuración de Aplicación',
+            'Dark Mode': 'Modo Oscuro',
+            'Toggle between light and dark mode for better viewing experience.': 'Alterne entre el modo claro y oscuro para una mejor experiencia visual.',
+            'Logout': 'Cerrar Sesión',
+            'Sign out from your current session': 'Cierre sesión de su sesión actual',
+
+            // Language & Currency Settings
+            'Language Preferences': 'Preferencias de Idioma',
+            'Display Language': 'Idioma de Visualización',
+            'Choose your preferred language for the application interface': 'Elija su idioma preferido para la interfaz de la aplicación',
+            'Date Format': 'Formato de Fecha',
+            'Choose how dates are displayed throughout the system': 'Elija cómo se muestran las fechas en todo el sistema',
+            'Currency Settings': 'Configuración de Moneda',
+            'Default Currency': 'Moneda Predeterminada',
+            'Set the primary currency for transactions and reports': 'Establezca la moneda principal para transacciones e informes',
+            'Currency Display': 'Visualización de Moneda',
+            'Choose how currency amounts are formatted': 'Elija cómo se formatean los montos de moneda',
+            'Decimal Separator': 'Separador Decimal',
+            'Choose decimal and thousand separators': 'Elija separadores decimales y de miles',
+            'Regional Settings': 'Configuración Regional',
+            'Time Zone': 'Zona Horaria',
+            'Set your local time zone for accurate timestamps': 'Establezca su zona horaria local para marcas de tiempo precisas',
+            'Time Format': 'Formato de Hora',
+            'Choose between 12-hour and 24-hour time format': 'Elija entre formato de 12 horas y 24 horas',
+
+            // Common Actions
+            'View': 'Ver',
+            'Delete': 'Eliminar',
+            'Cancel': 'Cancelar',
+            'Confirm': 'Confirmar',
+            'Search': 'Buscar',
+            'Filter': 'Filtrar',
+            'Export': 'Exportar',
+            'Print': 'Imprimir',
+            'New': 'Nuevo',
+            'Add': 'Agregar',
+            'Remove': 'Quitar',
+            'Close': 'Cerrar',
+        },
+        fr: {
+            // Navigation
+            'Dashboard': 'Tableau de Bord',
+            'Sales': 'Ventes',
+            'Purchases': 'Achats',
+            'Inventory': 'Inventaire',
+            'Finance': 'Finance',
+            'HR': 'RH',
+            'Settings': 'Paramètres',
+
+            // Dashboard
+            'Customers': 'Clients',
+            'Sales Orders': 'Commandes de Vente',
+            'Products': 'Produits',
+            'Employees': 'Employés',
+            'Monthly Sales': 'Ventes Mensuelles',
+            'This Month': 'Ce Mois',
+            'Last Month': 'Mois Dernier',
+            'Quick Actions': 'Actions Rapides',
+            'Add Customer': 'Ajouter un Client',
+            'Create Sales Order': 'Créer une Commande',
+            'Add Product': 'Ajouter un Produit',
+            'Recent Sales Orders': 'Commandes Récentes',
+            'Recent Purchases': 'Achats Récents',
+            'Low Stock Items': 'Articles en Rupture',
+            'Pending Invoices': 'Factures en Attente',
+
+            // Settings Page
+            'Account & Security': 'Compte et Sécurité',
+            'Language & Currency': 'Langue et Devise',
+            'Account Information': 'Informations du Compte',
+            'Username': "Nom d'Utilisateur",
+            'Email': 'E-mail',
+            'Password': 'Mot de Passe',
+            'Edit': 'Modifier',
+            'Update': 'Mettre à Jour',
+            'Save': 'Enregistrer',
+            'Save Changes': 'Enregistrer les Modifications',
+            'Update your password': 'Mettez à jour votre mot de passe',
+            'Account Protection': 'Protection du Compte',
+            '2-step Verification': 'Vérification en 2 Étapes',
+            'Enable 2-step verification to send security code to the email and phone number provided above whenever logging in.': "Activez la vérification en 2 étapes pour envoyer un code de sécurité à l'e-mail et au numéro de téléphone fournis lors de la connexion.",
+            'Application Settings': "Paramètres de l'Application",
+            'Dark Mode': 'Mode Sombre',
+            'Toggle between light and dark mode for better viewing experience.': 'Basculez entre le mode clair et sombre pour une meilleure expérience visuelle.',
+            'Logout': 'Déconnexion',
+            'Sign out from your current session': 'Déconnectez-vous de votre session actuelle',
+
+            // Language & Currency Settings
+            'Language Preferences': 'Préférences de Langue',
+            'Display Language': "Langue d'Affichage",
+            'Choose your preferred language for the application interface': "Choisissez votre langue préférée pour l'interface de l'application",
+            'Date Format': 'Format de Date',
+            'Choose how dates are displayed throughout the system': 'Choisissez comment les dates sont affichées dans tout le système',
+            'Currency Settings': 'Paramètres de Devise',
+            'Default Currency': 'Devise par Défaut',
+            'Set the primary currency for transactions and reports': 'Définissez la devise principale pour les transactions et les rapports',
+            'Currency Display': 'Affichage de la Devise',
+            'Choose how currency amounts are formatted': 'Choisissez comment les montants en devise sont formatés',
+            'Decimal Separator': 'Séparateur Décimal',
+            'Choose decimal and thousand separators': 'Choisissez les séparateurs décimaux et de milliers',
+            'Regional Settings': 'Paramètres Régionaux',
+            'Time Zone': 'Fuseau Horaire',
+            'Set your local time zone for accurate timestamps': "Définissez votre fuseau horaire local pour des horodatages précis",
+            'Time Format': 'Format de l\'Heure',
+            'Choose between 12-hour and 24-hour time format': 'Choisissez entre le format 12 heures et 24 heures',
+
+            // Common Actions
+            'View': 'Voir',
+            'Delete': 'Supprimer',
+            'Cancel': 'Annuler',
+            'Confirm': 'Confirmer',
+            'Search': 'Rechercher',
+            'Filter': 'Filtrer',
+            'Export': 'Exporter',
+            'Print': 'Imprimer',
+            'New': 'Nouveau',
+            'Add': 'Ajouter',
+            'Remove': 'Retirer',
+            'Close': 'Fermer',
+        },
+        de: {
+            // Navigation
+            'Dashboard': 'Dashboard',
+            'Sales': 'Verkäufe',
+            'Purchases': 'Einkäufe',
+            'Inventory': 'Inventar',
+            'Finance': 'Finanzen',
+            'HR': 'Personal',
+            'Settings': 'Einstellungen',
+
+            // Dashboard
+            'Customers': 'Kunden',
+            'Sales Orders': 'Verkaufsaufträge',
+            'Products': 'Produkte',
+            'Employees': 'Mitarbeiter',
+            'Monthly Sales': 'Monatliche Verkäufe',
+            'This Month': 'Dieser Monat',
+            'Last Month': 'Letzter Monat',
+            'Quick Actions': 'Schnellaktionen',
+            'Add Customer': 'Kunde Hinzufügen',
+            'Create Sales Order': 'Verkaufsauftrag Erstellen',
+            'Add Product': 'Produkt Hinzufügen',
+            'Recent Sales Orders': 'Kürzliche Verkaufsaufträge',
+            'Recent Purchases': 'Kürzliche Einkäufe',
+            'Low Stock Items': 'Artikel mit Niedrigem Bestand',
+            'Pending Invoices': 'Ausstehende Rechnungen',
+
+            // Settings Page
+            'Account & Security': 'Konto und Sicherheit',
+            'Language & Currency': 'Sprache und Währung',
+            'Account Information': 'Kontoinformationen',
+            'Username': 'Benutzername',
+            'Email': 'E-Mail',
+            'Password': 'Passwort',
+            'Edit': 'Bearbeiten',
+            'Update': 'Aktualisieren',
+            'Save': 'Speichern',
+            'Save Changes': 'Änderungen Speichern',
+            'Update your password': 'Aktualisieren Sie Ihr Passwort',
+            'Account Protection': 'Kontoschutz',
+            '2-step Verification': '2-Schritt-Verifizierung',
+            'Enable 2-step verification to send security code to the email and phone number provided above whenever logging in.': 'Aktivieren Sie die 2-Schritt-Verifizierung, um bei der Anmeldung einen Sicherheitscode an die oben angegebene E-Mail und Telefonnummer zu senden.',
+            'Application Settings': 'Anwendungseinstellungen',
+            'Dark Mode': 'Dunkler Modus',
+            'Toggle between light and dark mode for better viewing experience.': 'Wechseln Sie zwischen hellem und dunklem Modus für ein besseres Seherlebnis.',
+            'Logout': 'Abmelden',
+            'Sign out from your current session': 'Melden Sie sich von Ihrer aktuellen Sitzung ab',
+
+            // Language & Currency Settings
+            'Language Preferences': 'Spracheinstellungen',
+            'Display Language': 'Anzeigesprache',
+            'Choose your preferred language for the application interface': 'Wählen Sie Ihre bevorzugte Sprache für die Anwendungsoberfläche',
+            'Date Format': 'Datumsformat',
+            'Choose how dates are displayed throughout the system': 'Wählen Sie, wie Daten im gesamten System angezeigt werden',
+            'Currency Settings': 'Währungseinstellungen',
+            'Default Currency': 'Standardwährung',
+            'Set the primary currency for transactions and reports': 'Legen Sie die Hauptwährung für Transaktionen und Berichte fest',
+            'Currency Display': 'Währungsanzeige',
+            'Choose how currency amounts are formatted': 'Wählen Sie, wie Währungsbeträge formatiert werden',
+            'Decimal Separator': 'Dezimaltrennzeichen',
+            'Choose decimal and thousand separators': 'Wählen Sie Dezimal- und Tausendertrennzeichen',
+            'Regional Settings': 'Regionale Einstellungen',
+            'Time Zone': 'Zeitzone',
+            'Set your local time zone for accurate timestamps': 'Stellen Sie Ihre lokale Zeitzone für genaue Zeitstempel ein',
+            'Time Format': 'Zeitformat',
+            'Choose between 12-hour and 24-hour time format': 'Wählen Sie zwischen 12-Stunden- und 24-Stunden-Zeitformat',
+
+            // Common Actions
+            'View': 'Ansehen',
+            'Delete': 'Löschen',
+            'Cancel': 'Abbrechen',
+            'Confirm': 'Bestätigen',
+            'Search': 'Suchen',
+            'Filter': 'Filtern',
+            'Export': 'Exportieren',
+            'Print': 'Drucken',
+            'New': 'Neu',
+            'Add': 'Hinzufügen',
+            'Remove': 'Entfernen',
+            'Close': 'Schließen',
+        },
+        zh: {
+            // Navigation
+            'Dashboard': '仪表板',
+            'Sales': '销售',
+            'Purchases': '采购',
+            'Inventory': '库存',
+            'Finance': '财务',
+            'HR': '人力资源',
+            'Settings': '设置',
+
+            // Dashboard
+            'Customers': '客户',
+            'Sales Orders': '销售订单',
+            'Products': '产品',
+            'Employees': '员工',
+            'Monthly Sales': '月销售额',
+            'This Month': '本月',
+            'Last Month': '上月',
+            'Quick Actions': '快速操作',
+            'Add Customer': '添加客户',
+            'Create Sales Order': '创建销售订单',
+            'Add Product': '添加产品',
+            'Recent Sales Orders': '最近销售订单',
+            'Recent Purchases': '最近采购',
+            'Low Stock Items': '低库存商品',
+            'Pending Invoices': '待处理发票',
+
+            // Settings Page
+            'Account & Security': '账户与安全',
+            'Language & Currency': '语言和货币',
+            'Account Information': '账户信息',
+            'Username': '用户名',
+            'Email': '电子邮件',
+            'Password': '密码',
+            'Edit': '编辑',
+            'Update': '更新',
+            'Save': '保存',
+            'Save Changes': '保存更改',
+            'Update your password': '更新您的密码',
+            'Account Protection': '账户保护',
+            '2-step Verification': '两步验证',
+            'Enable 2-step verification to send security code to the email and phone number provided above whenever logging in.': '启用两步验证，在登录时将安全代码发送到上面提供的电子邮件和电话号码。',
+            'Application Settings': '应用程序设置',
+            'Dark Mode': '深色模式',
+            'Toggle between light and dark mode for better viewing experience.': '在浅色和深色模式之间切换以获得更好的观看体验。',
+            'Logout': '登出',
+            'Sign out from your current session': '从当前会话退出',
+
+            // Language & Currency Settings
+            'Language Preferences': '语言偏好',
+            'Display Language': '显示语言',
+            'Choose your preferred language for the application interface': '选择应用程序界面的首选语言',
+            'Date Format': '日期格式',
+            'Choose how dates are displayed throughout the system': '选择系统中日期的显示方式',
+            'Currency Settings': '货币设置',
+            'Default Currency': '默认货币',
+            'Set the primary currency for transactions and reports': '设置交易和报告的主要货币',
+            'Currency Display': '货币显示',
+            'Choose how currency amounts are formatted': '选择货币金额的格式',
+            'Decimal Separator': '小数分隔符',
+            'Choose decimal and thousand separators': '选择小数和千位分隔符',
+            'Regional Settings': '区域设置',
+            'Time Zone': '时区',
+            'Set your local time zone for accurate timestamps': '设置您的本地时区以获得准确的时间戳',
+            'Time Format': '时间格式',
+            'Choose between 12-hour and 24-hour time format': '在12小时和24小时时间格式之间选择',
+
+            // Common Actions
+            'View': '查看',
+            'Delete': '删除',
+            'Cancel': '取消',
+            'Confirm': '确认',
+            'Search': '搜索',
+            'Filter': '过滤',
+            'Export': '导出',
+            'Print': '打印',
+            'New': '新建',
+            'Add': '添加',
+            'Remove': '移除',
+            'Close': '关闭',
+        },
+        ja: {
+            // Navigation
+            'Dashboard': 'ダッシュボード',
+            'Sales': '営業',
+            'Purchases': '購入',
+            'Inventory': '在庫',
+            'Finance': '財務',
+            'HR': '人事',
+            'Settings': '設定',
+
+            // Dashboard
+            'Customers': '顧客',
+            'Sales Orders': '販売注文',
+            'Products': '製品',
+            'Employees': '従業員',
+            'Monthly Sales': '月次売上',
+            'This Month': '今月',
+            'Last Month': '先月',
+            'Quick Actions': 'クイックアクション',
+            'Add Customer': '顧客を追加',
+            'Create Sales Order': '販売注文を作成',
+            'Add Product': '製品を追加',
+            'Recent Sales Orders': '最近の販売注文',
+            'Recent Purchases': '最近の購入',
+            'Low Stock Items': '在庫が少ない商品',
+            'Pending Invoices': '保留中の請求書',
+
+            // Settings Page
+            'Account & Security': 'アカウントとセキュリティ',
+            'Language & Currency': '言語と通貨',
+            'Account Information': 'アカウント情報',
+            'Username': 'ユーザー名',
+            'Email': 'メール',
+            'Password': 'パスワード',
+            'Edit': '編集',
+            'Update': '更新',
+            'Save': '保存',
+            'Save Changes': '変更を保存',
+            'Update your password': 'パスワードを更新',
+            'Account Protection': 'アカウント保護',
+            '2-step Verification': '2段階認証',
+            'Enable 2-step verification to send security code to the email and phone number provided above whenever logging in.': 'ログイン時に上記のメールアドレスと電話番号にセキュリティコードを送信するには、2段階認証を有効にしてください。',
+            'Application Settings': 'アプリケーション設定',
+            'Dark Mode': 'ダークモード',
+            'Toggle between light and dark mode for better viewing experience.': 'より良い表示体験のために、ライトモードとダークモードを切り替えます。',
+            'Logout': 'ログアウト',
+            'Sign out from your current session': '現在のセッションからサインアウト',
+
+            // Language & Currency Settings
+            'Language Preferences': '言語設定',
+            'Display Language': '表示言語',
+            'Choose your preferred language for the application interface': 'アプリケーションインターフェースの優先言語を選択してください',
+            'Date Format': '日付形式',
+            'Choose how dates are displayed throughout the system': 'システム全体で日付の表示方法を選択してください',
+            'Currency Settings': '通貨設定',
+            'Default Currency': 'デフォルト通貨',
+            'Set the primary currency for transactions and reports': '取引とレポートの主要通貨を設定します',
+            'Currency Display': '通貨表示',
+            'Choose how currency amounts are formatted': '通貨金額のフォーマット方法を選択してください',
+            'Decimal Separator': '小数点区切り文字',
+            'Choose decimal and thousand separators': '小数点と千の位の区切り文字を選択してください',
+            'Regional Settings': '地域設定',
+            'Time Zone': 'タイムゾーン',
+            'Set your local time zone for accurate timestamps': '正確なタイムスタンプのためにローカルタイムゾーンを設定してください',
+            'Time Format': '時刻形式',
+            'Choose between 12-hour and 24-hour time format': '12時間形式と24時間形式を選択してください',
+
+            // Common Actions
+            'View': '表示',
+            'Delete': '削除',
+            'Cancel': 'キャンセル',
+            'Confirm': '確認',
+            'Search': '検索',
+            'Filter': 'フィルター',
+            'Export': 'エクスポート',
+            'Print': '印刷',
+            'New': '新規',
+            'Add': '追加',
+            'Remove': '削除',
+            'Close': '閉じる',
+        },
+        ko: {
+            // Navigation
+            'Dashboard': '대시보드',
+            'Sales': '판매',
+            'Purchases': '구매',
+            'Inventory': '재고',
+            'Finance': '재무',
+            'HR': '인사',
+            'Settings': '설정',
+
+            // Dashboard
+            'Customers': '고객',
+            'Sales Orders': '판매 주문',
+            'Products': '제품',
+            'Employees': '직원',
+            'Monthly Sales': '월간 판매',
+            'This Month': '이번 달',
+            'Last Month': '지난 달',
+            'Quick Actions': '빠른 작업',
+            'Add Customer': '고객 추가',
+            'Create Sales Order': '판매 주문 생성',
+            'Add Product': '제품 추가',
+            'Recent Sales Orders': '최근 판매 주문',
+            'Recent Purchases': '최근 구매',
+            'Low Stock Items': '재고 부족 품목',
+            'Pending Invoices': '보류 중인 송장',
+
+            // Settings Page
+            'Account & Security': '계정 및 보안',
+            'Language & Currency': '언어 및 통화',
+            'Account Information': '계정 정보',
+            'Username': '사용자 이름',
+            'Email': '이메일',
+            'Password': '비밀번호',
+            'Edit': '편집',
+            'Update': '업데이트',
+            'Save': '저장',
+            'Save Changes': '변경 사항 저장',
+            'Update your password': '비밀번호를 업데이트하세요',
+            'Account Protection': '계정 보호',
+            '2-step Verification': '2단계 인증',
+            'Enable 2-step verification to send security code to the email and phone number provided above whenever logging in.': '로그인할 때마다 위에 제공된 이메일과 전화번호로 보안 코드를 보내려면 2단계 인증을 활성화하세요.',
+            'Application Settings': '애플리케이션 설정',
+            'Dark Mode': '다크 모드',
+            'Toggle between light and dark mode for better viewing experience.': '더 나은 시청 경험을 위해 라이트 모드와 다크 모드를 전환하세요.',
+            'Logout': '로그아웃',
+            'Sign out from your current session': '현재 세션에서 로그아웃',
+
+            // Language & Currency Settings
+            'Language Preferences': '언어 기본 설정',
+            'Display Language': '표시 언어',
+            'Choose your preferred language for the application interface': '애플리케이션 인터페이스의 선호 언어를 선택하세요',
+            'Date Format': '날짜 형식',
+            'Choose how dates are displayed throughout the system': '시스템 전체에서 날짜 표시 방법을 선택하세요',
+            'Currency Settings': '통화 설정',
+            'Default Currency': '기본 통화',
+            'Set the primary currency for transactions and reports': '거래 및 보고서의 주요 통화를 설정하세요',
+            'Currency Display': '통화 표시',
+            'Choose how currency amounts are formatted': '통화 금액 형식을 선택하세요',
+            'Decimal Separator': '소수점 구분 기호',
+            'Choose decimal and thousand separators': '소수점 및 천 단위 구분 기호를 선택하세요',
+            'Regional Settings': '지역 설정',
+            'Time Zone': '시간대',
+            'Set your local time zone for accurate timestamps': '정확한 타임스탬프를 위해 현지 시간대를 설정하세요',
+            'Time Format': '시간 형식',
+            'Choose between 12-hour and 24-hour time format': '12시간 형식과 24시간 형식 중에서 선택하세요',
+
+            // Common Actions
+            'View': '보기',
+            'Delete': '삭제',
+            'Cancel': '취소',
+            'Confirm': '확인',
+            'Search': '검색',
+            'Filter': '필터',
+            'Export': '내보내기',
+            'Print': '인쇄',
+            'New': '새로 만들기',
+            'Add': '추가',
+            'Remove': '제거',
+            'Close': '닫기',
+        },
+        ar: {
+            // Navigation
+            'Dashboard': 'لوحة التحكم',
+            'Sales': 'المبيعات',
+            'Purchases': 'المشتريات',
+            'Inventory': 'المخزون',
+            'Finance': 'المالية',
+            'HR': 'الموارد البشرية',
+            'Settings': 'الإعدادات',
+
+            // Dashboard
+            'Customers': 'العملاء',
+            'Sales Orders': 'طلبات البيع',
+            'Products': 'المنتجات',
+            'Employees': 'الموظفون',
+            'Monthly Sales': 'المبيعات الشهرية',
+            'This Month': 'هذا الشهر',
+            'Last Month': 'الشهر الماضي',
+            'Quick Actions': 'إجراءات سريعة',
+            'Add Customer': 'إضافة عميل',
+            'Create Sales Order': 'إنشاء طلب بيع',
+            'Add Product': 'إضافة منتج',
+            'Recent Sales Orders': 'طلبات البيع الأخيرة',
+            'Recent Purchases': 'المشتريات الأخيرة',
+            'Low Stock Items': 'عناصر منخفضة المخزون',
+            'Pending Invoices': 'الفواتير المعلقة',
+
+            // Settings Page
+            'Account & Security': 'الحساب والأمان',
+            'Language & Currency': 'اللغة والعملة',
+            'Account Information': 'معلومات الحساب',
+            'Username': 'اسم المستخدم',
+            'Email': 'البريد الإلكتروني',
+            'Password': 'كلمة المرور',
+            'Edit': 'تحرير',
+            'Update': 'تحديث',
+            'Save': 'حفظ',
+            'Save Changes': 'حفظ التغييرات',
+            'Update your password': 'قم بتحديث كلمة المرور الخاصة بك',
+            'Account Protection': 'حماية الحساب',
+            '2-step Verification': 'التحقق بخطوتين',
+            'Enable 2-step verification to send security code to the email and phone number provided above whenever logging in.': 'قم بتمكين التحقق بخطوتين لإرسال رمز الأمان إلى البريد الإلكتروني ورقم الهاتف المقدم أعلاه عند تسجيل الدخول.',
+            'Application Settings': 'إعدادات التطبيق',
+            'Dark Mode': 'الوضع الداكن',
+            'Toggle between light and dark mode for better viewing experience.': 'التبديل بين الوضع الفاتح والداكن للحصول على تجربة مشاهدة أفضل.',
+            'Logout': 'تسجيل الخروج',
+            'Sign out from your current session': 'تسجيل الخروج من جلستك الحالية',
+
+            // Language & Currency Settings
+            'Language Preferences': 'تفضيلات اللغة',
+            'Display Language': 'لغة العرض',
+            'Choose your preferred language for the application interface': 'اختر لغتك المفضلة لواجهة التطبيق',
+            'Date Format': 'تنسيق التاريخ',
+            'Choose how dates are displayed throughout the system': 'اختر كيفية عرض التواريخ في جميع أنحاء النظام',
+            'Currency Settings': 'إعدادات العملة',
+            'Default Currency': 'العملة الافتراضية',
+            'Set the primary currency for transactions and reports': 'تعيين العملة الأساسية للمعاملات والتقارير',
+            'Currency Display': 'عرض العملة',
+            'Choose how currency amounts are formatted': 'اختر كيفية تنسيق مبالغ العملة',
+            'Decimal Separator': 'فاصل عشري',
+            'Choose decimal and thousand separators': 'اختر فواصل عشرية وآلاف',
+            'Regional Settings': 'الإعدادات الإقليمية',
+            'Time Zone': 'المنطقة الزمنية',
+            'Set your local time zone for accurate timestamps': 'قم بتعيين منطقتك الزمنية المحلية للحصول على طوابع زمنية دقيقة',
+            'Time Format': 'تنسيق الوقت',
+            'Choose between 12-hour and 24-hour time format': 'اختر بين تنسيق 12 ساعة و 24 ساعة',
+
+            // Common Actions
+            'View': 'عرض',
+            'Delete': 'حذف',
+            'Cancel': 'إلغاء',
+            'Confirm': 'تأكيد',
+            'Search': 'بحث',
+            'Filter': 'تصفية',
+            'Export': 'تصدير',
+            'Print': 'طباعة',
+            'New': 'جديد',
+            'Add': 'إضافة',
+            'Remove': 'إزالة',
+            'Close': 'إغلاق',
+        }
+    };
+
+    // Get current language from settings
+    function getCurrentLanguage() {
+        const savedSettings = localStorage.getItem('languageSettings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            return settings.language || 'en';
+        }
+        return 'en';
+    }
+
+    // Translate text
+    function translate(text, targetLang) {
+        if (!targetLang || targetLang === 'en') {
+            return text; // Return original if English or no language specified
+        }
+
+        const langDict = translations[targetLang];
+        if (!langDict) {
+            console.warn(`Translation not found for language: ${targetLang}`);
+            return text;
+        }
+
+        return langDict[text] || text; // Return translation or original if not found
+    }
+
+    // Apply translations to all elements with data-translate attribute
+    function applyTranslations() {
+        const lang = getCurrentLanguage();
+
+        if (lang === 'en') {
+            return; // Skip translation for English
+        }
+
+        // Translate elements with data-translate attribute
+        document.querySelectorAll('[data-translate]').forEach(element => {
+            const originalText = element.getAttribute('data-translate');
+            const translated = translate(originalText, lang);
+
+            // Update text content while preserving HTML structure
+            if (element.childNodes.length === 1 && element.childNodes[0].nodeType === 3) {
+                // Simple text node
+                element.textContent = translated;
+            } else {
+                // Has child elements, find and replace text nodes
+                element.childNodes.forEach(node => {
+                    if (node.nodeType === 3 && node.textContent.trim() === originalText) {
+                        node.textContent = translated;
+                    }
+                });
+            }
+        });
+
+        console.log(`🌍 Translations applied for language: ${lang}`);
+    }
+
+    // Initialize translations on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        applyTranslations();
+    });
+
+    // Re-apply translations when language settings change
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'languageSettings') {
+            console.log('🔄 Language settings changed, updating translations...');
+            applyTranslations();
+        }
+    });
+
+    // Expose translation functions globally
+    window.translate = translate;
+    window.applyTranslations = applyTranslations;
+    window.getCurrentLanguage = getCurrentLanguage;
+})();
+</script>
+
