@@ -35,6 +35,28 @@ class Customer(models.Model):
     def __str__(self):
         return f"{self.name} ({self.customer_code})"
 
+    def save(self, *args, **kwargs):
+        if not self.customer_code:
+            # Get current year and month
+            year = timezone.now().strftime('%y')
+            month = timezone.now().strftime('%m')
+
+            # Get the latest customer with a code from this year/month
+            latest_customer = Customer.objects.filter(
+                customer_code__startswith=f'C{year}{month}'
+            ).order_by('-customer_code').first()
+
+            if latest_customer:
+                # Extract the sequence number and increment it
+                sequence = int(latest_customer.customer_code[-4:]) + 1
+            else:
+                sequence = 1
+
+            # Generate new code in format: CYYMM####
+            self.customer_code = f'C{year}{month}{sequence:04d}'
+
+        super().save(*args, **kwargs)
+
 class Vendor(models.Model):
     VENDOR_TYPE_CHOICES = [
         ('supplier', 'Supplier'),
@@ -64,6 +86,28 @@ class Vendor(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.vendor_code})"
+
+    def save(self, *args, **kwargs):
+        if not self.vendor_code:
+            # Get current year and month
+            year = timezone.now().strftime('%y')
+            month = timezone.now().strftime('%m')
+
+            # Get the latest vendor with a code from this year/month
+            latest_vendor = Vendor.objects.filter(
+                vendor_code__startswith=f'V{year}{month}'
+            ).order_by('-vendor_code').first()
+
+            if latest_vendor:
+                # Extract the sequence number and increment it
+                sequence = int(latest_vendor.vendor_code[-4:]) + 1
+            else:
+                sequence = 1
+
+            # Generate new code in format: VYYMM####
+            self.vendor_code = f'V{year}{month}{sequence:04d}'
+
+        super().save(*args, **kwargs)
 
 # 2. Enhanced Products & Inventory
 class Category(models.Model):
@@ -105,6 +149,33 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.sku})"
+
+    def save(self, *args, **kwargs):
+        if not self.sku:
+            # Get the category code (first 2 letters of category name, or 'GN' for general)
+            category_code = 'GN'
+            if self.category:
+                category_code = self.category.name[:2].upper()
+
+            # Get current year and month
+            year = timezone.now().strftime('%y')
+            month = timezone.now().strftime('%m')
+
+            # Get the latest product with a SKU from this year/month and category
+            latest_product = Product.objects.filter(
+                sku__startswith=f'{category_code}{year}{month}'
+            ).order_by('-sku').first()
+
+            if latest_product:
+                # Extract the sequence number and increment it
+                sequence = int(latest_product.sku[-4:]) + 1
+            else:
+                sequence = 1
+
+            # Generate new SKU in format: CCYYMM#### (CC=category code)
+            self.sku = f'{category_code}{year}{month}{sequence:04d}'
+
+        super().save(*args, **kwargs)
 
 class Warehouse(models.Model):
     name = models.CharField(max_length=100)
@@ -192,19 +263,14 @@ class SalesOrder(models.Model):
         if hasattr(self, 'invoice_set') and self.invoice_set.exists():
             return self.invoice_set.first()
 
-        # Generate invoice number
-        last_invoice = Invoice.objects.order_by('-id').first()
-        next_id = (last_invoice.id if last_invoice else 0) + 1
-        invoice_number = f"INV{next_id:06d}"
-
-        # Create the invoice
+        # Create the invoice (let the Invoice model generate the number)
         invoice = Invoice.objects.create(
-            invoice_number=invoice_number,
             invoice_type='sales',
             status='sent',  # Automatically set to 'sent' since order is confirmed
             invoice_date=date.today(),
             due_date=date.today() + timedelta(days=30),  # 30 days payment term
             subtotal=self.subtotal,
+            tax_rate=self.tax_rate,
             tax_amount=self.tax_amount,
             total_amount=self.total_amount,
             customer=self.customer,
@@ -212,6 +278,20 @@ class SalesOrder(models.Model):
             notes=f"Auto-generated from Sales Order {self.order_number}",
             created_by=self.created_by
         )
+
+        # Copy sales order items to invoice items
+        for order_item in self.items.all():
+            InvoiceItem.objects.create(
+                invoice=invoice,
+                product=order_item.product,
+                description=order_item.product.name,
+                quantity=order_item.quantity,
+                unit_price=order_item.unit_price,
+                line_total=order_item.line_total
+            )
+
+        # Recalculate invoice totals
+        invoice.calculate_totals()
 
         return invoice
 
@@ -269,14 +349,18 @@ class PurchaseOrder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     po_number = models.CharField(max_length=20, unique=True)
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
-    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, null=True, blank=True)
     order_date = models.DateTimeField(auto_now_add=True)
     delivery_date = models.DateTimeField(null=True, blank=True)
+    payment_due_date = models.DateField(null=True, blank=True)  # Payment due date
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)  # Tax rate as percentage
     tax_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    discount_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)  # Discount as percentage
+    discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    payment_terms = models.CharField(max_length=100, blank=True, null=True)
+    paid_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     reference_number = models.CharField(max_length=50, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_purchase_orders')
@@ -287,31 +371,96 @@ class PurchaseOrder(models.Model):
         """Calculate order totals based on items"""
         items = self.items.all()
         self.subtotal = sum(item.line_total for item in items)
-        self.tax_amount = sum(item.tax_amount for item in items)
-        self.total_amount = self.subtotal + self.tax_amount
+        self.discount_amount = (self.subtotal * self.discount_percent) / 100
+        subtotal_after_discount = self.subtotal - self.discount_amount
+        self.tax_amount = (subtotal_after_discount * self.tax_rate) / 100
+        self.total_amount = subtotal_after_discount + self.tax_amount
         self.save()
 
+    def create_invoice(self):
+        """Create an invoice for this purchase order"""
+        from datetime import date, timedelta
+
+        # Check if invoice already exists for this purchase order
+        if hasattr(self, 'invoice_set') and self.invoice_set.exists():
+            return self.invoice_set.first()
+
+        # Generate invoice number
+        last_invoice = Invoice.objects.order_by('-id').first()
+        next_id = (last_invoice.id if last_invoice else 0) + 1
+        invoice_number = f"INV{next_id:06d}"
+
+        # Create the invoice
+        invoice = Invoice.objects.create(
+            invoice_number=invoice_number,
+            invoice_type='purchase',
+            status='sent',  # Automatically set to 'sent' since order is confirmed
+            invoice_date=date.today(),
+            due_date=date.today() + timedelta(days=30),  # 30 days payment term
+            subtotal=self.subtotal,
+            tax_amount=self.tax_amount,
+            total_amount=self.total_amount,
+            vendor=self.vendor,
+            purchase_order=self,
+            notes=f"Auto-generated from Purchase Order {self.po_number}",
+            created_by=self.created_by
+        )
+
+        # Copy purchase order items to invoice items
+        for order_item in self.items.all():
+            InvoiceItem.objects.create(
+                invoice=invoice,
+                product=order_item.product,
+                description=order_item.product.name,
+                quantity=order_item.quantity,
+                unit_price=order_item.unit_price,
+                line_total=order_item.line_total
+            )
+
+        # Recalculate invoice totals
+        invoice.calculate_totals()
+
+        return invoice
+
+    def save(self, *args, **kwargs):
+        # Check if status is changing to 'confirmed' or 'received'
+        old_status = None
+        if self.pk:
+            try:
+                old_instance = PurchaseOrder.objects.get(pk=self.pk)
+                old_status = old_instance.status
+            except PurchaseOrder.DoesNotExist:
+                pass
+
+        super().save(*args, **kwargs)
+
+        # Auto-create invoice when status changes to confirmed or received
+        if (old_status and old_status != self.status and
+            self.status in ['confirmed', 'received'] and
+            self.total_amount > 0):
+            self.create_invoice()
+
     def __str__(self):
-        return f"PO-{self.po_number}"
+        return f"PO-{self.po_number} ({self.vendor.name})"
 
 class PurchaseOrderItem(models.Model):
     purchase_order = models.ForeignKey(PurchaseOrder, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(validators=[MinValueValidator(1)])
     unit_price = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
-    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    discount_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    line_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     received_quantity = models.IntegerField(default=0)
 
-    @property
-    def line_total(self):
-        return self.quantity * self.unit_price
-
-    @property
-    def tax_amount(self):
-        return (self.line_total * self.tax_rate) / 100
+    def save(self, *args, **kwargs):
+        discount_amount = (self.unit_price * self.quantity * self.discount_percent) / 100
+        self.line_total = (self.unit_price * self.quantity) - discount_amount
+        super().save(*args, **kwargs)
+        # Recalculate order totals when item is saved
+        self.purchase_order.calculate_totals()
 
     def __str__(self):
-        return f"{self.product.name} - {self.quantity} units"
+        return f"{self.product.name} x {self.quantity}"
 
 # 5. Comprehensive Accounting Module
 class ChartOfAccounts(models.Model):
@@ -467,13 +616,52 @@ class Payment(models.Model):
     reference_number = models.CharField(max_length=50, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    
+    receipt_generated = models.BooleanField(default=False)
+    receipt_number = models.CharField(max_length=20, blank=True, null=True)
+
     # Related entities
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, blank=True)
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True, blank=True)
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.SET_NULL, null=True, blank=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.SET_NULL, null=True, blank=True)
     invoice = models.ForeignKey('Invoice', on_delete=models.SET_NULL, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        # Generate payment number if not set
+        if not self.payment_number:
+            last_payment = Payment.objects.all().order_by('-payment_number').first()
+            if last_payment and last_payment.payment_number.startswith('PAY'):
+                last_number = int(last_payment.payment_number[3:])
+                self.payment_number = f'PAY{last_number+1:06d}'
+            else:
+                self.payment_number = 'PAY000001'
+
+        # Auto-generate receipt number for customer payments
+        if self.payment_type == 'receipt' and not self.receipt_number:
+            last_receipt = Payment.objects.filter(receipt_number__isnull=False).order_by('-receipt_number').first()
+            if last_receipt and last_receipt.receipt_number.startswith('RCPT'):
+                last_number = int(last_receipt.receipt_number[4:])
+                self.receipt_number = f'RCPT{last_number+1:06d}'
+            else:
+                self.receipt_number = 'RCPT000001'
+
+            self.receipt_generated = True
+
+        super().save(*args, **kwargs)
+
+        # Update invoice if it exists
+        if self.invoice and self.payment_type == 'receipt':
+            self.invoice.paid_amount += self.amount
+            if self.invoice.paid_amount >= self.invoice.total_amount:
+                self.invoice.status = 'paid'
+            else:
+                self.invoice.status = 'sent'  # Partially paid
+            self.invoice.save()
+
+    def get_receipt_url(self):
+        """Get URL for the receipt"""
+        from django.urls import reverse
+        return reverse('payment_receipt', args=[str(self.id)])
 
     def __str__(self):
         return f"{self.payment_number} - {self.amount}"
