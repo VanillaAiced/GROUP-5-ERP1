@@ -103,23 +103,21 @@
         </div>
 
         <!-- Invoice Items -->
-        <div class="bg-white border border-gray-200 rounded-lg">
-            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 rounded-t-lg">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                        <i class="fas fa-list mr-2 text-blue-600"></i>
-                        Invoice Items
-                    </h3>
-                    <button type="button" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors" id="add-item-btn">
-                        <i class="fas fa-plus mr-2"></i>Add Item
-                    </button>
-                </div>
+        <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-list mr-2 text-blue-600"></i>
+                    Invoice Items
+                </h3>
+                <button type="button" id="add-item" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Add Item
+                </button>
             </div>
 
-            {{ formset.management_form }}
-
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200" id="invoice-items-table">
+                <!-- Formset Management Form -->
+                {{ formset.management_form }}
+                <table class="min-w-full divide-y divide-gray-200 border border-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
@@ -130,15 +128,19 @@
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        {% for form in formset %}
-                            <tr class="invoice-item-row hover:bg-gray-50">
+                    <tbody class="bg-white divide-y divide-gray-200" id="invoice-items">
+                        {% for form in formset.forms %}
+                            <tr class="invoice-item">
                                 <td class="px-6 py-4">
-                                    {{ form.product }}
                                     {{ form.id }}
+                                    {{ form.product }}
                                 </td>
-                                <td class="px-6 py-4">{{ form.description }}</td>
-                                <td class="px-6 py-4 text-center">{{ form.quantity }}</td>
+                                <td class="px-6 py-4">
+                                    {{ form.description }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{ form.quantity }}
+                                </td>
                                 <td class="px-6 py-4">
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -148,102 +150,40 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <span class="line-total-display font-semibold text-green-600 text-lg">$0.00</span>
+                                    <span class="line-total">$0.00</span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    {% if form.DELETE %}
-                                        {{ form.DELETE }}
-                                        <label for="{{ form.DELETE.id_for_label }}" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm cursor-pointer transition-colors">
-                                            <i class="fas fa-trash"></i>
-                                        </label>
-                                    {% endif %}
+                                    <button type="button" class="delete-item text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {{ form.DELETE }}
                                 </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+        </div>
 
-            <!-- Totals Section -->
-            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="{{ form.discount_amount.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Discount Amount
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 sm:text-sm">$</span>
-                            </div>
-                            {{ form.discount_amount }}
-                        </div>
-                        {% if form.discount_amount.errors %}
-                            {% for error in form.discount_amount.errors %}
-                                <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                        <div class="space-y-2">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Subtotal:</span>
-                                <span id="subtotal" class="font-semibold text-gray-900">$0.00</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Tax:</span>
-                                <span id="tax-amount" class="font-semibold text-gray-900">$0.00</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Discount:</span>
-                                <span id="discount-display" class="font-semibold text-red-600">$0.00</span>
-                            </div>
-                            <hr class="border-blue-300">
-                            <div class="flex justify-between items-center">
-                                <span class="text-lg font-bold text-gray-900">Total Amount:</span>
-                                <span id="total-amount" class="text-xl font-bold text-blue-600">$0.00</span>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Totals Section -->
+        <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+            <div class="w-full md:w-1/2 ml-auto space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700">Subtotal:</span>
+                    <span id="subtotal" class="text-gray-900 font-medium">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700">Tax:</span>
+                    <span id="tax-amount" class="text-gray-900 font-medium">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center pt-4 border-t border-blue-200">
+                    <span class="text-gray-900 font-bold">Total:</span>
+                    <span id="total-amount" class="text-blue-600 text-xl font-bold">$0.00</span>
                 </div>
             </div>
         </div>
 
-        <!-- Additional Information -->
-        <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <i class="fas fa-sticky-note mr-2 text-blue-600"></i>
-                Additional Information
-            </h3>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                        Internal Notes
-                    </label>
-                    {{ form.notes }}
-                    <p class="text-sm text-gray-500 mt-1">Internal notes for this invoice (not visible to customer)</p>
-                    {% if form.notes.errors %}
-                        {% for error in form.notes.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <div>
-                    <label for="{{ form.terms_and_conditions.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                        Terms and Conditions
-                    </label>
-                    {{ form.terms_and_conditions }}
-                    <p class="text-sm text-gray-500 mt-1">Terms that will appear on the invoice</p>
-                    {% if form.terms_and_conditions.errors %}
-                        {% for error in form.terms_and_conditions.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
+        <!-- Submit Buttons -->
         <div class="flex justify-between items-center pt-6 border-t border-gray-200">
             <a href="{% url 'erp:invoice_list' %}" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors">
                 <i class="fas fa-times mr-2"></i>Cancel
@@ -257,148 +197,139 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Add Tailwind classes to form fields
-    const addTailwindClasses = () => {
-        document.querySelectorAll('select').forEach(select => {
-            select.className = 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm';
-        });
+    // Initialize formset
+    let itemCount = {{ formset.total_form_count }};
+    const maxForms = parseInt('{{ formset.max_num }}') || 1000;
+    const minForms = parseInt('{{ formset.min_num }}') || 0;
+    const totalFormsInput = document.getElementById('id_invoiceitem_set-TOTAL_FORMS');
+    const initialFormsInput = document.getElementById('id_invoiceitem_set-INITIAL_FORMS');
+    const maxFormsInput = document.getElementById('id_invoiceitem_set-MAX_NUM_FORMS');
 
-        document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea').forEach(input => {
-            if (!input.className.includes('pl-')) {
-                input.className = 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm';
-            } else {
-                input.className = 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm pl-7';
-            }
-        });
-    };
-
-    addTailwindClasses();
-
-    const invoiceTypeField = document.getElementById('id_invoice_type');
-    const customerField = document.getElementById('customer-field');
-    const vendorField = document.getElementById('vendor-field');
-    const taxRateField = document.getElementById('id_tax_rate');
-    const discountField = document.getElementById('id_discount_amount');
-
-    // Handle invoice type change
-    function toggleFields() {
-        const invoiceType = invoiceTypeField.value;
-        if (invoiceType === 'sales') {
-            customerField.classList.remove('hidden');
-            vendorField.classList.add('hidden');
-        } else if (invoiceType === 'purchase') {
-            customerField.classList.add('hidden');
-            vendorField.classList.remove('hidden');
-        } else {
-            customerField.classList.remove('hidden');
-            vendorField.classList.remove('hidden');
-        }
+    // Function to update form count
+    function updateFormCount() {
+        const visibleItems = document.querySelectorAll('.invoice-item:not([style*="display: none"])').length;
+        totalFormsInput.value = visibleItems;
     }
 
-    invoiceTypeField.addEventListener('change', toggleFields);
-    toggleFields(); // Initial call
+    // Add new item row
+    document.getElementById('add-item').addEventListener('click', function() {
+        if (itemCount >= maxForms) {
+            alert('Maximum number of items reached');
+            return;
+        }
 
-    // Calculate totals
-    function calculateTotals() {
-        let subtotal = 0;
-        const rows = document.querySelectorAll('.invoice-item-row');
+        // Clone the first row
+        const template = document.querySelector('.invoice-item').cloneNode(true);
 
-        rows.forEach(row => {
-            const quantityInput = row.querySelector('input[name$="-quantity"]');
-            const priceInput = row.querySelector('input[name$="-unit_price"]');
-            const lineTotal = row.querySelector('.line-total-display');
+        // Clear values and update IDs
+        template.querySelectorAll('input, select').forEach(input => {
+            const oldName = input.name;
+            const newName = oldName.replace(/invoiceitem_set-\d+-/, `invoiceitem_set-${itemCount}-`);
+            input.name = newName;
+            input.id = `id_${newName}`;
+            input.value = '';
+            if (input.type === 'checkbox') {
+                input.checked = false;
+            }
+        });
+
+        // Reset line total
+        template.querySelector('.line-total').textContent = '$0.00';
+
+        // Show the new row
+        template.style.display = '';
+
+        document.getElementById('invoice-items').appendChild(template);
+        itemCount++;
+        updateFormCount();
+    });
+
+    // Delete item row
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.delete-item')) {
+            const row = e.target.closest('.invoice-item');
             const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
 
-            if (quantityInput && priceInput && (!deleteCheckbox || !deleteCheckbox.checked)) {
-                const quantity = parseFloat(quantityInput.value) || 0;
-                const price = parseFloat(priceInput.value) || 0;
-                const total = quantity * price;
-
-                lineTotal.textContent = '$' + total.toFixed(2);
-                subtotal += total;
-            } else if (lineTotal) {
-                lineTotal.textContent = '$0.00';
+            const visibleItems = document.querySelectorAll('.invoice-item:not([style*="display: none"])').length;
+            if (visibleItems <= 1) {
+                alert('Cannot delete all items. At least one item is required.');
+                return;
             }
-        });
 
-        const taxRate = parseFloat(taxRateField.value) || 0;
-        const discount = parseFloat(discountField.value) || 0;
-        const taxAmount = (subtotal * taxRate) / 100;
-        const totalAmount = subtotal + taxAmount - discount;
+            if (deleteCheckbox) {
+                deleteCheckbox.checked = true;
+                row.style.display = 'none';
+            }
 
-        document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
-        document.getElementById('tax-amount').textContent = '$' + taxAmount.toFixed(2);
-        document.getElementById('discount-display').textContent = '$' + discount.toFixed(2);
-        document.getElementById('total-amount').textContent = '$' + totalAmount.toFixed(2);
-    }
-
-    // Add event listeners for calculation
-    document.addEventListener('input', function(e) {
-        if (e.target.matches('input[name$="-quantity"], input[name$="-unit_price"]') ||
-            e.target === taxRateField || e.target === discountField) {
+            updateFormCount();
             calculateTotals();
         }
     });
 
-    document.addEventListener('change', function(e) {
-        if (e.target.matches('input[name$="-DELETE"]')) {
+    // Calculate line total
+    function calculateLineTotal(row) {
+        const quantity = parseFloat(row.querySelector('input[name$="quantity"]').value) || 0;
+        const unitPrice = parseFloat(row.querySelector('input[name$="unit_price"]').value) || 0;
+        const lineTotal = quantity * unitPrice;
+        row.querySelector('.line-total').textContent = '$' + lineTotal.toFixed(2);
+        return lineTotal;
+    }
+
+    // Calculate all totals
+    function calculateTotals() {
+        let subtotal = 0;
+        document.querySelectorAll('.invoice-item:not([style*="display: none"])').forEach(row => {
+            subtotal += calculateLineTotal(row);
+        });
+
+        const taxRate = parseFloat(document.getElementById('id_tax_rate').value) || 0;
+        const taxAmount = (subtotal * taxRate) / 100;
+        const total = subtotal + taxAmount;
+
+        document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+        document.getElementById('tax-amount').textContent = '$' + taxAmount.toFixed(2);
+        document.getElementById('total-amount').textContent = '$' + total.toFixed(2);
+    }
+
+    // Calculate totals when inputs change
+    document.addEventListener('input', function(e) {
+        if (e.target.matches('input[name$="quantity"], input[name$="unit_price"], #id_tax_rate')) {
             calculateTotals();
         }
+    });
 
-        // Auto-populate product details
-        if (e.target.matches('select[name$="-product"]')) {
+    // Auto-update price when product is selected
+    document.addEventListener('change', function(e) {
+        if (e.target.matches('select[name$="product"]')) {
+            const row = e.target.closest('.invoice-item');
             const productId = e.target.value;
-            const row = e.target.closest('.invoice-item-row');
+            const unitPriceInput = row.querySelector('input[name$="unit_price"]');
 
-            if (productId) {
-                fetch(`/erp/api/product/${productId}/`)
+            if (productId && unitPriceInput) {
+                fetch(`/erp/api/product/${productId}/price/`)
                     .then(response => response.json())
                     .then(data => {
-                        const descInput = row.querySelector('input[name$="-description"]');
-                        const priceInput = row.querySelector('input[name$="-unit_price"]');
-
-                        if (descInput) descInput.value = data.name;
-                        if (priceInput) priceInput.value = data.unit_price;
-
-                        calculateTotals();
+                        if (data.success) {
+                            unitPriceInput.value = data.unit_price.toFixed(2);
+                            calculateTotals();
+                        }
                     })
                     .catch(error => console.error('Error:', error));
             }
         }
     });
 
-    // Add new item functionality
-    document.getElementById('add-item-btn').addEventListener('click', function() {
-        const totalForms = document.getElementById('id_form-TOTAL_FORMS');
-        const formCount = parseInt(totalForms.value);
-        const formTemplate = document.querySelector('.invoice-item-row').cloneNode(true);
-
-        // Update form indices
-        formTemplate.innerHTML = formTemplate.innerHTML.replace(/form-\d+/g, `form-${formCount}`);
-
-        // Clear values
-        formTemplate.querySelectorAll('input, select').forEach(input => {
-            if (input.type !== 'hidden') {
-                input.value = '';
-                if (input.type === 'checkbox') {
-                    input.checked = false;
-                }
-            }
-        });
-
-        // Reset line total
-        formTemplate.querySelector('.line-total-display').textContent = '$0.00';
-
-        document.querySelector('#invoice-items-table tbody').appendChild(formTemplate);
-        totalForms.value = formCount + 1;
-
-        // Add Tailwind classes to new form fields
-        addTailwindClasses();
-
-        calculateTotals();
+    // Style form inputs
+    document.querySelectorAll('select, input[type="text"], input[type="number"], input[type="date"]').forEach(input => {
+        input.className = 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm';
     });
 
-    // Initial calculation
+    // Special styling for price inputs
+    document.querySelectorAll('input[name$="unit_price"]').forEach(input => {
+        input.className = 'pl-7 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm';
+    });
+
+    // Initial calculations
     calculateTotals();
 });
 </script>

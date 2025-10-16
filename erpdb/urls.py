@@ -102,6 +102,24 @@ urlpatterns = [
     path('email-inquiries/<uuid:inquiry_id>/process/', views.email_inquiry_process, name='email_inquiry_process'),
     path('email-inquiries/<uuid:inquiry_id>/mark-spam/', views.email_inquiry_mark_spam, name='email_inquiry_mark_spam'),
 
-    # API Webhook for Email Integration
+    # Email Webhook API
     path('api/webhook/email/', views.api_email_webhook, name='api_email_webhook'),
+
+    # NEW: Email Invoice & Templates
+    path('invoices/<uuid:pk>/email/', views.email_invoice, name='email_invoice'),
+    path('payments/<uuid:payment_id>/email-receipt/', views.email_payment_receipt, name='email_payment_receipt'),
+
+    # NEW: Batch Operations
+    path('invoices/batch/', views.batch_invoice_operations, name='batch_invoice_operations'),
+    path('payments/batch/', views.batch_payment_operations, name='batch_payments'),
+
+    # NEW: Automatic Reminders
+    path('invoices/reminders/send/', views.send_overdue_reminders, name='send_overdue_reminders'),
+    path('invoices/reminders/setup/', views.setup_automatic_reminders, name='setup_reminders'),
+
+    # Sales Order Edit
+    path('sales/<uuid:order_id>/edit/', views.sales_order_edit, name='sales_order_edit'),
+
+    # Customer Delete
+    path('customers/<uuid:customer_id>/delete/', views.customer_delete, name='customer_delete'),
 ]

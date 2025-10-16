@@ -249,7 +249,7 @@ class PaymentForm(forms.ModelForm):
         model = Payment
         fields = [
             'payment_type', 'customer', 'vendor', 'amount', 'payment_method',
-            'reference_number', 'notes'
+            'sales_order', 'invoice', 'reference_number', 'notes'
         ]
         widgets = {
             'amount': forms.NumberInput(attrs={'step': '0.01', 'min': '0.01'}),
@@ -262,6 +262,24 @@ class PaymentForm(forms.ModelForm):
         self.fields['vendor'].queryset = Vendor.objects.filter(is_active=True)
         self.fields['customer'].required = False
         self.fields['vendor'].required = False
+        self.fields['sales_order'].required = False
+        self.fields['invoice'].required = False
+
+        # Only show unpaid sales invoices for customer payments
+        self.fields['invoice'].queryset = Invoice.objects.filter(
+            status__in=['draft', 'sent', 'overdue']
+        )
+
+        # Only show sales orders with balance due
+        self.fields['sales_order'].queryset = SalesOrder.objects.filter(
+            status__in=['confirmed', 'shipped', 'delivered']
+        )
+
+        # Add helpful labels
+        self.fields['invoice'].label = "Link to Invoice (Optional)"
+        self.fields['sales_order'].label = "Link to Sales Order (Optional)"
+        self.fields['invoice'].help_text = "Select an invoice if this payment is for a specific invoice"
+        self.fields['sales_order'].help_text = "Select a sales order if this payment is for a specific order"
 
     def clean(self):
         cleaned_data = super().clean()
@@ -439,7 +457,7 @@ class PaymentForm(forms.ModelForm):
         model = Payment
         fields = [
             'payment_type', 'customer', 'vendor', 'amount', 'payment_method',
-            'reference_number', 'notes'
+            'sales_order', 'invoice', 'reference_number', 'notes'
         ]
         widgets = {
             'amount': forms.NumberInput(attrs={'step': '0.01', 'min': '0.01'}),
@@ -452,6 +470,24 @@ class PaymentForm(forms.ModelForm):
         self.fields['vendor'].queryset = Vendor.objects.filter(is_active=True)
         self.fields['customer'].required = False
         self.fields['vendor'].required = False
+        self.fields['sales_order'].required = False
+        self.fields['invoice'].required = False
+
+        # Only show unpaid sales invoices for customer payments
+        self.fields['invoice'].queryset = Invoice.objects.filter(
+            status__in=['draft', 'sent', 'overdue']
+        )
+
+        # Only show sales orders with balance due
+        self.fields['sales_order'].queryset = SalesOrder.objects.filter(
+            status__in=['confirmed', 'shipped', 'delivered']
+        )
+
+        # Add helpful labels
+        self.fields['invoice'].label = "Link to Invoice (Optional)"
+        self.fields['sales_order'].label = "Link to Sales Order (Optional)"
+        self.fields['invoice'].help_text = "Select an invoice if this payment is for a specific invoice"
+        self.fields['sales_order'].help_text = "Select a sales order if this payment is for a specific order"
 
     def clean(self):
         cleaned_data = super().clean()

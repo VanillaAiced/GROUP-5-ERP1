@@ -936,7 +936,23 @@ def payment_create(request):
             next_id = (last_payment.id if last_payment else 0) + 1
             payment.payment_number = f"PAY{next_id:06d}"
             payment.save()
-            messages.success(request, f'Payment {payment.payment_number} created successfully.')
+
+            # Auto-mark invoice as paid if linked
+            if payment.invoice:
+                invoice = payment.invoice
+                invoice.paid_amount += payment.amount
+
+                # Update invoice status based on payment amount
+                if invoice.paid_amount >= invoice.total_amount:
+                    invoice.status = 'paid'
+                elif invoice.paid_amount > 0:
+                    invoice.status = 'sent'  # Partially paid
+
+                invoice.save()
+                messages.success(request, f'Payment {payment.payment_number} created and linked to Invoice {invoice.invoice_number}.')
+            else:
+                messages.success(request, f'Payment {payment.payment_number} created successfully.')
+
             return redirect('erp:payment_list')
     else:
         form = PaymentForm()
@@ -1025,9 +1041,13 @@ def invoice_detail(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
     items = invoice.invoiceitem_set.all()
 
+    # Get related payments
+    related_payments = Payment.objects.filter(invoice=invoice).order_by('-payment_date')
+
     context = {
         'invoice': invoice,
         'items': items,
+        'related_payments': related_payments,
     }
     return render(request, 'erp/invoices/invoice_detail.html', context)
 
@@ -1101,7 +1121,7 @@ def mark_invoice_paid(request, pk):
         if amount_paid:
             try:
                 amount = Decimal(amount_paid)
-                invoice.mark_as_paid(amount)
+                invoice.mark_as_paid()
 
                 # Create payment record
                 Payment.objects.create(
@@ -1762,3 +1782,455 @@ def invoice_delete_item(request, pk, item_id):
         'item': item,
     }
     return render(request, 'erp/invoices/invoice_item_confirm_delete.html', context)
+
+
+# ==============================================
+# EMAIL INVOICE & TEMPLATES
+# ==============================================
+
+@login_required
+def email_invoice(request, pk):
+    """Email invoice directly to customer with template"""
+    from django.core.mail import send_mail
+    from Email.models import Email as EmailMessage
+
+    invoice = get_object_or_404(Invoice, pk=pk)
+
+    # Determine recipient based on invoice type
+    if invoice.invoice_type == 'sales':
+        recipient = invoice.customer
+        recipient_email = recipient.email if recipient else None
+        recipient_name = recipient.name if recipient else 'Customer'
+    else:
+        recipient = invoice.vendor
+        recipient_email = recipient.email if recipient else None
+        recipient_name = recipient.name if recipient else 'Vendor'
+
+    if not recipient_email:
+        messages.error(request, 'No email address found for this customer/vendor.')
+        return redirect('erp:invoice_detail', pk=invoice.pk)
+
+    if request.method == 'POST':
+        # Get custom message if provided
+        custom_message = request.POST.get('custom_message', '')
+
+        # Generate email content using template
+        subject = f"Invoice {invoice.invoice_number} from {request.user.get_full_name() or 'Your Company'}"
+
+        # Email body with invoice details
+        body = f"""Dear {recipient_name},
+
+Please find the details of your invoice below:
+
+Invoice Number: {invoice.invoice_number}
+Invoice Date: {invoice.invoice_date.strftime('%B %d, %Y')}
+Due Date: {invoice.due_date.strftime('%B %d, %Y')}
+
+Invoice Items:
+"""
+        # Add line items
+        for item in invoice.invoiceitem_set.all():
+            body += f"- {item.description}: {item.quantity} x ${item.unit_price} = ${item.line_total}\n"
+
+        body += f"""
+Subtotal: ${invoice.subtotal}
+Tax ({invoice.tax_rate}%): ${invoice.tax_amount}
+Discount: ${invoice.discount_amount}
+Total Amount: ${invoice.total_amount}
+Amount Paid: ${invoice.paid_amount}
+Balance Due: ${invoice.balance_due}
+
+"""
+        if custom_message:
+            body += f"\nAdditional Message:\n{custom_message}\n\n"
+
+        body += f"""
+Payment Terms: {invoice.customer.payment_terms if invoice.customer else 'Net 30'}
+
+Thank you for your business!
+
+Best regards,
+{request.user.get_full_name() or request.user.username}
+"""
+
+        try:
+            # Send via SMTP
+            send_mail(
+                subject,
+                body,
+                request.user.email,
+                [recipient_email],
+                fail_silently=False,
+            )
+
+            # Create email record in system
+            EmailMessage.objects.create(
+                sender=request.user,
+                sender_email=request.user.email,
+                recipient_email=recipient_email,
+                subject=subject,
+                body=body,
+                sent_at=timezone.now(),
+                folder='sent'
+            )
+
+            # Update invoice status
+            if invoice.status == 'draft':
+                invoice.status = 'sent'
+                invoice.save()
+
+            messages.success(request, f'Invoice emailed successfully to {recipient_email}!')
+            return redirect('erp:invoice_detail', pk=invoice.pk)
+
+        except Exception as e:
+            messages.error(request, f'Error sending email: {str(e)}')
+            return redirect('erp:invoice_detail', pk=invoice.pk)
+
+    context = {
+        'invoice': invoice,
+        'recipient_email': recipient_email,
+        'recipient_name': recipient_name,
+    }
+    return render(request, 'erp/invoices/email_invoice.html', context)
+
+
+@login_required
+def email_payment_receipt(request, payment_id):
+    """Email payment receipt to customer"""
+    from django.core.mail import send_mail
+    from Email.models import Email as EmailMessage
+
+    payment = get_object_or_404(Payment, id=payment_id)
+
+    # Determine recipient
+    if payment.payment_type == 'receipt' and payment.customer:
+        recipient_email = payment.customer.email
+        recipient_name = payment.customer.name
+    elif payment.payment_type == 'payment' and payment.vendor:
+        recipient_email = payment.vendor.email
+        recipient_name = payment.vendor.name
+    else:
+        messages.error(request, 'No recipient found for this payment.')
+        return redirect('erp:payment_list')
+
+    if request.method == 'POST':
+        custom_message = request.POST.get('custom_message', '')
+
+        subject = f"Payment Receipt {payment.payment_number}"
+
+        body = f"""Dear {recipient_name},
+
+This is to confirm that we have received your payment.
+
+Payment Receipt Number: {payment.payment_number}
+Payment Date: {payment.payment_date.strftime('%B %d, %Y')}
+Payment Amount: ${payment.amount}
+Payment Method: {payment.get_payment_method_display()}
+Reference Number: {payment.reference_number or 'N/A'}
+
+"""
+
+        if payment.invoice:
+            body += f"""
+Related Invoice: {payment.invoice.invoice_number}
+Invoice Total: ${payment.invoice.total_amount}
+Amount Paid: ${payment.invoice.paid_amount}
+Balance Remaining: ${payment.invoice.balance_due}
+"""
+
+        if custom_message:
+            body += f"\n{custom_message}\n\n"
+
+        body += f"""
+Thank you for your payment!
+
+Best regards,
+{request.user.get_full_name() or request.user.username}
+"""
+
+        try:
+            send_mail(
+                subject,
+                body,
+                request.user.email,
+                [recipient_email],
+                fail_silently=False,
+            )
+
+            EmailMessage.objects.create(
+                sender=request.user,
+                sender_email=request.user.email,
+                recipient_email=recipient_email,
+                subject=subject,
+                body=body,
+                sent_at=timezone.now(),
+                folder='sent'
+            )
+
+            messages.success(request, f'Receipt emailed successfully to {recipient_email}!')
+            return redirect('erp:payment_list')
+
+        except Exception as e:
+            messages.error(request, f'Error sending email: {str(e)}')
+
+    context = {
+        'payment': payment,
+        'recipient_email': recipient_email,
+        'recipient_name': recipient_name,
+    }
+    return render(request, 'erp/finance/email_receipt.html', context)
+
+
+# ==============================================
+# BATCH OPERATIONS
+# ==============================================
+
+@login_required
+def batch_invoice_operations(request):
+    """Batch operations for multiple invoices"""
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        invoice_ids = request.POST.getlist('invoice_ids')
+
+        if not invoice_ids:
+            messages.warning(request, 'No invoices selected.')
+            return redirect('erp:invoice_list')
+
+        invoices = Invoice.objects.filter(pk__in=invoice_ids)
+
+        if action == 'email':
+            # Batch email invoices
+            success_count = 0
+            error_count = 0
+
+            for invoice in invoices:
+                try:
+                    if invoice.invoice_type == 'sales' and invoice.customer and invoice.customer.email:
+                        # Generate and send email (simplified version)
+                        from django.core.mail import send_mail
+
+                        subject = f"Invoice {invoice.invoice_number}"
+                        body = f"Please find invoice {invoice.invoice_number} for ${invoice.total_amount}. Due date: {invoice.due_date}"
+
+                        send_mail(
+                            subject,
+                            body,
+                            request.user.email,
+                            [invoice.customer.email],
+                            fail_silently=False,
+                        )
+
+                        if invoice.status == 'draft':
+                            invoice.status = 'sent'
+                            invoice.save()
+
+                        success_count += 1
+                except Exception as e:
+                    error_count += 1
+
+            messages.success(request, f'Successfully emailed {success_count} invoices. {error_count} failed.')
+
+        elif action == 'mark_sent':
+            # Batch mark as sent
+            count = invoices.filter(status='draft').update(status='sent')
+            messages.success(request, f'{count} invoices marked as sent.')
+
+        elif action == 'mark_overdue':
+            # Batch mark as overdue
+            today = timezone.now().date()
+            count = invoices.filter(due_date__lt=today, status__in=['draft', 'sent']).update(status='overdue')
+            messages.success(request, f'{count} invoices marked as overdue.')
+
+        elif action == 'delete':
+            # Batch delete (only drafts)
+            count = invoices.filter(status='draft').count()
+            invoices.filter(status='draft').delete()
+            messages.success(request, f'{count} draft invoices deleted.')
+
+        return redirect('erp:invoice_list')
+
+    # GET request - show batch operations page
+    invoices = Invoice.objects.all().order_by('-created_at')
+
+    context = {
+        'invoices': invoices,
+    }
+    return render(request, 'erp/invoices/batch_operations.html', context)
+
+
+@login_required
+def batch_payment_operations(request):
+    """Batch operations for multiple payments"""
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'record_multiple':
+            # Record multiple payments at once
+            payment_data = []
+
+            # Get form data for multiple payments
+            num_payments = int(request.POST.get('num_payments', 0))
+
+            for i in range(num_payments):
+                payment_type = request.POST.get(f'payment_type_{i}')
+                customer_id = request.POST.get(f'customer_{i}')
+                invoice_id = request.POST.get(f'invoice_{i}')
+                amount = request.POST.get(f'amount_{i}')
+                payment_method = request.POST.get(f'payment_method_{i}')
+
+                if amount:
+                    try:
+                        payment = Payment.objects.create(
+                            payment_type=payment_type or 'receipt',
+                            customer_id=customer_id if customer_id else None,
+                            invoice_id=invoice_id if invoice_id else None,
+                            amount=Decimal(amount),
+                            payment_method=payment_method or 'cash',
+                            created_by=request.user,
+                            payment_number=f"PAY{Payment.objects.count() + 1:06d}"
+                        )
+
+                        # Update invoice if linked
+                        if payment.invoice:
+                            invoice = payment.invoice
+                            invoice.paid_amount += payment.amount
+                            if invoice.paid_amount >= invoice.total_amount:
+                                invoice.status = 'paid'
+                            invoice.save()
+
+                        payment_data.append(payment)
+                    except Exception as e:
+                        messages.error(request, f'Error creating payment {i+1}: {str(e)}')
+
+            messages.success(request, f'Successfully recorded {len(payment_data)} payments.')
+            return redirect('erp:payment_list')
+
+    # GET request
+    customers = Customer.objects.filter(is_active=True).order_by('name')
+    unpaid_invoices = Invoice.objects.filter(status__in=['draft', 'sent', 'overdue']).order_by('-invoice_date')
+
+    context = {
+        'customers': customers,
+        'unpaid_invoices': unpaid_invoices,
+    }
+    return render(request, 'erp/finance/batch_payments.html', context)
+
+
+# ==============================================
+# AUTOMATIC REMINDERS
+# ==============================================
+
+@login_required
+def send_overdue_reminders(request):
+    """Send automatic reminders for overdue invoices"""
+    from django.core.mail import send_mail
+    from Email.models import Email as EmailMessage
+
+    today = timezone.now().date()
+
+    # Get overdue invoices
+    overdue_invoices = Invoice.objects.filter(
+        invoice_type='sales',
+        status__in=['sent', 'overdue'],
+        due_date__lt=today,
+        customer__isnull=False,
+        customer__email__isnull=False
+    ).select_related('customer')
+
+    if request.method == 'POST':
+        # Send reminders
+        success_count = 0
+        error_count = 0
+
+        for invoice in overdue_invoices:
+            try:
+                days_overdue = (today - invoice.due_date).days
+
+                subject = f"Payment Reminder: Invoice {invoice.invoice_number} is {days_overdue} days overdue"
+
+                body = f"""Dear {invoice.customer.name},
+
+This is a friendly reminder that the following invoice is now {days_overdue} days overdue:
+
+Invoice Number: {invoice.invoice_number}
+Invoice Date: {invoice.invoice_date.strftime('%B %d, %Y')}
+Due Date: {invoice.due_date.strftime('%B %d, %Y')}
+Total Amount: ${invoice.total_amount}
+Amount Paid: ${invoice.paid_amount}
+Balance Due: ${invoice.balance_due}
+
+Please remit payment at your earliest convenience to avoid any late fees or service interruptions.
+
+If you have already sent payment, please disregard this notice.
+
+For questions, please contact us.
+
+Best regards,
+{request.user.get_full_name() or request.user.username}
+"""
+
+                send_mail(
+                    subject,
+                    body,
+                    request.user.email,
+                    [invoice.customer.email],
+                    fail_silently=False,
+                )
+
+                # Create email record
+                EmailMessage.objects.create(
+                    sender=request.user,
+                    sender_email=request.user.email,
+                    recipient_email=invoice.customer.email,
+                    subject=subject,
+                    body=body,
+                    sent_at=timezone.now(),
+                    folder='sent'
+                )
+
+                # Update invoice status
+                if invoice.status != 'overdue':
+                    invoice.status = 'overdue'
+                    invoice.save()
+
+                success_count += 1
+
+            except Exception as e:
+                error_count += 1
+                messages.error(request, f'Error sending reminder for invoice {invoice.invoice_number}: {str(e)}')
+
+        messages.success(request, f'Sent {success_count} reminders. {error_count} failed.')
+        return redirect('erp:pending_invoices')
+
+    # GET request - show preview
+    context = {
+        'overdue_invoices': overdue_invoices,
+        'total_overdue': overdue_invoices.count(),
+    }
+    return render(request, 'erp/invoices/send_reminders.html', context)
+
+
+@login_required
+def setup_automatic_reminders(request):
+    """Setup automatic reminder schedule"""
+    if request.method == 'POST':
+        # Save reminder settings
+        reminder_enabled = request.POST.get('reminder_enabled') == 'on'
+        reminder_days = request.POST.get('reminder_days', '7,14,30')
+        reminder_time = request.POST.get('reminder_time', '09:00')
+
+        # Store in session or user preferences (simplified)
+        request.session['reminder_enabled'] = reminder_enabled
+        request.session['reminder_days'] = reminder_days
+        request.session['reminder_time'] = reminder_time
+
+        messages.success(request, 'Reminder settings saved successfully!')
+        return redirect('erp:pending_invoices')
+
+    context = {
+        'reminder_enabled': request.session.get('reminder_enabled', False),
+        'reminder_days': request.session.get('reminder_days', '7,14,30'),
+        'reminder_time': request.session.get('reminder_time', '09:00'),
+    }
+    return render(request, 'erp/invoices/reminder_settings.html', context)
+

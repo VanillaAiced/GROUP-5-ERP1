@@ -473,7 +473,8 @@ class Payment(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True, blank=True)
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.SET_NULL, null=True, blank=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.SET_NULL, null=True, blank=True)
-    
+    invoice = models.ForeignKey('Invoice', on_delete=models.SET_NULL, null=True, blank=True)
+
     def __str__(self):
         return f"{self.payment_number} - {self.amount}"
 
@@ -827,4 +828,3 @@ class EmailInquiry(models.Model):
 
     def __str__(self):
         return f"{self.from_email} - {self.subject}"
-
