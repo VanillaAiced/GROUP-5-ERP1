@@ -1,0 +1,240 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}{{ title }} - ERP System{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ title }}</h2>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">Create a simple invoice quickly without line items</p>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Invoice Type (hidden if specified) -->
+        {% if form.invoice_type.value %}
+            {{ form.invoice_type }}
+        {% else %}
+            <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <label for="{{ form.invoice_type.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Invoice Type <span class="text-red-500">*</span>
+                </label>
+                {{ form.invoice_type }}
+                {% if form.invoice_type.errors %}
+                    {% for error in form.invoice_type.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Customer/Vendor Information -->
+        <div class="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg border border-gray-200 dark:border-gray-600">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <i class="fas fa-user mr-2 text-blue-600 dark:text-blue-400"></i>
+                Customer/Vendor Information
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% if not form.customer.is_hidden %}
+                <div>
+                    <label for="{{ form.customer.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Customer <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.customer }}
+                    {% if form.customer.errors %}
+                        {% for error in form.customer.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% else %}
+                    {{ form.customer }}
+                {% endif %}
+
+                {% if not form.vendor.is_hidden %}
+                <div>
+                    <label for="{{ form.vendor.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Vendor <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.vendor }}
+                    {% if form.vendor.errors %}
+                        {% for error in form.vendor.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% else %}
+                    {{ form.vendor }}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Invoice Details -->
+        <div class="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg border border-gray-200 dark:border-gray-600">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <i class="fas fa-file-invoice mr-2 text-blue-600 dark:text-blue-400"></i>
+                Invoice Details
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.invoice_date.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Invoice Date <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.invoice_date }}
+                    {% if form.invoice_date.errors %}
+                        {% for error in form.invoice_date.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.due_date.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Due Date <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.due_date }}
+                    {% if form.due_date.errors %}
+                        {% for error in form.due_date.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Amount Information -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <i class="fas fa-dollar-sign mr-2 text-blue-600 dark:text-blue-400"></i>
+                Amount Information
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.subtotal.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Subtotal <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 dark:text-gray-400 sm:text-sm">$</span>
+                        </div>
+                        {{ form.subtotal }}
+                    </div>
+                    {% if form.subtotal.errors %}
+                        {% for error in form.subtotal.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.tax_rate.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Tax Rate (%)
+                    </label>
+                    <div class="relative">
+                        {{ form.tax_rate }}
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 dark:text-gray-400 sm:text-sm">%</span>
+                        </div>
+                    </div>
+                    {% if form.tax_rate.errors %}
+                        {% for error in form.tax_rate.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Total Display -->
+            <div class="mt-6 bg-white dark:bg-gray-800 p-4 rounded-lg border border-blue-300 dark:border-blue-700">
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-bold text-gray-900 dark:text-white">Total Amount:</span>
+                    <span id="total-amount" class="text-2xl font-bold text-blue-600 dark:text-blue-400">$0.00</span>
+                </div>
+                <div class="mt-2 text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                    <div class="flex justify-between">
+                        <span>Subtotal:</span>
+                        <span id="subtotal-display">$0.00</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Tax:</span>
+                        <span id="tax-display">$0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg border border-gray-200 dark:border-gray-600">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <i class="fas fa-sticky-note mr-2 text-blue-600 dark:text-blue-400"></i>
+                Additional Information
+            </h3>
+
+            <div>
+                <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Notes
+                </label>
+                {{ form.notes }}
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Add any additional notes or description for this invoice</p>
+                {% if form.notes.errors %}
+                    {% for error in form.notes.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700">
+            <a href="{% url 'erp:invoice_list' %}" class="bg-gray-500 dark:bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-600 dark:hover:bg-gray-700 transition-colors">
+                <i class="fas fa-times mr-2"></i>Cancel
+            </a>
+            <button type="submit" class="bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors">
+                <i class="fas fa-save mr-2"></i>Create Quick Invoice
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Tailwind classes to form fields with dark mode support
+    document.querySelectorAll('select').forEach(select => {
+        select.className = 'mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm';
+    });
+
+    document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea').forEach(input => {
+        if (input.className.includes('pl-')) {
+            input.className = 'mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm pl-7';
+        } else {
+            input.className = 'mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm';
+        }
+    });
+
+    const subtotalField = document.getElementById('id_subtotal');
+    const taxRateField = document.getElementById('id_tax_rate');
+
+    function calculateTotal() {
+        const subtotal = parseFloat(subtotalField.value) || 0;
+        const taxRate = parseFloat(taxRateField.value) || 0;
+        const taxAmount = (subtotal * taxRate) / 100;
+        const total = subtotal + taxAmount;
+
+        document.getElementById('subtotal-display').textContent = '$' + subtotal.toFixed(2);
+        document.getElementById('tax-display').textContent = '$' + taxAmount.toFixed(2);
+        document.getElementById('total-amount').textContent = '$' + total.toFixed(2);
+    }
+
+    subtotalField.addEventListener('input', calculateTotal);
+    taxRateField.addEventListener('input', calculateTotal);
+
+    // Initial calculation
+    calculateTotal();
+});
+</script>
+{% endblock %}

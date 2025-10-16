@@ -495,24 +495,112 @@ class Invoice(models.Model):
     invoice_number = models.CharField(max_length=20, unique=True)
     invoice_type = models.CharField(max_length=20, choices=INVOICE_TYPE_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
-    invoice_date = models.DateField()
+    invoice_date = models.DateField(default=timezone.now)
     due_date = models.DateField()
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     tax_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     paid_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     notes = models.TextField(blank=True, null=True)
+    terms_and_conditions = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    updated_at = models.DateTimeField(auto_now=True)
+
     # Related entities
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, blank=True)
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True, blank=True)
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.SET_NULL, null=True, blank=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.SET_NULL, null=True, blank=True)
     
+    class Meta:
+        ordering = ['-created_at']
+
+    def save(self, *args, **kwargs):
+        if not self.invoice_number:
+            self.generate_invoice_number()
+        if not self.due_date:
+            # Default to 30 days from invoice date
+            from datetime import timedelta
+            self.due_date = self.invoice_date + timedelta(days=30)
+        super().save(*args, **kwargs)
+
+    def generate_invoice_number(self):
+        """Generate unique invoice number"""
+        today = timezone.now().date()
+        prefix = 'SI' if self.invoice_type == 'sales' else 'PI'
+
+        # Count invoices of same type created today
+        count = Invoice.objects.filter(
+            invoice_type=self.invoice_type,
+            created_at__date=today
+        ).count() + 1
+
+        self.invoice_number = f"{prefix}-{today.strftime('%Y%m%d')}-{count:04d}"
+
+    def calculate_totals(self):
+        """Calculate invoice totals from line items"""
+        items = self.invoiceitem_set.all()
+        self.subtotal = sum(item.line_total for item in items)
+        self.tax_amount = (self.subtotal * self.tax_rate) / 100
+        self.total_amount = self.subtotal + self.tax_amount - self.discount_amount
+        self.save()
+
+    @property
+    def balance_due(self):
+        """Return remaining balance"""
+        return self.total_amount - self.paid_amount
+
+    @property
+    def is_overdue(self):
+        """Check if invoice is overdue"""
+        return self.due_date < timezone.now().date() and self.status not in ['paid', 'cancelled']
+
+    @property
+    def days_overdue(self):
+        """Calculate days overdue"""
+        if self.is_overdue:
+            return (timezone.now().date() - self.due_date).days
+        return 0
+
+    def mark_as_paid(self, paid_amount=None):
+        """Mark invoice as paid"""
+        if paid_amount is None:
+            paid_amount = self.total_amount
+        self.paid_amount = paid_amount
+        self.status = 'paid' if paid_amount >= self.total_amount else 'sent'
+        self.save()
+
     def __str__(self):
-        return f"{self.invoice_number} - {self.total_amount}"
+        return f"{self.invoice_number} - ${self.total_amount}"
+
+
+class InvoiceItem(models.Model):
+    """Individual line items for invoices"""
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    description = models.CharField(max_length=255)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    line_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    def save(self, *args, **kwargs):
+        # Auto-calculate line total
+        self.line_total = self.quantity * self.unit_price
+        super().save(*args, **kwargs)
+        # Update invoice totals
+        self.invoice.calculate_totals()
+
+    def delete(self, *args, **kwargs):
+        invoice = self.invoice
+        super().delete(*args, **kwargs)
+        # Update invoice totals after deletion
+        invoice.calculate_totals()
+
+    def __str__(self):
+        return f"{self.description} - {self.quantity} x ${self.unit_price}"
 
 # 9. Financial Reports
 class FinancialReport(models.Model):
