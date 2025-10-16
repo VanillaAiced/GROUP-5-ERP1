@@ -8,16 +8,25 @@ from .models import (
     Payment, Invoice, InvoiceItem, Lead, LeadNote, EmailInquiry
 )
 from django.forms import inlineformset_factory
+from django.forms.widgets import Select
+
+class ProductSelectWithPrice(Select):
+    """Custom select widget that adds product price as data attribute"""
+    def __init__(self, *args, **kwargs):
+        self.product_prices = kwargs.pop('product_prices', {})
+        super().__init__(*args, **kwargs)
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+        if value and str(value) in self.product_prices:
+            option['attrs']['data-price'] = self.product_prices[str(value)]
+        return option
 
 # Customer Forms
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
-        fields = [
-            'customer_code', 'name', 'email', 'phone', 'address', 'city', 
-            'state', 'country', 'postal_code', 'customer_type', 'credit_limit',
-            'payment_terms', 'tax_id'
-        ]
+        exclude = ['customer_code', 'created_by', 'created_at', 'updated_at', 'id']
         widgets = {
             'address': forms.Textarea(attrs={'rows': 3}),
             'credit_limit': forms.NumberInput(attrs={'step': '0.01'}),
@@ -27,10 +36,7 @@ class CustomerForm(forms.ModelForm):
 class VendorForm(forms.ModelForm):
     class Meta:
         model = Vendor
-        fields = [
-            'vendor_code', 'name', 'contact_person', 'email', 'phone', 
-            'address', 'city', 'state', 'country', 'postal_code', 
-            'vendor_type', 'payment_terms', 'tax_id', 'bank_details'
+        exclude = ['vendor_code', 'created_by', 'created_at', 'updated_at', 'id'
         ]
         widgets = {
             'address': forms.Textarea(attrs={'rows': 3}),
@@ -41,10 +47,7 @@ class VendorForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = [
-            'sku', 'name', 'description', 'category', 'product_type',
-            'unit_price', 'cost_price', 'unit_of_measure', 'weight',
-            'dimensions', 'barcode'
+        exclude = ['sku', 'created_by', 'created_at', 'updated_at', 'id'
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
@@ -90,6 +93,137 @@ class SalesOrderItemForm(forms.ModelForm):
             'unit_price': forms.NumberInput(attrs={
                 'step': '0.01',
                 'class': 'form-control',
+                'readonly': True,
+                'style': 'background-color: #f8f9fa; cursor: not-allowed;',
+                'title': 'Price is automatically set from product selection'
+            }),
+            'discount_percent': forms.NumberInput(attrs={
+                'step': '0.01',
+                'max': 100,
+                'min': 0,
+                'class': 'form-control',
+                'placeholder': '0.00'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Configure product field with queryset
+        from erpdb.models import Product
+        products = Product.objects.filter(is_active=True).select_related('category').order_by('name')
+
+        # Set queryset for the product field
+        self.fields['product'].queryset = products
+        self.fields['product'].empty_label = "-- Select the product to add to this order --"
+
+        # Add CSS classes and styling
+        self.fields['product'].widget.attrs.update({
+            'class': 'form-select',
+            'id': 'id_product',
+            'style': 'width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 0.75rem;'
+        })
+
+        # Store product prices as data attributes in the options
+        product_prices = {str(p.id): str(p.unit_price) for p in products}
+        self.fields['product'].widget.product_prices = product_prices
+
+        # Configure quantity field
+        self.fields['quantity'].widget.attrs.update({
+            'class': 'form-control',
+            'id': 'id_quantity'
+        })
+
+        # Configure unit price field
+        self.fields['unit_price'].widget.attrs.update({
+            'class': 'form-control',
+            'id': 'id_unit_price',
+            'style': 'background-color: #f0f0f0;',
+            'title': 'Price is automatically set from product selection'
+        })
+        self.fields['unit_price'].help_text = "Automatically filled from selected product"
+
+        # Configure discount field
+        self.fields['discount_percent'].widget.attrs.update({
+            'class': 'form-control',
+            'id': 'id_discount_percent'
+        })
+
+# Purchase Order Forms
+class PurchaseOrderForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseOrder
+        fields = [
+            'vendor', 'warehouse', 'delivery_date', 'payment_due_date', 'status',
+            'tax_rate', 'discount_percent', 'reference_number', 'notes'
+        ]
+        widgets = {
+            'vendor': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'warehouse': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'status': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'delivery_date': forms.DateTimeInput(attrs={
+                'type': 'datetime-local',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'payment_due_date': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'tax_rate': forms.NumberInput(attrs={
+                'step': '0.01',
+                'min': '0',
+                'max': '100',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'placeholder': 'Tax rate %'
+            }),
+            'discount_percent': forms.NumberInput(attrs={
+                'step': '0.01',
+                'min': '0',
+                'max': '100',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'placeholder': 'Discount %'
+            }),
+            'reference_number': forms.TextInput(attrs={
+                'placeholder': 'Optional reference number',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'notes': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'placeholder': 'Add any special instructions...'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter active vendors and warehouses
+        self.fields['vendor'].queryset = Vendor.objects.filter(is_active=True)
+        self.fields['warehouse'].queryset = Warehouse.objects.filter(is_active=True)
+        self.fields['warehouse'].required = False
+        self.fields['payment_due_date'].required = False
+        self.fields['tax_rate'].required = False
+        self.fields['discount_percent'].required = False
+
+# Purchase Order Item Forms
+class PurchaseOrderItemForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseOrderItem
+        fields = ['product', 'quantity', 'unit_price', 'discount_percent']
+        widgets = {
+            'quantity': forms.NumberInput(attrs={
+                'min': 1,
+                'class': 'form-control',
+                'placeholder': '1'
+            }),
+            'unit_price': forms.NumberInput(attrs={
+                'step': '0.01',
+                'class': 'form-control',
                 'placeholder': '0.00'
             }),
             'discount_percent': forms.NumberInput(attrs={
@@ -117,78 +251,17 @@ class SalesOrderItemForm(forms.ModelForm):
             'id': 'id_quantity'
         })
 
-        # Configure unit price field - editable
+        # Configure unit price field
         self.fields['unit_price'].widget.attrs.update({
             'class': 'form-control',
-            'id': 'id_unit_price',
-            'placeholder': '0.00'
+            'id': 'id_unit_price'
         })
-        self.fields['unit_price'].help_text = "Auto-filled from product, but can be edited"
 
         # Configure discount field
         self.fields['discount_percent'].widget.attrs.update({
             'class': 'form-control',
             'id': 'id_discount_percent'
         })
-
-# Purchase Order Forms
-class PurchaseOrderForm(forms.ModelForm):
-    class Meta:
-        model = PurchaseOrder
-        fields = [
-            'vendor', 'warehouse', 'delivery_date', 'status', 'payment_terms', 'reference_number', 'notes'
-        ]
-        widgets = {
-            'delivery_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'notes': forms.Textarea(attrs={'rows': 3}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Add CSS classes for better styling
-        self.fields['vendor'].widget.attrs.update({'class': 'form-select'})
-        self.fields['warehouse'].widget.attrs.update({'class': 'form-select'})
-        self.fields['status'].widget.attrs.update({'class': 'form-select'})
-        self.fields['notes'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Add any special instructions...'})
-
-# Purchase Order Item Forms
-class PurchaseOrderItemForm(forms.ModelForm):
-    class Meta:
-        model = PurchaseOrderItem
-        fields = ['product', 'quantity']
-        widgets = {
-            'quantity': forms.NumberInput(attrs={'min': 1}),
-        }
-
-# Accounting Forms
-class ChartOfAccountsForm(forms.ModelForm):
-    class Meta:
-        model = ChartOfAccounts
-        fields = [
-            'account_code', 'account_name', 'account_type', 'parent_account',
-            'description'
-        ]
-        widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
-        }
-
-class JournalEntryForm(forms.ModelForm):
-    class Meta:
-        model = JournalEntry
-        fields = ['date', 'description', 'entry_type']
-        widgets = {
-            'date': forms.DateInput(attrs={'type': 'date'}),
-            'description': forms.Textarea(attrs={'rows': 3}),
-        }
-
-class JournalLineForm(forms.ModelForm):
-    class Meta:
-        model = JournalLine
-        fields = ['account', 'description', 'debit', 'credit']
-        widgets = {
-            'debit': forms.NumberInput(attrs={'step': '0.01'}),
-            'credit': forms.NumberInput(attrs={'step': '0.01'}),
-        }
 
 # HR Forms
 class DepartmentForm(forms.ModelForm):
@@ -245,11 +318,44 @@ class PaymentForm(forms.ModelForm):
         model = Payment
         fields = [
             'payment_type', 'customer', 'vendor', 'amount', 'payment_method',
-            'sales_order', 'invoice', 'reference_number', 'notes'
+            'sales_order', 'purchase_order', 'invoice', 'reference_number', 'notes'
         ]
         widgets = {
-            'amount': forms.NumberInput(attrs={'step': '0.01', 'min': '0.01'}),
-            'notes': forms.Textarea(attrs={'rows': 3}),
+            'payment_type': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'customer': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'vendor': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'payment_method': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'sales_order': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'purchase_order': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'invoice': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'amount': forms.NumberInput(attrs={
+                'step': '0.01',
+                'min': '0.01',
+                'class': 'w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+            }),
+            'reference_number': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'placeholder': 'Optional reference number'
+            }),
+            'notes': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'placeholder': 'Add any notes...'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
@@ -259,6 +365,7 @@ class PaymentForm(forms.ModelForm):
         self.fields['customer'].required = False
         self.fields['vendor'].required = False
         self.fields['sales_order'].required = False
+        self.fields['purchase_order'].required = False
         self.fields['invoice'].required = False
 
         # Only show unpaid sales invoices for customer payments
@@ -271,11 +378,18 @@ class PaymentForm(forms.ModelForm):
             status__in=['confirmed', 'shipped', 'delivered']
         )
 
+        # Only show purchase orders with balance due
+        self.fields['purchase_order'].queryset = PurchaseOrder.objects.filter(
+            status__in=['confirmed', 'received']
+        )
+
         # Add helpful labels
         self.fields['invoice'].label = "Link to Invoice (Optional)"
         self.fields['sales_order'].label = "Link to Sales Order (Optional)"
+        self.fields['purchase_order'].label = "Link to Purchase Order (Optional)"
         self.fields['invoice'].help_text = "Select an invoice if this payment is for a specific invoice"
         self.fields['sales_order'].help_text = "Select a sales order if this payment is for a specific order"
+        self.fields['purchase_order'].help_text = "Select a purchase order if this payment is for a specific order"
 
     def clean(self):
         cleaned_data = super().clean()
@@ -312,14 +426,23 @@ class InvoiceForm(forms.ModelForm):
         self.fields['customer'].queryset = Customer.objects.filter(is_active=True)
         self.fields['vendor'].queryset = Vendor.objects.filter(is_active=True)
 
+        # Make both customer and vendor not required by default
+        # They will be validated in the clean() method based on invoice_type
+        self.fields['customer'].required = False
+        self.fields['vendor'].required = False
+
+        # Make optional fields not required
+        self.fields['notes'].required = False
+        self.fields['terms_and_conditions'].required = False
+        self.fields['discount_amount'].required = False
+        self.fields['tax_rate'].required = False
+
         # Make customer and vendor conditional based on invoice type
         if self.instance and self.instance.invoice_type:
             if self.instance.invoice_type == 'sales':
                 self.fields['vendor'].widget = forms.HiddenInput()
-                self.fields['vendor'].required = False
             elif self.instance.invoice_type == 'purchase':
                 self.fields['customer'].widget = forms.HiddenInput()
-                self.fields['customer'].required = False
 
     def clean(self):
         cleaned_data = super().clean()
@@ -360,7 +483,7 @@ InvoiceItemFormSet = inlineformset_factory(
     Invoice,
     InvoiceItem,
     form=InvoiceItemForm,
-    extra=1,  # Start with 1 empty form
+    extra=0,  # Don't add extra forms since min_num handles it
     min_num=1,  # Require at least 1 item
     validate_min=True,
     can_delete=True
@@ -446,57 +569,6 @@ class QuickInvoiceForm(forms.ModelForm):
                 self.fields['customer'].required = False
                 self.fields['vendor'].queryset = Vendor.objects.filter(is_active=True)
 
-
-# Enhanced Payment Form
-class PaymentForm(forms.ModelForm):
-    class Meta:
-        model = Payment
-        fields = [
-            'payment_type', 'customer', 'vendor', 'amount', 'payment_method',
-            'sales_order', 'invoice', 'reference_number', 'notes'
-        ]
-        widgets = {
-            'amount': forms.NumberInput(attrs={'step': '0.01', 'min': '0.01'}),
-            'notes': forms.Textarea(attrs={'rows': 3}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['customer'].queryset = Customer.objects.filter(is_active=True)
-        self.fields['vendor'].queryset = Vendor.objects.filter(is_active=True)
-        self.fields['customer'].required = False
-        self.fields['vendor'].required = False
-        self.fields['sales_order'].required = False
-        self.fields['invoice'].required = False
-
-        # Only show unpaid sales invoices for customer payments
-        self.fields['invoice'].queryset = Invoice.objects.filter(
-            status__in=['draft', 'sent', 'overdue']
-        )
-
-        # Only show sales orders with balance due
-        self.fields['sales_order'].queryset = SalesOrder.objects.filter(
-            status__in=['confirmed', 'shipped', 'delivered']
-        )
-
-        # Add helpful labels
-        self.fields['invoice'].label = "Link to Invoice (Optional)"
-        self.fields['sales_order'].label = "Link to Sales Order (Optional)"
-        self.fields['invoice'].help_text = "Select an invoice if this payment is for a specific invoice"
-        self.fields['sales_order'].help_text = "Select a sales order if this payment is for a specific order"
-
-    def clean(self):
-        cleaned_data = super().clean()
-        payment_type = cleaned_data.get('payment_type')
-        customer = cleaned_data.get('customer')
-        vendor = cleaned_data.get('vendor')
-
-        if payment_type == 'receipt' and not customer:
-            raise forms.ValidationError("Customer is required for receipts.")
-        if payment_type == 'payment' and not vendor:
-            raise forms.ValidationError("Vendor is required for payments.")
-
-        return cleaned_data
 
 # Search Forms
 class CustomerSearchForm(forms.Form):
@@ -641,7 +713,6 @@ class LeadConversionForm(forms.Form):
         help_text="e.g., Net 30, Net 60, COD"
     )
 
-
 class LeadSearchForm(forms.Form):
     """Form for searching and filtering leads"""
     search = forms.CharField(
@@ -687,3 +758,46 @@ class LeadSearchForm(forms.Form):
         required=False,
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
+
+
+# Accounting Forms
+class ChartOfAccountsForm(forms.ModelForm):
+    class Meta:
+        model = ChartOfAccounts
+        fields = [
+            'account_code', 'account_name', 'account_type', 'parent_account',
+            'description'
+        ]
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class JournalEntryForm(forms.ModelForm):
+    class Meta:
+        model = JournalEntry
+        fields = ['date', 'description', 'entry_type']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class JournalLineForm(forms.ModelForm):
+    class Meta:
+        model = JournalLine
+        fields = ['account', 'description', 'debit', 'credit']
+        widgets = {
+            'debit': forms.NumberInput(attrs={'step': '0.01'}),
+            'credit': forms.NumberInput(attrs={'step': '0.01'}),
+        }
+
+
+# Purchase Order Item Inline Formset
+PurchaseOrderItemFormSet = inlineformset_factory(
+    PurchaseOrder,
+    PurchaseOrderItem,
+    form=PurchaseOrderItemForm,
+    extra=1,
+    can_delete=True,
+    min_num=0,
+    validate_min=False
+)

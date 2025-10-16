@@ -1,0 +1,119 @@
+                fetch(`/erp/api/product/${productId}/price/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            unitPriceInput.value = data.unit_price.toFixed(2);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+{% extends 'erp/base.html' %}
+
+{% block title %}{{ title }} - ERP System{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ title }}</h2>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">Invoice #{{ invoice.invoice_number }}</p>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Product Selection -->
+        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+            <label for="{{ form.product.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Product <span class="text-red-500">*</span>
+            </label>
+            {{ form.product }}
+            {% if form.product.errors %}
+                {% for error in form.product.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Quantity and Price -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                <label for="{{ form.quantity.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Quantity <span class="text-red-500">*</span>
+                </label>
+                {{ form.quantity }}
+                {% if form.quantity.errors %}
+                    {% for error in form.quantity.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                <label for="{{ form.unit_price.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Unit Price <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span class="text-gray-500 dark:text-gray-400 sm:text-sm">$</span>
+                    </div>
+                    {{ form.unit_price }}
+                </div>
+                {% if form.unit_price.errors %}
+                    {% for error in form.unit_price.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+            <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Description
+            </label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                {% for error in form.description.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-between items-center pt-6">
+            <a href="{% url 'erp:invoice_detail' pk=invoice.pk %}" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                <i class="fas fa-times mr-2"></i>Cancel
+            </a>
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-save mr-2"></i>Save Item
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Style form inputs
+    document.querySelectorAll('input[type="text"], input[type="number"], textarea, select').forEach(input => {
+        input.className = 'mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500 sm:text-sm';
+    });
+
+    // Special styling for inputs with currency symbol
+    document.querySelectorAll('input[name$="price"]').forEach(input => {
+        input.className = 'pl-7 mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500 sm:text-sm';
+    });
+
+    // Auto-update price when product is selected
+    const productSelect = document.querySelector('select[name="product"]');
+    const unitPriceInput = document.querySelector('input[name="unit_price"]');
+
+    if (productSelect && unitPriceInput) {
+        productSelect.addEventListener('change', function() {
+            const productId = this.value;
+            if (productId) {

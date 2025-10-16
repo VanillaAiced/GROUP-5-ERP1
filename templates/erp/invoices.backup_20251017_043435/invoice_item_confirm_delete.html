@@ -1,0 +1,40 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Delete Invoice Item - ERP System{% endblock %}
+{% block page_title %}Delete Invoice Item{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Confirm Delete</h2>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">Are you sure you want to delete this item from invoice #{{ invoice.invoice_number }}?</p>
+    </div>
+
+    <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800 mb-6">
+        <h3 class="text-lg font-semibold text-red-800 dark:text-red-400 mb-2">Item Details</h3>
+        <ul class="space-y-2 text-red-700 dark:text-red-300">
+            {% if item.product %}
+                <li><span class="font-medium">Product:</span> {{ item.product.name }}</li>
+            {% endif %}
+            <li><span class="font-medium">Quantity:</span> {{ item.quantity }}</li>
+            <li><span class="font-medium">Unit Price:</span> ${{ item.unit_price|floatformat:2 }}</li>
+            <li><span class="font-medium">Line Total:</span> ${{ item.line_total|floatformat:2 }}</li>
+            {% if item.description %}
+                <li><span class="font-medium">Description:</span> {{ item.description }}</li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        <div class="flex justify-between items-center">
+            <a href="{% url 'erp:invoice_detail' pk=invoice.pk %}" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Cancel
+            </a>
+            <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                <i class="fas fa-trash mr-2"></i>Delete Item
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -31,6 +31,12 @@ urlpatterns = [
     path('products/<uuid:product_id>/edit/', views.product_edit, name='product_edit'),
     path('products/<uuid:product_id>/delete/', views.product_delete, name='product_delete'),
 
+    # Payment Management
+    path('payments/', views.payment_list, name='payment_list'),
+    path('payments/create/', views.payment_create, name='payment_create'),
+    path('payments/<uuid:payment_id>/', views.payment_detail, name='payment_detail'),
+    path('payments/<uuid:payment_id>/edit/', views.payment_edit, name='payment_edit'),
+
     # API Endpoints for AJAX calls
     path('api/customer/<uuid:customer_id>/', views.get_customer_data, name='api_get_customer_data'),
     path('api/product/<uuid:product_id>/', views.get_product_data, name='api_get_product_data'),
@@ -40,6 +46,8 @@ urlpatterns = [
     path('sales/', views.sales_order_list, name='sales_order_list'),
     path('sales/create/', views.sales_order_create, name='sales_order_create'),
     path('sales/<uuid:order_id>/', views.sales_order_detail, name='sales_order_detail'),
+    path('sales/<uuid:order_id>/change-status/', views.sales_order_change_status, name='sales_order_change_status'),
+    path('sales/<uuid:order_id>/edit/', views.sales_order_edit, name='sales_order_edit'),
     path('sales/<uuid:order_id>/add-item/', views.sales_order_add_item, name='sales_order_add_item'),
     path('sales/<uuid:order_id>/edit-item/<int:item_id>/', views.sales_order_edit_item, name='sales_order_edit_item'),
     path('sales/<uuid:order_id>/delete-item/<int:item_id>/', views.sales_order_delete_item, name='sales_order_delete_item'),
@@ -69,7 +77,11 @@ urlpatterns = [
     # Payment Management
     path('payments/', views.payment_list, name='payment_list'),
     path('payments/create/', views.payment_create, name='payment_create'),
-    
+    path('payments/<uuid:payment_id>/', views.payment_detail, name='payment_detail'),
+    path('payments/<uuid:payment_id>/edit/', views.payment_edit, name='payment_edit'),
+    path('payments/<uuid:payment_id>/email-receipt/', views.email_payment_receipt, name='email_payment_receipt'),
+    path('payments/batch/', views.batch_payment_operations, name='batch_payment_operations'),
+
     # Invoice Management
     path('invoices/', views.invoice_list, name='invoice_list'),
     path('invoices/create/', views.invoice_create, name='invoice_create'),
@@ -122,4 +134,7 @@ urlpatterns = [
 
     # Customer Delete
     path('customers/<uuid:customer_id>/delete/', views.customer_delete, name='customer_delete'),
+
+    # Test Auto Codes
+    path('test-auto-codes/', views.test_auto_codes, name='test_auto_codes'),
 ]

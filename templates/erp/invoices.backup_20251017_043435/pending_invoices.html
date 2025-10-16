@@ -1,0 +1,184 @@
+{% extends 'erp/base.html' %}
+{% load static %}
+
+{% block title %}Pending Invoices{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-clock me-2"></i>Pending Invoices</h2>
+        <a href="{% url 'erp:invoice_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-list me-1"></i>All Invoices
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Overdue Invoices -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Overdue Invoices</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if overdue_invoices %}
+                        {% for invoice in overdue_invoices %}
+                            <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <a href="{% url 'erp:invoice_detail' invoice.pk %}" class="text-decoration-none">
+                                            {{ invoice.invoice_number }}
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted">
+                                        {% if invoice.vendor %}{{ invoice.vendor.name }}{% else %}{{ invoice.customer.name }}{% endif %}
+                                    </small>
+                                    <div class="text-danger small">
+                                        Due: {{ invoice.due_date|date:"M j, Y" }}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold">${{ invoice.total_amount|floatformat:2 }}</div>
+                                    <a href="{% url 'erp:mark_invoice_paid' invoice.pk %}" class="btn btn-sm btn-outline-success">
+                                        Pay
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <p class="text-muted mb-0">No overdue invoices</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Due Soon -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-warning">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Due Soon (7 days)</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if due_soon %}
+                        {% for invoice in due_soon %}
+                            <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <a href="{% url 'erp:invoice_detail' invoice.pk %}" class="text-decoration-none">
+                                            {{ invoice.invoice_number }}
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted">
+                                        {% if invoice.vendor %}{{ invoice.vendor.name }}{% else %}{{ invoice.customer.name }}{% endif %}
+                                    </small>
+                                    <div class="text-warning small">
+                                        Due: {{ invoice.due_date|date:"M j, Y" }}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold">${{ invoice.total_amount|floatformat:2 }}</div>
+                                    <a href="{% url 'erp:mark_invoice_paid' invoice.pk %}" class="btn btn-sm btn-outline-success">
+                                        Pay
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+                            <p class="text-muted mb-0">No invoices due soon</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Unpaid Purchase Invoices -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Unpaid Purchase Invoices</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if unpaid_purchase %}
+                        {% for invoice in unpaid_purchase|slice:":10" %}
+                            <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <a href="{% url 'erp:invoice_detail' invoice.pk %}" class="text-decoration-none">
+                                            {{ invoice.invoice_number }}
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted">{{ invoice.vendor.name }}</small>
+                                    <div class="small">
+                                        Due: {{ invoice.due_date|date:"M j, Y" }}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold">${{ invoice.total_amount|floatformat:2 }}</div>
+                                    <a href="{% url 'erp:mark_invoice_paid' invoice.pk %}" class="btn btn-sm btn-outline-success">
+                                        Pay
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% if unpaid_purchase.count > 10 %}
+                            <div class="text-center p-3">
+                                <a href="{% url 'erp:invoice_list' %}?type=purchase&status=draft" class="btn btn-sm btn-outline-primary">
+                                    View All {{ unpaid_purchase.count }} Purchase Invoices
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <p class="text-muted mb-0">All purchase invoices are paid</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Invoice Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h3 class="text-danger">{{ overdue_invoices.count }}</h3>
+                                <p class="text-muted mb-0">Overdue</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h3 class="text-warning">{{ due_soon.count }}</h3>
+                                <p class="text-muted mb-0">Due Soon</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h3 class="text-info">{{ unpaid_purchase.count }}</h3>
+                                <p class="text-muted mb-0">Unpaid Purchase</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-success">
+                                ${% widthratio overdue_invoices|length:1:overdue_invoices|length %}
+                            </h3>
+                            <p class="text-muted mb-0">Total Outstanding</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

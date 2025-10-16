@@ -1,0 +1,57 @@
+{
+  "name": "Django ERP System",
+  "description": "A comprehensive ERP system built with Django",
+  "repository": "https://github.com/yourusername/GROUP-5-ERP1",
+  "logo": "https://cdn.worldvectorlogo.com/logos/django.svg",
+  "keywords": ["django", "erp", "business", "inventory", "sales"],
+  "stack": "heroku-22",
+  "success_url": "/",
+  "env": {
+    "SECRET_KEY": {
+      "description": "A secret key for verifying the integrity of signed cookies.",
+      "generator": "secret"
+    },
+    "DEBUG": {
+      "description": "Enable debug mode (set to False in production)",
+      "value": "False"
+    },
+    "USE_S3": {
+      "description": "Enable AWS S3 for static files",
+      "value": "True"
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "description": "AWS Access Key ID for S3"
+    },
+    "AWS_SECRET_ACCESS_KEY": {
+      "description": "AWS Secret Access Key for S3"
+    },
+    "AWS_STORAGE_BUCKET_NAME": {
+      "description": "AWS S3 bucket name for static files"
+    },
+    "AWS_S3_REGION_NAME": {
+      "description": "AWS S3 region",
+      "value": "us-east-1"
+    },
+    "EMAIL_HOST_USER": {
+      "description": "SMTP email username"
+    },
+    "EMAIL_HOST_PASSWORD": {
+      "description": "SMTP email password"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "addons": [
+    "heroku-postgresql:essential-0"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
+

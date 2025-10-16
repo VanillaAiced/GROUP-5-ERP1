@@ -12,21 +12,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
+from django.core.management.utils import get_random_secret_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-m371w$zxn1)jppki6r_#evnr761@^mx2-(48s^&cx_vylu1-zq'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-m371w$zxn1)jppki6r_#evnr761@^mx2-(48s^&cx_vylu1-zq')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']  # Configure this properly in production
 
 
 # Application definition
@@ -47,6 +45,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # For serving static files on Heroku
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -60,11 +59,11 @@ ROOT_URLCONF = 'ERP_PROJECT.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -76,18 +75,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ERP_PROJECT.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+# Database Configuration
+# Use DATABASE_URL environment variable for Heroku, fallback to local PostgreSQL
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'erp',
-        'USER': 'postgres',
-        'PASSWORD': 'objor123',
-        'HOST': 'localhost',  # Or the IP of your local server
-        'PORT': '5432',       # Default PostgreSQL port
-    }
+    'default': dj_database_url.config(
+        default=f"postgresql://postgres:objor123@localhost:5432/erp",
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 
@@ -127,54 +122,104 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+# Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Or your provider
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
-EMAIL_HOST_USER = 'wlite0990@gmail.com'
-EMAIL_HOST_PASSWORD = 'fvlwllnqfemtadap'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'wlite0990@gmail.com')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'fvlwllnqfemtadap')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # IMAP Settings for Inbox
-IMAP_HOST = 'imap.gmail.com'
-IMAP_PORT = 993
-IMAP_USE_SSL = True
-IMAP_USER = 'wlite0990@gmail.com'
-IMAP_PASSWORD = 'fvlwllnqfemtadap'
+IMAP_HOST = os.getenv('IMAP_HOST', 'imap.gmail.com')
+IMAP_PORT = int(os.getenv('IMAP_PORT', '993'))
+IMAP_USE_SSL = os.getenv('IMAP_USE_SSL', 'True') == 'True'
+IMAP_USER = os.getenv('IMAP_USER', 'wlite0990@gmail.com')
+IMAP_PASSWORD = os.getenv('IMAP_PASSWORD', 'fvlwllnqfemtadap')
 
-# AWS S3 Configuration
+
+# Static files and Media files configuration
 USE_S3 = os.getenv('USE_S3', 'False') == 'True'
 
 if USE_S3:
-    # AWS Settings
+    # AWS S3 Settings
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
     AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-
-    # S3 Settings
+    AWS_DEFAULT_ACL = 'public-read'
     AWS_S3_OBJECT_PARAMETERS = {
         'CacheControl': 'max-age=86400',
     }
-    AWS_DEFAULT_ACL = 'public-read'
-    AWS_QUERYSTRING_AUTH = False
+    AWS_LOCATION = 'static'
+    AWS_MEDIA_LOCATION = 'media'
 
-    # Static files (CSS, JavaScript, Images)
+    # Static files settings
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
     STATICFILES_STORAGE = 'ERP_PROJECT.storage_backends.StaticStorage'
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
 
-    # Media files (User uploads)
+    # Media files settings
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_MEDIA_LOCATION}/'
     DEFAULT_FILE_STORAGE = 'ERP_PROJECT.storage_backends.MediaStorage'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
 else:
-    # Local development settings
-    STATIC_URL = 'static/'
-    STATICFILES_DIRS = [
-        BASE_DIR / 'staticfiles',
-    ]
-    STATIC_ROOT = BASE_DIR / 'productionfiles'
+    # Local/Heroku static files settings (fallback)
+    STATIC_URL = '/static/'
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+    # Media files settings
     MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# Static files directories
+STATICFILES_DIRS = [
+    BASE_DIR / 'productionfiles',
+]
+
+
+# Security settings for production
+if not DEBUG:
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_REDIRECT_EXEMPT = []
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_PRELOAD = True
+
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}

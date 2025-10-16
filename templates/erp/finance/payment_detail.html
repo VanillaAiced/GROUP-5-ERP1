@@ -1,0 +1,105 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Payment Details - {{ payment.payment_number }}{% endblock %}
+{% block page_title %}Payment Details{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-600">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Payment Details: {{ payment.payment_number }}</h2>
+        <div class="flex space-x-2">
+            <a href="{% url 'erp:email_payment_receipt' payment.id %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                <i class="fas fa-envelope mr-2"></i>
+                Email Receipt
+            </a>
+            <a href="{% url 'erp:payment_edit' payment.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
+                <i class="fas fa-edit mr-2"></i>
+                Edit
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Payment Information</h3>
+            <dl class="grid grid-cols-1 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Payment Number</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ payment.payment_number }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Type</dt>
+                    <dd class="mt-1">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                            {% if payment.payment_type == 'receipt' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                            {% else %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %}">
+                            {{ payment.get_payment_type_display }}
+                        </span>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Amount</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">${{ payment.amount|floatformat:2 }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Method</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ payment.get_payment_method_display }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Date</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ payment.payment_date|date:"F d, Y H:i" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Reference Number</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ payment.reference_number|default:"-" }}</dd>
+                </div>
+            </dl>
+        </div>
+
+        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Related Information</h3>
+            <dl class="grid grid-cols-1 gap-4">
+                {% if payment.customer %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Customer</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                        <a href="{% url 'erp:customer_detail' payment.customer.id %}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                            {{ payment.customer.name }}
+                        </a>
+                    </dd>
+                </div>
+                {% elif payment.vendor %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Vendor</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                        <a href="{% url 'erp:vendor_detail' payment.vendor.id %}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                            {{ payment.vendor.name }}
+                        </a>
+                    </dd>
+                </div>
+                {% endif %}
+                {% if payment.invoice %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Invoice</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                        <a href="{% url 'erp:invoice_detail' pk=payment.invoice.pk %}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                            {{ payment.invoice.invoice_number }}
+                        </a>
+                    </dd>
+                </div>
+                {% endif %}
+                {% if payment.notes %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Notes</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white whitespace-pre-wrap">{{ payment.notes }}</dd>
+                </div>
+                {% endif %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Created By</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ payment.created_by.get_full_name|default:payment.created_by.username }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

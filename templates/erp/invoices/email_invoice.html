@@ -1,0 +1,99 @@
+{% extends 'erp/base.html' %}
+
+{% block title %}Email Invoice - {{ invoice.invoice_number }}{% endblock %}
+{% block page_title %}Email Invoice{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-600">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Email Invoice: {{ invoice.invoice_number }}</h2>
+    </div>
+
+    <div class="mb-6">
+        <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg mb-4">
+            <p class="text-blue-800 dark:text-blue-200">
+                <i class="fas fa-info-circle mr-2"></i>
+                Sending invoice to: {{ recipient_email }}
+            </p>
+        </div>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <div>
+                <label for="custom_message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Additional Message (Optional)
+                </label>
+                <textarea
+                    id="custom_message"
+                    name="custom_message"
+                    rows="4"
+                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
+                    placeholder="Enter any additional message you'd like to include in the invoice email..."
+                ></textarea>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Invoice Preview</h3>
+                <div class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                    <p><strong>To:</strong> {{ recipient_name }}</p>
+                    <p><strong>Invoice Number:</strong> {{ invoice.invoice_number }}</p>
+                    <p><strong>Date:</strong> {{ invoice.invoice_date|date:"F d, Y" }}</p>
+                    <p><strong>Due Date:</strong> {{ invoice.due_date|date:"F d, Y" }}</p>
+                    <p><strong>Amount Due:</strong> ${{ invoice.total_amount|floatformat:2 }}</p>
+
+                    <div class="mt-4">
+                        <h4 class="font-medium mb-2">Items:</h4>
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="text-left">Description</th>
+                                    <th class="text-right">Quantity</th>
+                                    <th class="text-right">Price</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in invoice.invoiceitem_set.all %}
+                                <tr>
+                                    <td>{{ item.description }}</td>
+                                    <td class="text-right">{{ item.quantity }}</td>
+                                    <td class="text-right">${{ item.unit_price|floatformat:2 }}</td>
+                                    <td class="text-right">${{ item.line_total|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-right font-medium">Subtotal:</td>
+                                    <td class="text-right">${{ invoice.subtotal|floatformat:2 }}</td>
+                                </tr>
+                                {% if invoice.tax_amount %}
+                                <tr>
+                                    <td colspan="3" class="text-right">Tax ({{ invoice.tax_rate }}%):</td>
+                                    <td class="text-right">${{ invoice.tax_amount|floatformat:2 }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td colspan="3" class="text-right font-bold">Total:</td>
+                                    <td class="text-right font-bold">${{ invoice.total_amount|floatformat:2 }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'erp:invoice_detail' invoice.id %}" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    Send Invoice
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -2,7 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.db.models import Sum, Count, Q, F
+from django.db.models import Sum, Count, Q, F, Value, Case, When
+from django.db.models.functions import Abs
 from django.db import models, transaction
 from django.http import JsonResponse
 from django.core.paginator import Paginator
@@ -167,11 +168,25 @@ def customer_create(request):
         if form.is_valid():
             customer = form.save(commit=False)
             customer.created_by = request.user
-            # Generate customer code if not provided
-            if not customer.customer_code:
-                last_customer = Customer.objects.order_by('-id').first()
-                next_id = (last_customer.id if last_customer else 0) + 1
-                customer.customer_code = f"CUST{next_id:05d}"
+
+            # Generate customer code using the format CYYMM####
+            year = timezone.now().strftime('%y')
+            month = timezone.now().strftime('%m')
+
+            # Get the latest customer with a code from this year/month
+            latest_customer = Customer.objects.filter(
+                customer_code__startswith=f'C{year}{month}'
+            ).order_by('-customer_code').first()
+
+            if latest_customer:
+                # Extract the sequence number and increment it
+                sequence = int(latest_customer.customer_code[-4:]) + 1
+            else:
+                sequence = 1
+
+            # Generate new code in format: CYYMM####
+            customer.customer_code = f'C{year}{month}{sequence:04d}'
+
             customer.save()
             messages.success(request, f'Customer {customer.name} created successfully.')
             return redirect('erp:customer_detail', customer_id=customer.id)
@@ -253,11 +268,25 @@ def vendor_create(request):
         if form.is_valid():
             vendor = form.save(commit=False)
             vendor.created_by = request.user
-            # Generate vendor code if not provided
-            if not vendor.vendor_code:
-                last_vendor = Vendor.objects.order_by('-id').first()
-                next_id = (last_vendor.id if last_vendor else 0) + 1
-                vendor.vendor_code = f"VEND{next_id:05d}"
+
+            # Generate vendor code using the format VYYMM####
+            year = timezone.now().strftime('%y')
+            month = timezone.now().strftime('%m')
+
+            # Get the latest vendor with a code from this year/month
+            latest_vendor = Vendor.objects.filter(
+                vendor_code__startswith=f'V{year}{month}'
+            ).order_by('-vendor_code').first()
+
+            if latest_vendor:
+                # Extract the sequence number and increment it
+                sequence = int(latest_vendor.vendor_code[-4:]) + 1
+            else:
+                sequence = 1
+
+            # Generate new code in format: VYYMM####
+            vendor.vendor_code = f'V{year}{month}{sequence:04d}'
+
             vendor.save()
             messages.success(request, f'Vendor {vendor.name} created successfully.')
             return redirect('erp:vendor_detail', vendor_id=vendor.id)
@@ -426,7 +455,7 @@ def sales_order_detail(request, order_id):
             try:
                 invoice = order.create_invoice()
                 messages.success(request, f'Invoice {invoice.invoice_number} created successfully!')
-                return redirect('erp:invoice_detail', invoice_id=invoice.id)
+                return redirect('erp:invoice_detail', pk=invoice.pk)
             except Exception as e:
                 messages.error(request, f'Error creating invoice: {str(e)}')
         else:
@@ -441,160 +470,75 @@ def sales_order_detail(request, order_id):
 
 @login_required
 def sales_order_create(request):
+    """Create a new sales order"""
     if request.method == 'POST':
         form = SalesOrderForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
             order.created_by = request.user
-
-            # Generate order number with better format
-            today = timezone.now()
-            year = today.year
-            month = today.month
-
-            # Count orders this month for sequential numbering
-            orders_this_month = SalesOrder.objects.filter(
-                order_date__year=year,
-                order_date__month=month
-            ).count()
-
-            order.order_number = f"SO{year}{month:02d}{orders_this_month + 1:04d}"
+            # Generate order number based on count
+            order_count = SalesOrder.objects.count() + 1
+            order.order_number = f"SO{order_count:06d}"
             order.save()
-
-            messages.success(request, f'Sales Order {order.order_number} created successfully! You can now add items to the order.')
+            messages.success(request, f'Sales Order {order.order_number} created successfully.')
             return redirect('erp:sales_order_detail', order_id=order.id)
     else:
         form = SalesOrderForm()
-        # Set default values for better UX
-        form.fields['tax_rate'].initial = 8.00
-        form.fields['status'].initial = 'draft'
 
-    context = {
-        'form': form,
-        'title': 'Create New Sales Order',
-        'customers': Customer.objects.filter(is_active=True).order_by('name'),
-        'total_customers': Customer.objects.filter(is_active=True).count(),
-        'recent_orders': SalesOrder.objects.select_related('customer').order_by('-order_date')[:5]
-    }
-    return render(request, 'erp/sales/create.html', context)
+    return render(request, 'erp/sales/create.html', {'form': form})
 
 @login_required
 def sales_order_add_item(request, order_id):
+    """Add an item to a sales order"""
     order = get_object_or_404(SalesOrder, id=order_id)
-
     if request.method == 'POST':
         form = SalesOrderItemForm(request.POST)
         if form.is_valid():
             item = form.save(commit=False)
             item.order = order
-
-            # Check inventory availability across all warehouses
-            product = item.product
-            try:
-                # Get all inventory records for this product and sum the available quantities
-                inventory_records = Inventory.objects.filter(product=product)
-
-                if inventory_records.exists():
-                    total_available = sum(
-                        inv.quantity_available - inv.quantity_reserved
-                        for inv in inventory_records
-                    )
-
-                    if item.quantity > total_available:
-                        messages.warning(
-                            request,
-                            f'Warning: Only {total_available} units of {product.name} are available in stock. '
-                            f'You are ordering {item.quantity} units.'
-                        )
-
-                    # Reserve inventory for this order (optional feature)
-                    if order.status in ['confirmed', 'shipped']:
-                        remaining_to_reserve = item.quantity
-
-                        # Distribute reservation across warehouses with available stock
-                        for inventory in inventory_records:
-                            if remaining_to_reserve <= 0:
-                                break
-
-                            available_in_warehouse = inventory.quantity_available - inventory.quantity_reserved
-                            if available_in_warehouse > 0:
-                                reserve_amount = min(remaining_to_reserve, available_in_warehouse)
-                                inventory.quantity_reserved += reserve_amount
-                                inventory.save()
-                                remaining_to_reserve -= reserve_amount
-                else:
-                    # No inventory records found
-                    messages.warning(
-                        request,
-                        f'Warning: No inventory record found for {product.name}. '
-                        f'Please check with inventory management.'
-                    )
-
-            except Exception as e:
-                messages.error(
-                    request,
-                    f'Error checking inventory for {product.name}: {str(e)}'
-                )
-
-            # Auto-populate unit price if not set
-            if not item.unit_price:
-                item.unit_price = product.unit_price
-
-            item.save()  # This will trigger automatic total calculations
-
-            messages.success(request, f'{product.name} added to order successfully!')
+            item.save()
+            messages.success(request, 'Item added to sales order successfully.')
             return redirect('erp:sales_order_detail', order_id=order.id)
     else:
         form = SalesOrderItemForm()
-        # Pre-populate unit price for better UX
-        if 'product' in request.GET:
-            try:
-                product_id = request.GET['product']
-                product = Product.objects.get(id=product_id)
-                form.fields['unit_price'].initial = product.unit_price
-            except (Product.DoesNotExist, ValueError):
-                pass
 
-    # Get all active products with their data for JavaScript
-    products = Product.objects.filter(is_active=True).select_related('category').order_by('name')
+    # Get all active products for the template
+    products = Product.objects.filter(is_active=True).select_related('category')
 
-    # Create inventory data dictionary
+    # Get inventory data for stock checking
     inventory_data = {}
-    for inv in Inventory.objects.select_related('product').all():
-        inventory_data[str(inv.product.id)] = {
-            'available': max(0, inv.quantity_available - inv.quantity_reserved),
-            'total': inv.quantity_available,
-            'reserved': inv.quantity_reserved
-        }
-
-    # Add default inventory for products without inventory records
     for product in products:
-        if str(product.id) not in inventory_data:
-            inventory_data[str(product.id)] = {
-                'available': 0,
-                'total': 0,
-                'reserved': 0
-            }
+        inventory = Inventory.objects.filter(product=product).aggregate(
+            total=models.Sum('quantity_on_hand'),
+            available=models.Sum('quantity_available'),
+            reserved=models.Sum('quantity_reserved')
+        )
+        inventory_data[str(product.id)] = {
+            'total': inventory['total'] or 0,
+            'available': inventory['available'] or 0,
+            'reserved': inventory['reserved'] or 0
+        }
 
     context = {
         'form': form,
         'order': order,
-        'title': f'Add Item to {order.order_number}',
         'products': products,
         'inventory_data': inventory_data,
-        # Add total customers count for the dashboard
-        'total_customers': Customer.objects.filter(is_active=True).count(),
+        'title': f'Add Item to Order {order.order_number}'
     }
     return render(request, 'erp/sales/add_item.html', context)
 
 @login_required
 def sales_order_edit_item(request, order_id, item_id):
+    """Edit an item in a sales order"""
     order = get_object_or_404(SalesOrder, id=order_id)
     item = get_object_or_404(SalesOrderItem, id=item_id, order=order)
+
     if request.method == 'POST':
         form = SalesOrderItemForm(request.POST, instance=item)
         if form.is_valid():
-            form.save()
+            item = form.save()
+            order.calculate_totals()
             messages.success(request, 'Item updated successfully.')
             return redirect('erp:sales_order_detail', order_id=order.id)
     else:
@@ -609,18 +553,69 @@ def sales_order_edit_item(request, order_id, item_id):
 
 @login_required
 def sales_order_delete_item(request, order_id, item_id):
+    """Delete an item from a sales order"""
     order = get_object_or_404(SalesOrder, id=order_id)
     item = get_object_or_404(SalesOrderItem, id=item_id, order=order)
+
     if request.method == 'POST':
         item.delete()
+        order.calculate_totals()
         messages.success(request, 'Item removed from sales order successfully.')
         return redirect('erp:sales_order_detail', order_id=order.id)
-    
+
     context = {
         'order': order,
         'item': item,
     }
     return render(request, 'erp/sales/delete_item.html', context)
+
+@login_required
+def sales_order_change_status(request, order_id):
+    """Handle status changes for sales orders via AJAX"""
+    if request.method == 'POST':
+        import json
+        order = get_object_or_404(SalesOrder, id=order_id)
+
+        try:
+            data = json.loads(request.body)
+            new_status = data.get('new_status')
+
+            # Validate the new status
+            valid_statuses = [choice[0] for choice in SalesOrder.STATUS_CHOICES]
+            if new_status not in valid_statuses:
+                return JsonResponse({'error': 'Invalid status'}, status=400)
+
+            # Update the order status
+            old_status = order.status
+            order.status = new_status
+            order.save()
+
+            # Check if we should create an invoice (but don't create it automatically)
+            should_create_invoice = False
+            invoice_created = False
+            invoice_url = None
+
+            # Check if invoice should be offered for creation
+            if new_status in ['confirmed', 'shipped'] and old_status != new_status:
+                related_invoice = Invoice.objects.filter(sales_order=order).first()
+                if not related_invoice and order.total_amount > 0:
+                    should_create_invoice = True
+
+            return JsonResponse({
+                'success': True,
+                'status': new_status,
+                'status_display': order.get_status_display(),
+                'invoice_created': invoice_created,
+                'invoice_url': invoice_url,
+                'should_create_invoice': should_create_invoice
+            })
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 # Purchase Management Views
 @login_required
@@ -662,10 +657,9 @@ def purchase_order_create(request):
         if form.is_valid():
             order = form.save(commit=False)
             order.created_by = request.user
-            # Generate order number
-            last_order = PurchaseOrder.objects.order_by('-id').first()
-            next_id = (last_order.id if last_order else 0) + 1
-            order.po_number = f"PO{next_id:06d}"
+            # Generate order number based on count (not UUID)
+            order_count = PurchaseOrder.objects.count() + 1
+            order.po_number = f"PO{order_count:06d}"
             order.save()
             messages.success(request, f'Purchase Order {order.po_number} created successfully.')
             return redirect('erp:purchase_order_detail', order_id=order.id)
@@ -738,15 +732,20 @@ def purchase_order_edit(request, order_id):
 
     if request.method == 'POST':
         form = PurchaseOrderForm(request.POST, instance=order)
-        if form.is_valid():
+        formset = PurchaseOrderItemFormSet(request.POST, instance=order)
+
+        if form.is_valid() and formset.is_valid():
             order = form.save()
+            formset.save()
             messages.success(request, f'Purchase Order {order.po_number} updated successfully.')
             return redirect('erp:purchase_order_detail', order_id=order.id)
     else:
         form = PurchaseOrderForm(instance=order)
+        formset = PurchaseOrderItemFormSet(instance=order)
 
     context = {
         'form': form,
+        'formset': formset,
         'order': order,
         'title': f'Edit Purchase Order {order.po_number}'
     }
@@ -912,8 +911,15 @@ def employee_delete(request, employee_id):
 # Payment Management Views
 @login_required
 def payment_list(request):
-    payments = Payment.objects.select_related('customer', 'vendor', 'created_by').order_by('-payment_date')
-    
+    payments = Payment.objects.select_related('customer', 'vendor', 'invoice', 'sales_order', 'created_by').order_by('-payment_date')
+
+    # Filter by type if specified
+    filter_type = request.GET.get('filter', 'all')
+    if filter_type == 'receipt':
+        payments = payments.filter(payment_type='receipt')
+    elif filter_type == 'payment':
+        payments = payments.filter(payment_type='payment')
+
     paginator = Paginator(payments, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -921,20 +927,33 @@ def payment_list(request):
     context = {
         'payments': page_obj,
         'total_payments': payments.count(),
+        'filter_type': filter_type,
     }
     return render(request, 'erp/finance/payment_list.html', context)
 
 @login_required
 def payment_create(request):
+    # Get payment type from URL parameter
+    payment_type = request.GET.get('type', '')
+
     if request.method == 'POST':
         form = PaymentForm(request.POST)
         if form.is_valid():
             payment = form.save(commit=False)
             payment.created_by = request.user
-            # Generate payment number
-            last_payment = Payment.objects.order_by('-id').first()
-            next_id = (last_payment.id if last_payment else 0) + 1
-            payment.payment_number = f"PAY{next_id:06d}"
+            
+            # Generate payment number using string-based ordering
+            last_payment = Payment.objects.filter(
+                payment_number__startswith='PAY'
+            ).order_by('-payment_number').first()
+            
+            if last_payment and last_payment.payment_number[3:].isdigit():
+                last_number = int(last_payment.payment_number[3:])
+                next_number = last_number + 1
+            else:
+                next_number = 1
+                
+            payment.payment_number = f"PAY{next_number:06d}"
             payment.save()
 
             # Auto-mark invoice as paid if linked
@@ -949,15 +968,54 @@ def payment_create(request):
                     invoice.status = 'sent'  # Partially paid
 
                 invoice.save()
-                messages.success(request, f'Payment {payment.payment_number} created and linked to Invoice {invoice.invoice_number}.')
-            else:
-                messages.success(request, f'Payment {payment.payment_number} created successfully.')
 
+            messages.success(request, f'Payment {payment.payment_number} recorded successfully.')
             return redirect('erp:payment_list')
     else:
-        form = PaymentForm()
+        # Pre-fill payment type if specified in URL
+        initial_data = {}
+        if payment_type in ['receipt', 'payment']:
+            initial_data['payment_type'] = payment_type
 
-    return render(request, 'erp/finance/payment_create.html', {'form': form})
+        form = PaymentForm(initial=initial_data)
+
+    context = {
+        'form': form,
+        'payment_type': payment_type if payment_type in ['receipt', 'payment'] else None,
+    }
+    return render(request, 'erp/finance/payment_create.html', context)
+
+@login_required
+def payment_detail(request, payment_id):
+    """View payment details"""
+    payment = get_object_or_404(Payment, id=payment_id)
+
+    context = {
+        'payment': payment,
+        'title': f'Payment Details: {payment.payment_number}'
+    }
+    return render(request, 'erp/finance/payment_detail.html', context)
+
+@login_required
+def payment_edit(request, payment_id):
+    """Edit payment details"""
+    payment = get_object_or_404(Payment, id=payment_id)
+
+    if request.method == 'POST':
+        form = PaymentForm(request.POST, instance=payment)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Payment {payment.payment_number} updated successfully.')
+            return redirect('erp:payment_detail', payment_id=payment.id)
+    else:
+        form = PaymentForm(instance=payment)
+
+    context = {
+        'form': form,
+        'payment': payment,
+        'title': f'Edit Payment: {payment.payment_number}'
+    }
+    return render(request, 'erp/finance/payment_edit.html', context)
 
 # Invoice Management Views
 @login_required
@@ -1008,7 +1066,7 @@ def invoice_create(request):
     """Create a new invoice with line items"""
     if request.method == 'POST':
         form = InvoiceForm(request.POST)
-        formset = InvoiceItemFormSet(request.POST)
+        formset = InvoiceItemFormSet(request.POST, instance=Invoice())
 
         if form.is_valid() and formset.is_valid():
             with transaction.atomic():
@@ -1024,9 +1082,21 @@ def invoice_create(request):
 
                 messages.success(request, f'Invoice {invoice.invoice_number} created successfully!')
                 return redirect('erp:invoice_detail', pk=invoice.pk)
+        else:
+            # Display errors for debugging
+            if not form.is_valid():
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
+            if not formset.is_valid():
+                for i, form_errors in enumerate(formset.errors):
+                    if form_errors:
+                        messages.error(request, f'Item {i+1}: {form_errors}')
+                if formset.non_form_errors():
+                    messages.error(request, f'Formset errors: {formset.non_form_errors()}')
     else:
         form = InvoiceForm()
-        formset = InvoiceItemFormSet()
+        formset = InvoiceItemFormSet(queryset=InvoiceItem.objects.none())
 
     context = {
         'form': form,
@@ -1344,7 +1414,7 @@ def sales_order_edit(request, order_id):
                             request,
                             f'Sales order updated successfully and invoice {invoice.invoice_number} was automatically created.'
                         )
-                        return redirect('erp:invoice_detail', invoice_id=invoice.id)
+                        return redirect('erp:invoice_detail', pk=invoice.pk)
                     except Exception as e:
                         messages.error(request, f'Error creating invoice: {str(e)}')
 
@@ -1362,9 +1432,95 @@ def sales_order_edit(request, order_id):
 
 @login_required
 def financial_reports(request):
-    """View for displaying financial reports page."""
-    return render(request, 'erp/finance/financial_reports.html')
+    today = timezone.now()
+    first_day_this_month = today.replace(day=1)
+    last_month_end = first_day_this_month - timedelta(days=1)
+    first_day_last_month = last_month_end.replace(day=1)
 
+    # Calculate revenue (from sales orders and invoices)
+    this_month_revenue = SalesOrder.objects.filter(
+        order_date__gte=first_day_this_month,
+        status__in=['completed', 'delivered']
+    ).aggregate(total=Sum('total_amount'))['total'] or 0
+
+    last_month_revenue = SalesOrder.objects.filter(
+        order_date__gte=first_day_last_month,
+        order_date__lt=first_day_this_month,
+        status__in=['completed', 'delivered']
+    ).aggregate(total=Sum('total_amount'))['total'] or 0
+
+    # Calculate expenses (from purchase orders and payments)
+    this_month_expenses = PurchaseOrder.objects.filter(
+        order_date__gte=first_day_this_month,
+        status__in=['completed', 'received']
+    ).aggregate(total=Sum('total_amount'))['total'] or 0
+
+    last_month_expenses = PurchaseOrder.objects.filter(
+        order_date__gte=first_day_last_month,
+        order_date__lt=first_day_this_month,
+        status__in=['completed', 'received']
+    ).aggregate(total=Sum('total_amount'))['total'] or 0
+
+    # Calculate changes
+    revenue_change = ((this_month_revenue - last_month_revenue) / last_month_revenue * 100) if last_month_revenue > 0 else 0
+    expenses_change = ((this_month_expenses - last_month_expenses) / last_month_expenses * 100) if last_month_expenses > 0 else 0
+
+    # Calculate net profit and margin
+    net_profit = this_month_revenue - this_month_expenses
+    profit_margin = (net_profit / this_month_revenue * 100) if this_month_revenue > 0 else 0
+
+    # Get accounts receivable by status
+    receivables_by_status = Invoice.objects.filter(
+        invoice_type='sales'
+    ).values('status').annotate(
+        total_amount=Sum('total_amount'),
+        count=Count('id')
+    ).order_by('status')
+
+    # Get recent transactions (combining payments and invoices)
+    recent_payments = Payment.objects.filter(
+        payment_date__gte=first_day_last_month
+    ).annotate(
+        date=F('payment_date'),
+        type=Value('Payment', output_field=models.CharField()),
+        reference=F('payment_number'),
+        transaction_amount=F('amount'),
+        display_amount=Abs('amount')  # Using Abs from django.db.models.functions
+    ).values('date', 'type', 'reference', 'transaction_amount', 'display_amount')
+
+    recent_invoices = Invoice.objects.filter(
+        created_at__gte=first_day_last_month
+    ).annotate(
+        date=F('created_at'),
+        type=Value('Invoice', output_field=models.CharField()),
+        reference=F('invoice_number'),
+        transaction_amount=Case(
+            When(invoice_type='sales', then=F('total_amount')),
+            When(invoice_type='purchase', then=-F('total_amount')),
+            output_field=models.DecimalField(),
+        ),
+        display_amount=Abs('total_amount')  # Using Abs from django.db.models.functions
+    ).values('date', 'type', 'reference', 'transaction_amount', 'display_amount')
+
+    # Combine and sort transactions
+    recent_transactions = list(recent_payments.union(recent_invoices))
+    recent_transactions.sort(key=lambda x: x['date'], reverse=True)
+    recent_transactions = recent_transactions[:10]  # Get only last 10 transactions
+
+    context = {
+        'total_revenue': this_month_revenue,
+        'total_expenses': this_month_expenses,
+        'revenue_change': revenue_change,
+        'revenue_change_abs': abs(revenue_change),  # Using Python's built-in abs() for non-query calculations
+        'expenses_change': expenses_change,
+        'expenses_change_abs': abs(expenses_change),  # Using Python's built-in abs() for non-query calculations
+        'net_profit': net_profit,
+        'profit_margin': profit_margin,
+        'receivables_by_status': receivables_by_status,
+        'recent_transactions': recent_transactions,
+    }
+
+    return render(request, 'erp/finance/financial_reports.html', context)
 
 # ==============================================
 # LEAD & EMAIL INQUIRY MANAGEMENT VIEWS
@@ -1529,8 +1685,7 @@ def lead_convert(request, lead_id):
             # Optionally create sales order
             if form.cleaned_data.get('create_sales_order'):
                 # Generate order number
-                count = SalesOrder.objects.count() + 1
-                order_number = f"{count:06d}"
+                order_number = f"SO{SalesOrder.objects.count() + 1:06d}"
 
                 sales_order = SalesOrder.objects.create(
                     order_number=order_number,
@@ -1840,14 +1995,11 @@ Total Amount: ${invoice.total_amount}
 Amount Paid: ${invoice.paid_amount}
 Balance Due: ${invoice.balance_due}
 
-"""
-        if custom_message:
-            body += f"\nAdditional Message:\n{custom_message}\n\n"
+Please make the payment by the due date to avoid any late fees.
 
-        body += f"""
-Payment Terms: {invoice.customer.payment_terms if invoice.customer else 'Net 30'}
+If you have already sent payment, please disregard this notice.
 
-Thank you for your business!
+For questions, please contact us.
 
 Best regards,
 {request.user.get_full_name() or request.user.username}
@@ -2234,3 +2386,64 @@ def setup_automatic_reminders(request):
     }
     return render(request, 'erp/invoices/reminder_settings.html', context)
 
+@login_required
+def test_auto_codes(request):
+    """Test view to demonstrate automatic code generation"""
+    try:
+        # Create a category first
+        electronics_cat, _ = Category.objects.get_or_create(
+            name='Electronics',
+            defaults={'description': 'Electronic products and accessories'}
+        )
+
+        # Create a test customer
+        customer = Customer.objects.create(
+            name='Test Electronics Inc',
+            email=f'contact_{timezone.now().timestamp()}@testelectronics.com',
+            phone='123-456-7890',
+            customer_type='business',
+            created_by=request.user
+        )
+
+        # Create a test vendor
+        vendor = Vendor.objects.create(
+            name='Global Supply Co',
+            contact_person='John Smith',
+            email=f'john_{timezone.now().timestamp()}@globalsupply.com',
+            phone='987-654-3210',
+            vendor_type='supplier',
+            created_by=request.user
+        )
+
+        # Create a test product
+        product = Product.objects.create(
+            name='Test Laptop',
+            description='High-performance laptop',
+            category=electronics_cat,
+            unit_price=999.99,
+            cost_price=799.99,
+            created_by=request.user
+        )
+
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'customer': {
+                    'name': customer.name,
+                    'code': customer.customer_code
+                },
+                'vendor': {
+                    'name': vendor.name,
+                    'code': vendor.vendor_code
+                },
+                'product': {
+                    'name': product.name,
+                    'sku': product.sku
+                }
+            }
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })

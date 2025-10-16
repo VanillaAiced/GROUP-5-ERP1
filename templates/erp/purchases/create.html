@@ -65,10 +65,15 @@
             </div>
 
             <div>
-                <label for="{{ form.payment_terms.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
-                    Payment Terms
+                <label for="{{ form.payment_due_date.id_for_label }}" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
+                    Payment Due Date
                 </label>
-                {{ form.payment_terms }}
+                {{ form.payment_due_date }}
+                {% if form.payment_due_date.errors %}
+                    {% for error in form.payment_due_date.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
             </div>
 
             <div>
