@@ -11,17 +11,52 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Handle field renames and additions for PurchaseOrder
-        # Note: These fields may already be renamed in the database, so we use state_operations only
-        migrations.RenameField(
-            model_name='purchaseorder',
-            old_name='expected_delivery',
-            new_name='delivery_date',
+        # Handle field renames conditionally - only rename if old column exists and new doesn't
+        migrations.RunSQL(
+            """
+            DO $$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM information_schema.columns 
+                          WHERE table_name = 'erpdb_purchaseorder' 
+                          AND column_name = 'expected_delivery')
+                   AND NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                                  WHERE table_name = 'erpdb_purchaseorder' 
+                                  AND column_name = 'delivery_date') THEN
+                    ALTER TABLE erpdb_purchaseorder RENAME COLUMN expected_delivery TO delivery_date;
+                END IF;
+            END $$;
+            """,
+            reverse_sql=migrations.RunSQL.noop,
+            state_operations=[
+                migrations.RenameField(
+                    model_name='purchaseorder',
+                    old_name='expected_delivery',
+                    new_name='delivery_date',
+                ),
+            ]
         ),
-        migrations.RenameField(
-            model_name='purchaseorder',
-            old_name='order_number',
-            new_name='po_number',
+        migrations.RunSQL(
+            """
+            DO $$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM information_schema.columns 
+                          WHERE table_name = 'erpdb_purchaseorder' 
+                          AND column_name = 'order_number')
+                   AND NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                                  WHERE table_name = 'erpdb_purchaseorder' 
+                                  AND column_name = 'po_number') THEN
+                    ALTER TABLE erpdb_purchaseorder RENAME COLUMN order_number TO po_number;
+                END IF;
+            END $$;
+            """,
+            reverse_sql=migrations.RunSQL.noop,
+            state_operations=[
+                migrations.RenameField(
+                    model_name='purchaseorder',
+                    old_name='order_number',
+                    new_name='po_number',
+                ),
+            ]
         ),
         # Add missing fields if they don't exist
         migrations.RunSQL(

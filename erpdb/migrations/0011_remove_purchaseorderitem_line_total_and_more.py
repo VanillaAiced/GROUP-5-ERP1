@@ -10,12 +10,31 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='purchaseorderitem',
-            name='line_total',
+        # Conditionally remove fields only if they exist
+        migrations.RunSQL(
+            """
+            DO $$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM information_schema.columns 
+                          WHERE table_name = 'erpdb_purchaseorderitem' 
+                          AND column_name = 'line_total') THEN
+                    ALTER TABLE erpdb_purchaseorderitem DROP COLUMN line_total;
+                END IF;
+            END $$;
+            """,
+            reverse_sql=migrations.RunSQL.noop,
         ),
-        migrations.RemoveField(
-            model_name='purchaseorderitem',
-            name='unit_cost',
+        migrations.RunSQL(
+            """
+            DO $$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM information_schema.columns 
+                          WHERE table_name = 'erpdb_purchaseorderitem' 
+                          AND column_name = 'unit_cost') THEN
+                    ALTER TABLE erpdb_purchaseorderitem DROP COLUMN unit_cost;
+                END IF;
+            END $$;
+            """,
+            reverse_sql=migrations.RunSQL.noop,
         ),
     ]

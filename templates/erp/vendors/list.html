@@ -43,9 +43,23 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ vendor.contact_person|default:"-" }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ vendor.email|default:"-" }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        {% if vendor.vendor_type == 'supplier' %}
+                        <span class="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-full bg-blue-500 text-white min-w-[120px]">
                             {{ vendor.get_vendor_type_display }}
                         </span>
+                        {% elif vendor.vendor_type == 'service_provider' %}
+                        <span class="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-full bg-green-500 text-white min-w-[120px]">
+                            {{ vendor.get_vendor_type_display }}
+                        </span>
+                        {% elif vendor.vendor_type == 'contractor' %}
+                        <span class="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-full bg-purple-500 text-white min-w-[120px]">
+                            {{ vendor.get_vendor_type_display }}
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-full bg-gray-500 text-white min-w-[120px]">
+                            {{ vendor.get_vendor_type_display }}
+                        </span>
+                        {% endif %}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <a href="{% url 'erp:vendor_detail' vendor.id %}" class="text-blue-600 hover:text-blue-900 mr-3">

@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('erpdb', '0003_fix_purchase_order_fields'),
+        ('erpdb', '0001_initial'),
     ]
 
     operations = [

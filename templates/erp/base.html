@@ -8,133 +8,95 @@
     <title>{% block title %}ERP System{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        // Dark mode detection - runs immediately to prevent flicker
+        (function() {
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <!-- Include locale utilities for currency and date formatting -->
+    {% include 'erp/includes/locale-utils.html' %}
+    <!-- Include translation utilities for multi-language support -->
+    {% include 'erp/includes/translation-utils.html' %}
+    <!-- Include translation patch for missing sidebar translations -->
+    {% include 'erp/includes/translation-patch.html' %}
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
         body { font-family: 'Poppins', sans-serif; }
         .metric-card { transition: transform 0.2s ease-in-out; }
         .metric-card:hover { transform: translateY(-2px); }
 
-        /* Light mode - default colors */
-        body:not(.dark) {
-            background-color: #f9fafb !important;
-            color: #1f2937 !important;
-        }
-        body:not(.dark) .bg-white { background-color: #ffffff !important; }
-        body:not(.dark) .bg-gray-50 { background-color: #f9fafb !important; }
-
-        /* Ensure text is visible in light mode */
-        body:not(.dark) .text-gray-900 { color: #111827 !important; }
-        body:not(.dark) .text-gray-800 { color: #1f2937 !important; }
-        body:not(.dark) .text-gray-700 { color: #374151 !important; }
-        body:not(.dark) .text-gray-600 { color: #4b5563 !important; }
-        body:not(.dark) .text-gray-500 { color: #6b7280 !important; }
-        body:not(.dark) .text-gray-400 { color: #9ca3af !important; }
-
-        /* Force visibility for dashboard elements in light mode */
-        body:not(.dark) p,
-        body:not(.dark) h1,
-        body:not(.dark) h2,
-        body:not(.dark) h3,
-        body:not(.dark) h4,
-        body:not(.dark) h5,
-        body:not(.dark) h6,
-        body:not(.dark) span,
-        body:not(.dark) label,
-        body:not(.dark) div,
-        body:not(.dark) td,
-        body:not(.dark) th {
-            color: #111827 !important;
+        /* Light mode - consistent styling */
+        html:not(.dark) body {
+            background-color: #f9fafb;
+            color: #111827;
         }
 
-        /* Fix for dashboard cards and metrics in light mode */
-        body:not(.dark) .metric-card {
-            background-color: #ffffff !important;
-            color: #111827 !important;
-            border-color: #e5e7eb !important;
-        }
+        /* Light mode backgrounds */
+        html:not(.dark) .bg-white { background-color: #ffffff; }
+        html:not(.dark) .bg-gray-50 { background-color: #f9fafb; }
+        html:not(.dark) .bg-gray-100 { background-color: #f3f4f6; }
 
-        /* Special case for dashboard counter text */
-        body:not(.dark) .this-month,
-        body:not(.dark) .last-month {
-            color: #1f2937 !important;
-        }
+        /* Light mode text colors */
+        html:not(.dark) .text-gray-900 { color: #111827; }
+        html:not(.dark) .text-gray-800 { color: #1f2937; }
+        html:not(.dark) .text-gray-700 { color: #374151; }
+        html:not(.dark) .text-gray-600 { color: #4b5563; }
+        html:not(.dark) .text-gray-500 { color: #6b7280; }
+
+        /* Light mode borders */
+        html:not(.dark) .border-gray-200 { border-color: #e5e7eb; }
+        html:not(.dark) .border-gray-300 { border-color: #d1d5db; }
 
         /* Dark mode - improved contrast */
-        .dark {
-            background-color: #111827 !important;
-            color: #f9fafb !important;
+        html.dark body {
+            background-color: #111827;
+            color: #f9fafb;
         }
 
         /* Dark mode backgrounds */
-        .dark .bg-white { background-color: #1f2937 !important; }
-        .dark .bg-gray-50 { background-color: #1f2937 !important; }
-        .dark .bg-gray-800 { background-color: #1f2937 !important; }
+        html.dark .bg-white { background-color: #1f2937; }
+        html.dark .bg-gray-50 { background-color: #1f2937; }
+        html.dark .bg-gray-100 { background-color: #374151; }
+        html.dark .bg-gray-800 { background-color: #1f2937; }
 
-        /* Dark mode text colors - high contrast */
-        .dark .text-gray-900,
-        .dark .text-gray-800,
-        .dark .text-gray-700,
-        .dark .text-gray-600,
-        .dark .text-gray-500 {
-            color: #f9fafb !important;
+        /* Dark mode text colors */
+        html.dark .text-gray-900,
+        html.dark .text-gray-800,
+        html.dark .text-gray-700,
+        html.dark .text-gray-600,
+        html.dark .text-gray-500 {
+            color: #f9fafb;
         }
 
-        .dark .text-gray-400 { color: #d1d5db !important; }
-        .dark .text-gray-300 { color: #e5e7eb !important; }
+        html.dark .text-gray-400 { color: #d1d5db; }
+        html.dark .text-gray-300 { color: #e5e7eb; }
 
         /* Dark mode borders */
-        .dark .border-gray-200 { border-color: #374151 !important; }
-        .dark .border-gray-300 { border-color: #4b5563 !important; }
-        .dark .divide-gray-200 { border-color: #374151 !important; }
-
-        /* Dark mode cards */
-        .dark .metric-card {
-            background-color: #1f2937 !important;
-            border-color: #374151 !important;
-        }
-
-        /* Force visibility for all text elements in dark mode */
-        .dark p,
-        .dark h1,
-        .dark h2,
-        .dark h3,
-        .dark h4,
-        .dark h5,
-        .dark h6,
-        .dark span,
-        .dark label,
-        .dark td,
-        .dark th {
-            color: #f9fafb !important;
-        }
-
-        /* Dark mode table headers */
-        .dark thead {
-            background-color: #374151 !important;
-        }
-
-        .dark th {
-            color: #f9fafb !important;
-        }
+        html.dark .border-gray-200 { border-color: #374151; }
+        html.dark .border-gray-300 { border-color: #4b5563; }
+        html.dark .divide-gray-200 { border-color: #374151; }
 
         /* Dark mode form inputs */
-        .dark input[type="text"],
-        .dark input[type="email"],
-        .dark input[type="password"],
-        .dark input[type="number"],
-        .dark input[type="date"],
-        .dark input[type="datetime-local"],
-        .dark select,
-        .dark textarea {
-            background-color: #374151 !important;
-            color: #f9fafb !important;
-            border-color: #4b5563 !important;
+        html.dark input[type="text"],
+        html.dark input[type="email"],
+        html.dark input[type="password"],
+        html.dark input[type="number"],
+        html.dark input[type="date"],
+        html.dark input[type="datetime-local"],
+        html.dark select,
+        html.dark textarea {
+            background-color: #374151;
+            color: #f9fafb;
+            border-color: #4b5563;
         }
 
         /* Dark mode header */
-        .dark header {
-            background-color: #1f2937 !important;
-            border-color: #374151 !important;
+        html.dark header {
+            background-color: #1f2937;
+            border-color: #374151;
         }
 
         .toggle-checkbox { width: 40px; height: 20px; accent-color: #3498db; }
@@ -145,18 +107,12 @@
         // Dark mode toggle logic
         function setDarkMode(enabled) {
             if (enabled) {
-                document.body.classList.add('dark');
+                document.documentElement.classList.add('dark');
                 localStorage.setItem('darkMode', 'enabled');
             } else {
-                document.body.classList.remove('dark');
+                document.documentElement.classList.remove('dark');
                 localStorage.setItem('darkMode', 'disabled');
             }
-        }
-        // Apply dark mode from localStorage on page load
-        if (localStorage.getItem('darkMode') === 'enabled') {
-            document.body.classList.add('dark');
-        } else {
-            document.body.classList.remove('dark');
         }
     </script>
     <div class="flex h-screen">

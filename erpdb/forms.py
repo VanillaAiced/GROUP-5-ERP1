@@ -90,9 +90,7 @@ class SalesOrderItemForm(forms.ModelForm):
             'unit_price': forms.NumberInput(attrs={
                 'step': '0.01',
                 'class': 'form-control',
-                'readonly': True,
-                'style': 'background-color: #f8f9fa; cursor: not-allowed;',
-                'title': 'Price is automatically set from product selection'
+                'placeholder': '0.00'
             }),
             'discount_percent': forms.NumberInput(attrs={
                 'step': '0.01',
@@ -119,15 +117,13 @@ class SalesOrderItemForm(forms.ModelForm):
             'id': 'id_quantity'
         })
 
-        # Configure unit price field as read-only
+        # Configure unit price field - editable
         self.fields['unit_price'].widget.attrs.update({
             'class': 'form-control',
             'id': 'id_unit_price',
-            'readonly': True,
-            'style': 'background-color: #f8f9fa; cursor: not-allowed;',
-            'title': 'Price is automatically set from product selection'
+            'placeholder': '0.00'
         })
-        self.fields['unit_price'].help_text = "Automatically filled from selected product"
+        self.fields['unit_price'].help_text = "Auto-filled from product, but can be edited"
 
         # Configure discount field
         self.fields['discount_percent'].widget.attrs.update({

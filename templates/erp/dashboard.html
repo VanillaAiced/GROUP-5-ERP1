@@ -2,87 +2,91 @@
 
 
 {% block title %}Dashboard - LiteWork{% endblock %}
-{% block page_title %}Dashboard{% endblock %}
+{% block page_title %}<span data-translate="Dashboard">Dashboard</span>{% endblock %}
 
 {% block content %}
 <!-- Key Metrics -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="metric-card bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <a href="{% url 'erp:customer_list' %}" class="metric-card bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
         <div class="flex items-center">
             <div class="p-3 bg-blue-100 rounded-lg">
                 <i class="fas fa-users text-blue-600 text-xl"></i>
             </div>
             <div class="ml-4">
-                <p class="card-title text-sm font-medium text-black dark:text-white section-title">Customers</p>
-                <p class="card-value text-2xl font-bold text-black dark:text-white section-value">{{ customer_count|default:0 }}</p>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-300" data-translate="Customers">Customers</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ customer_count|default:0 }}</p>
             </div>
         </div>
-    </div>
+    </a>
 
-    <div class="metric-card bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <a href="{% url 'erp:sales_order_list' %}" class="metric-card bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
         <div class="flex items-center">
             <div class="p-3 bg-green-100 rounded-lg">
                 <i class="fas fa-shopping-cart text-green-600 text-xl"></i>
             </div>
             <div class="ml-4">
-                <p class="card-title text-sm font-medium text-black dark:text-white section-title">Sales Orders</p>
-                <p class="card-value text-2xl font-bold text-black dark:text-white section-value">{{ sales_order_count|default:0 }}</p>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-300" data-translate="Sales Orders">Sales Orders</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ sales_order_count|default:0 }}</p>
             </div>
         </div>
-    </div>
+    </a>
 
-    <div class="metric-card bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <a href="{% url 'erp:product_list' %}" class="metric-card bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
         <div class="flex items-center">
             <div class="p-3 bg-yellow-100 rounded-lg">
                 <i class="fas fa-box text-yellow-600 text-xl"></i>
             </div>
             <div class="ml-4">
-                <p class="card-title text-sm font-medium text-black dark:text-white section-title">Products</p>
-                <p class="card-value text-2xl font-bold text-black dark:text-white section-value">{{ product_count|default:0 }}</p>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-300" data-translate="Products">Products</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ product_count|default:0 }}</p>
             </div>
         </div>
-    </div>
+    </a>
 
-    <div class="metric-card bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <a href="{% url 'erp:employee_list' %}" class="metric-card bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
         <div class="flex items-center">
             <div class="p-3 bg-purple-100 rounded-lg">
                 <i class="fas fa-user-tie text-purple-600 text-xl"></i>
             </div>
             <div class="ml-4">
-                <p class="card-title text-sm font-medium text-black dark:text-white section-title">Employees</p>
-                <p class="card-value text-2xl font-bold text-black dark:text-white section-value">{{ employee_count|default:0 }}</p>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-300" data-translate="Employees">Employees</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ employee_count|default:0 }}</p>
             </div>
         </div>
-    </div>
+    </a>
 </div>
 
 <!-- Financial Overview -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
     <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 class="text-lg font-semibold text-black dark:text-white section-title mb-4">Monthly Sales</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4" data-translate="Monthly Sales">Monthly Sales</h3>
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-3xl font-bold text-green-600 dark:text-green-400">${{ total_sales_this_month|default:0|floatformat:2 }}</p>
-                <p class="text-sm text-gray-800 dark:text-gray-200">This Month</p>
+                <p class="text-3xl font-bold text-green-600 dark:text-green-400">
+                    <span data-currency="{{ total_sales_this_month|default:0 }}">${{ total_sales_this_month|default:0|floatformat:2 }}</span>
+                </p>
+                <p class="text-sm text-gray-600 dark:text-gray-300" data-translate="This Month">This Month</p>
             </div>
             <div class="text-right">
-                <p class="text-lg font-semibold text-black dark:text-white">${{ total_sales_last_month|default:0|floatformat:2 }}</p>
-                <p class="text-sm text-gray-800 dark:text-gray-200">Last Month</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                    <span data-currency="{{ total_sales_last_month|default:0 }}">${{ total_sales_last_month|default:0|floatformat:2 }}</span>
+                </p>
+                <p class="text-sm text-gray-600 dark:text-gray-300" data-translate="Last Month">Last Month</p>
             </div>
         </div>
     </div>
 
     <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 class="text-lg font-semibold text-black dark:text-white section-title mb-4">Quick Actions</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4" data-translate="Quick Actions">Quick Actions</h3>
         <div class="space-y-3">
             <a href="{% url 'erp:customer_create' %}" class="block w-full bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                <i class="fas fa-plus mr-2"></i>Add Customer
+                <i class="fas fa-plus mr-2"></i><span data-translate="Add Customer">Add Customer</span>
             </a>
             <a href="{% url 'erp:sales_order_create' %}" class="block w-full bg-green-600 text-white text-center py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
-                <i class="fas fa-plus mr-2"></i>Create Sales Order
+                <i class="fas fa-plus mr-2"></i><span data-translate="Create Sales Order">Create Sales Order</span>
             </a>
             <a href="{% url 'erp:product_create' %}" class="block w-full bg-yellow-600 text-white text-center py-2 px-4 rounded-lg hover:bg-yellow-700 transition-colors">
-                <i class="fas fa-plus mr-2"></i>Add Product
+                <i class="fas fa-plus mr-2"></i><span data-translate="Add Product">Add Product</span>
             </a>
         </div>
     </div>
@@ -91,46 +95,49 @@
 <!-- Recent Activities -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 class="text-lg font-semibold text-black dark:text-white section-title mb-4">Recent Sales Orders</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4" data-translate="Recent Sales Orders">Recent Sales Orders</h3>
         <div class="space-y-3">
             {% for order in recent_sales %}
             <div class="flex items-center justify-between py-2 border-b border-gray-100">
                 <div>
-                    <p class="font-medium text-black dark:text-white">{{ order.order_number }}</p>
-                    <p class="text-sm text-gray-800 dark:text-gray-200">{{ order.customer.name }}</p>
+                    <p class="font-medium text-gray-900 dark:text-white">{{ order.order_number }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ order.customer.name }}</p>
                 </div>
                 <div class="text-right">
-                    <p class="font-semibold text-black dark:text-white">${{ order.total_amount|floatformat:2 }}</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">
+                        <span data-currency="{{ order.total_amount }}">${{ order.total_amount|floatformat:2 }}</span>
+                    </p>
                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
-                        {% if order.status == 'completed' %}bg-green-100 text-green-800
-                        {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
-                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {% if order.status == 'completed' %}bg-green-600 text-white
+                        {% elif order.status == 'pending' %}bg-yellow-600 text-white
+                        {% elif order.status == 'cancelled' %}bg-red-600 text-white
+                        {% else %}bg-gray-600 text-white{% endif %}">
                         {{ order.get_status_display }}
                     </span>
                 </div>
             </div>
             {% empty %}
-            <p class="text-gray-800 dark:text-gray-200 text-center py-4">No recent sales orders</p>
+            <p class="text-gray-600 dark:text-gray-300 text-center py-4">No recent sales orders</p>
             {% endfor %}
         </div>
     </div>
 
     <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 class="text-lg font-semibold text-black dark:text-white section-title mb-4">Low Stock Alert</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4" data-translate="Low Stock Alert">Low Stock Alert</h3>
         <div class="space-y-3">
             {% for item in low_stock_items %}
             <div class="flex items-center justify-between py-2 border-b border-gray-100">
                 <div>
-                    <p class="font-medium text-black dark:text-white">{{ item.product.name }}</p>
-                    <p class="text-sm text-gray-800 dark:text-gray-200">{{ item.warehouse.name }}</p>
+                    <p class="font-medium text-gray-900 dark:text-white">{{ item.product.name }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ item.warehouse.name }}</p>
                 </div>
                 <div class="text-right">
                     <p class="font-semibold text-red-600 dark:text-red-400">{{ item.quantity_available }}</p>
-                    <p class="text-xs text-gray-700 dark:text-gray-300">Reorder: {{ item.reorder_point }}</p>
+                    <p class="text-xs text-gray-600 dark:text-gray-300">Reorder: {{ item.reorder_point }}</p>
                 </div>
             </div>
             {% empty %}
-            <p class="text-gray-800 dark:text-gray-200 text-center py-4">All items are well stocked</p>
+            <p class="text-gray-600 dark:text-gray-300 text-center py-4">All items are well stocked</p>
             {% endfor %}
         </div>
     </div>
