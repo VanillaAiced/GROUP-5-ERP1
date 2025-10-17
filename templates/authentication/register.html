@@ -10,6 +10,14 @@
         <p class="text-sm text-[#B9D9D9]">Join Lite WORK and start your journey!</p>
     </div>
 
+    {% if messages %}
+        {% for message in messages %}
+            <div class="text-{% if message.tags == 'error' %}red{% else %}green{% endif %}-400 text-sm mb-2 p-2 bg-{% if message.tags == 'error' %}red{% else %}green{% endif %}-900 rounded">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     {% if form.non_field_errors %}
         <div class="text-red-400 text-xs mb-2">{{ form.non_field_errors }}</div>
     {% endif %}
