@@ -233,9 +233,17 @@ if not USE_S3:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Static files directories
-STATICFILES_DIRS = [
-    BASE_DIR / 'productionfiles',
-]
+STATICFILES_DIRS = []
+
+# Only add productionfiles directory if it exists
+productionfiles_path = BASE_DIR / 'productionfiles'
+if productionfiles_path.exists():
+    STATICFILES_DIRS.append(productionfiles_path)
+
+# Only add static directory if it exists
+static_path = BASE_DIR / 'static'
+if static_path.exists() and static_path != productionfiles_path:
+    STATICFILES_DIRS.append(static_path)
 
 
 # Security settings for production
