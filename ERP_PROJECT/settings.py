@@ -156,6 +156,11 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Authentication URLs
+LOGIN_URL = 'authentication:login'
+LOGIN_REDIRECT_URL = 'authentication:home'
+LOGOUT_REDIRECT_URL = 'authentication:login'
+
 
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
