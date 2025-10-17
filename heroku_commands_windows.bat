@@ -19,17 +19,17 @@ echo heroku addons:create heroku-postgresql:essential-0
 echo.
 
 echo 4. Set environment variables:
-echo heroku config:set SECRET_KEY="django-insecure-m371w$zxn1)jppki6r_#evnr761@^mx2-(48s^&cx_vylu1-zq"
+echo heroku config:set SECRET_KEY="your-secret-key-here"
 echo heroku config:set DEBUG=False
 echo heroku config:set USE_S3=True
-echo heroku config:set AWS_ACCESS_KEY_ID=AKIAW7AD7VICGSICRT66
-echo heroku config:set AWS_SECRET_ACCESS_KEY=LUXEpQPulxii/f1xvKtazL1NPgeWf5ev7EpIdI/B
-echo heroku config:set AWS_STORAGE_BUCKET_NAME=litework-erp
+echo heroku config:set AWS_ACCESS_KEY_ID=your-aws-access-key-here
+echo heroku config:set AWS_SECRET_ACCESS_KEY=your-aws-secret-key-here
+echo heroku config:set AWS_STORAGE_BUCKET_NAME=your-bucket-name
 echo heroku config:set AWS_S3_REGION_NAME=ap-northeast-2
-echo heroku config:set EMAIL_HOST_USER=wlite0990@gmail.com
-echo heroku config:set EMAIL_HOST_PASSWORD=fvlwllnqfemtadap
-echo heroku config:set IMAP_USER=wlite0990@gmail.com
-echo heroku config:set IMAP_PASSWORD=fvlwllnqfemtadap
+echo heroku config:set EMAIL_HOST_USER=your-email@gmail.com
+echo heroku config:set EMAIL_HOST_PASSWORD=your-email-password
+echo heroku config:set IMAP_USER=your-email@gmail.com
+echo heroku config:set IMAP_PASSWORD=your-email-password
 echo.
 
 echo 5. Deploy the application:

@@ -2,11 +2,13 @@
 Verify S3 bucket structure
 """
 import boto3
+import os
 
-AWS_ACCESS_KEY_ID = 'AKIAW7AD7VICGSICRT66'
-AWS_SECRET_ACCESS_KEY = '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'
-BUCKET_NAME = 'litework-erp'
-REGION = 'ap-northeast-2'
+# AWS Configuration - USE ENVIRONMENT VARIABLES
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', 'litework-erp')
+REGION = os.getenv('AWS_S3_REGION_NAME', 'ap-northeast-2')
 
 s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
                   aws_secret_access_key=AWS_SECRET_ACCESS_KEY, region_name=REGION)
@@ -25,4 +27,3 @@ try:
     print(f"\n✓ LW.png is accessible at: https://{BUCKET_NAME}.s3.amazonaws.com/static/LW.png")
 except:
     print("\n✗ LW.png not found at static/LW.png")
-

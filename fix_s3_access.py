@@ -1,11 +1,12 @@
 import boto3
 import json
+import os
 
-# AWS Configuration
-AWS_ACCESS_KEY_ID = 'AKIAW7AD7VICGSICRT66'
-AWS_SECRET_ACCESS_KEY = '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'
-BUCKET_NAME = 'litework-erp'
-REGION = 'ap-northeast-2'
+# AWS Configuration - USE ENVIRONMENT VARIABLES
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', 'litework-erp')
+REGION = os.getenv('AWS_S3_REGION_NAME', 'ap-northeast-2')
 
 print("Fixing S3 Access Denied Issue...")
 print("=" * 60)
@@ -87,4 +88,3 @@ print("\n" + "=" * 60)
 print("DONE! Test your app now:")
 print("https://litework-erp-app-d3a15bf4658e.herokuapp.com/")
 print("=" * 60)
-

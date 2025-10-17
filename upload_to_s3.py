@@ -5,11 +5,11 @@ import boto3
 import os
 from pathlib import Path
 
-# AWS credentials from your Heroku config
-AWS_ACCESS_KEY_ID = 'AKIAW7AD7VICGSICRT66'
-AWS_SECRET_ACCESS_KEY = 'LUXEpQPulxii/f1xvKtazL1NPgeWf5ev7EpIdI/B'
-BUCKET_NAME = 'litework-erp'
-REGION = 'ap-northeast-2'
+# AWS credentials - USE ENVIRONMENT VARIABLES
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', 'litework-erp')
+REGION = os.getenv('AWS_S3_REGION_NAME', 'ap-northeast-2')
 
 try:
     s3 = boto3.client(
@@ -69,4 +69,3 @@ except Exception as e:
     print(f"Error: {e}")
     print("\nManual steps required - Go to AWS Console:")
     print("https://s3.console.aws.amazon.com/s3/buckets/litework-erp")
-
