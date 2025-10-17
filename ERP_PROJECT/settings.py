@@ -188,19 +188,23 @@ if USE_S3:
         AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
         AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-        AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
+        AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'ap-northeast-2')
         AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
         AWS_DEFAULT_ACL = 'public-read'
         AWS_S3_OBJECT_PARAMETERS = {
             'CacheControl': 'max-age=86400',
         }
+        # Security settings for S3
+        AWS_QUERYSTRING_AUTH = False
+        AWS_S3_FILE_OVERWRITE = False
+
         AWS_LOCATION = 'static'
         AWS_MEDIA_LOCATION = 'media'
-        
+
         # Static files settings
         STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
         STATICFILES_STORAGE = 'ERP_PROJECT.storage_backends.StaticStorage'
-        
+
         # Media files settings
         MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_MEDIA_LOCATION}/'
         DEFAULT_FILE_STORAGE = 'ERP_PROJECT.storage_backends.MediaStorage'
