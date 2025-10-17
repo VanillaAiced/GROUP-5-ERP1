@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import admin_views
 
 app_name = 'erp'
 
@@ -7,6 +8,13 @@ urlpatterns = [
     # Dashboard
     path('', views.dashboard, name='dashboard'),
     
+    # Custom Admin Panel
+    path('admin/', admin_views.custom_admin_home, name='custom_admin_home'),
+    path('admin/<str:app_label>/<str:model_name>/', admin_views.custom_admin_model_list, name='custom_admin_model_list'),
+    path('admin/<str:app_label>/<str:model_name>/add/', admin_views.custom_admin_model_add, name='custom_admin_model_add'),
+    path('admin/<str:app_label>/<str:model_name>/<str:object_id>/edit/', admin_views.custom_admin_model_edit, name='custom_admin_model_edit'),
+    path('admin/<str:app_label>/<str:model_name>/<str:object_id>/delete/', admin_views.custom_admin_model_delete, name='custom_admin_model_delete'),
+
     # Settings
     path('settings/', views.settings, name='settings'),
     path('update-profile/', views.update_profile, name='update_profile'),

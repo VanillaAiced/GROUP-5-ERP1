@@ -1,0 +1,100 @@
+{% extends 'erp/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="bg-[#324545] shadow-lg">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <a href="{% url 'erp:custom_admin_model_list' app_label model_name %}" class="text-[#B9D9D9] hover:text-white">← Back to List</a>
+            <h1 class="text-2xl font-bold text-white mt-2">
+                {% if instance %}Edit{% else %}Add{% endif %} {{ verbose_name }}
+            </h1>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                {% for field in fields %}
+                    <div>
+                        <label for="{{ field.name }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ field.verbose_name }}
+                            {% if not field.null and not field.blank %}
+                                <span class="text-red-500">*</span>
+                            {% endif %}
+                        </label>
+
+                        {% if field.choices %}
+                            <select name="{{ field.name }}" id="{{ field.name }}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#628B8B]"
+                                    {% if not field.null and not field.blank %}required{% endif %}>
+                                <option value="">---------</option>
+                                {% for choice_value, choice_label in field.choices %}
+                                    <option value="{{ choice_value }}"
+                                            {% if instance and instance|getattr:field.name == choice_value %}selected{% endif %}>
+                                        {{ choice_label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        {% elif field.get_internal_type == 'BooleanField' %}
+                            <input type="checkbox" name="{{ field.name }}" id="{{ field.name }}"
+                                   class="h-4 w-4 text-[#628B8B] focus:ring-[#628B8B] border-gray-300 rounded"
+                                   {% if instance and instance|getattr:field.name %}checked{% endif %}>
+                        {% elif field.get_internal_type == 'TextField' %}
+                            <textarea name="{{ field.name }}" id="{{ field.name }}" rows="4"
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#628B8B]"
+                                      {% if not field.null and not field.blank %}required{% endif %}>{% if instance %}{{ instance|getattr:field.name }}{% endif %}</textarea>
+                        {% elif field.get_internal_type == 'DateField' %}
+                            <input type="date" name="{{ field.name }}" id="{{ field.name }}"
+                                   value="{% if instance %}{{ instance|getattr:field.name|date:'Y-m-d' }}{% endif %}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#628B8B]"
+                                   {% if not field.null and not field.blank %}required{% endif %}>
+                        {% elif field.get_internal_type == 'DateTimeField' %}
+                            <input type="datetime-local" name="{{ field.name }}" id="{{ field.name }}"
+                                   value="{% if instance %}{{ instance|getattr:field.name|date:'Y-m-d\TH:i' }}{% endif %}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#628B8B]"
+                                   {% if not field.null and not field.blank %}required{% endif %}>
+                        {% else %}
+                            <input type="{% if 'email' in field.name %}email{% elif 'phone' in field.name %}tel{% else %}text{% endif %}"
+                                   name="{{ field.name }}" id="{{ field.name }}"
+                                   value="{% if instance %}{{ instance|getattr:field.name }}{% endif %}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#628B8B]"
+                                   {% if not field.null and not field.blank %}required{% endif %}>
+                        {% endif %}
+
+                        {% if field.help_text %}
+                            <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <div class="flex gap-4 pt-4">
+                    <button type="submit"
+                            class="bg-[#628B8B] hover:bg-[#729B9B] text-white px-6 py-2 rounded-lg font-semibold transition">
+                        {% if instance %}Update{% else %}Create{% endif %}
+                    </button>
+                    <a href="{% url 'erp:custom_admin_model_list' app_label model_name %}"
+                       class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% load custom_filters %}
+{% endblock %}
+

@@ -1,0 +1,97 @@
+{% extends 'erp/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-[#324545] shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <img src="{% static 'lite_work_logo.png' %}" alt="Lite WORK" class="h-12">
+                    <h1 class="text-3xl font-bold text-white">Lite WORK Admin</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-[#B9D9D9]">{{ request.user.username }}</span>
+                    <a href="{% url 'erp:dashboard' %}" class="bg-[#628B8B] hover:bg-[#729B9B] text-white px-4 py-2 rounded-lg transition">
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-800{% elif message.tags == 'success' %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for app in app_list %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden border-t-4 border-[#628B8B]">
+                    <div class="px-6 py-4 bg-gradient-to-r from-[#324545] to-[#628B8B]">
+                        <h2 class="text-xl font-bold text-white">{{ app.name }}</h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-3">
+                            {% for model in app.models %}
+                                <a href="{% url 'erp:custom_admin_model_list' app.app_label model.model_name %}"
+                                   class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition group border border-gray-200">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 rounded-full bg-[#628B8B] flex items-center justify-center text-white font-bold">
+                                            {{ model.count }}
+                                        </div>
+                                        <span class="font-medium text-gray-700 group-hover:text-[#628B8B]">
+                                            {{ model.name }}
+                                        </span>
+                                    </div>
+                                    <svg class="w-5 h-5 text-gray-400 group-hover:text-[#628B8B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Quick Statistics</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                    <div class="text-3xl font-bold text-blue-600">{{ app_list|length }}</div>
+                    <div class="text-sm text-gray-600">Apps</div>
+                </div>
+                <div class="text-center p-4 bg-green-50 rounded-lg">
+                    <div class="text-3xl font-bold text-green-600">
+                        {% for app in app_list %}{% for model in app.models %}{{ model.count|add:0 }}{% endfor %}{% endfor %}
+                    </div>
+                    <div class="text-sm text-gray-600">Total Records</div>
+                </div>
+                <div class="text-center p-4 bg-purple-50 rounded-lg">
+                    <div class="text-3xl font-bold text-purple-600">
+                        {{ request.user.is_superuser|yesno:"Yes,No" }}
+                    </div>
+                    <div class="text-sm text-gray-600">Superuser</div>
+                </div>
+                <div class="text-center p-4 bg-orange-50 rounded-lg">
+                    <div class="text-3xl font-bold text-orange-600">
+                        {% for app in app_list %}{{ app.models|length|add:0 }}{% endfor %}
+                    </div>
+                    <div class="text-sm text-gray-600">Models</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

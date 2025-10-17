@@ -1,0 +1,196 @@
+{% extends 'erp/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="bg-[#324545] shadow-lg">
+        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <a href="{% url 'erp:custom_admin_model_list' app_label model_name %}" class="text-[#B9D9D9] hover:text-white">← Back to List</a>
+            <h1 class="text-2xl font-bold text-white mt-2">Delete {{ verbose_name }}</h1>
+        </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="mb-6">
+                <div class="flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mx-auto mb-4">
+                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-center text-gray-900 mb-2">Are you sure?</h3>
+                <p class="text-center text-gray-600">
+                    This will permanently delete this {{ verbose_name }}. This action cannot be undone.
+                </p>
+            </div>
+
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <h4 class="font-semibold text-gray-700 mb-2">Object details:</h4>
+                <p class="text-gray-600">{{ instance }}</p>
+            </div>
+
+            <form method="post" class="flex gap-4">
+                {% csrf_token %}
+                <button type="submit"
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                    Yes, Delete
+                </button>
+                <a href="{% url 'erp:custom_admin_model_list' app_label model_name %}"
+                   class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+                                <span class="font-medium">{{ objects.paginator.num_pages }}</span>
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                                {% if objects.has_previous %}
+                                    <a href="?page={{ objects.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                                       class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        Previous
+                                    </a>
+                                {% endif %}
+                                {% if objects.has_next %}
+                                    <a href="?page={{ objects.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                                       class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        Next
+                                    </a>
+                                {% endif %}
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% load custom_filters %}
+{% endblock %}
+{% extends 'erp/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-[#324545] shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <a href="{% url 'erp:custom_admin_home' %}" class="text-[#B9D9D9] hover:text-white">← Admin Home</a>
+                    <h1 class="text-2xl font-bold text-white mt-2">{{ verbose_name_plural|title }}</h1>
+                </div>
+                <a href="{% url 'erp:custom_admin_model_add' app_label model_name %}"
+                   class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition">
+                    + Add {{ verbose_name }}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-800{% elif message.tags == 'success' %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Search Bar -->
+        <div class="mb-6 bg-white rounded-lg shadow p-4">
+            <form method="get" class="flex gap-4">
+                <input type="text" name="q" value="{{ search_query }}"
+                       placeholder="Search {{ verbose_name_plural }}..."
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#628B8B] focus:border-transparent">
+                <button type="submit" class="bg-[#628B8B] hover:bg-[#729B9B] text-white px-6 py-2 rounded-lg font-semibold transition">
+                    Search
+                </button>
+                {% if search_query %}
+                    <a href="{% url 'erp:custom_admin_model_list' app_label model_name %}"
+                       class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition">
+                        Clear
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Results Table -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            {% for field in fields %}
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {{ field.verbose_name }}
+                                </th>
+                            {% endfor %}
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for obj in objects %}
+                            <tr class="hover:bg-gray-50">
+                                {% for field in fields %}
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {% with value=obj|getattr:field.name %}
+                                            {% if value %}
+                                                {{ value|truncatechars:50 }}
+                                            {% else %}
+                                                <span class="text-gray-400">—</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                {% endfor %}
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a href="{% url 'erp:custom_admin_model_edit' app_label model_name obj.pk %}"
+                                       class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                                    <a href="{% url 'erp:custom_admin_model_delete' app_label model_name obj.pk %}"
+                                       class="text-red-600 hover:text-red-900">Delete</a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="{{ fields|length|add:1 }}" class="px-6 py-8 text-center text-gray-500">
+                                    No {{ verbose_name_plural }} found.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if objects.has_other_pages %}
+                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        {% if objects.has_previous %}
+                            <a href="?page={{ objects.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Previous
+                            </a>
+                        {% endif %}
+                        {% if objects.has_next %}
+                            <a href="?page={{ objects.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Next
+                            </a>
+                        {% endif %}
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Showing page <span class="font-medium">{{ objects.number }}</span> of
+
