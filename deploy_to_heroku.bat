@@ -83,39 +83,61 @@ git commit -m "Prepare for Heroku deployment - Django ERP with S3 integration"
 echo.
 echo 🚀 Ready to create Heroku app!
 echo.
-echo Please run the following commands manually:
-echo.
-echo 1. Login to Heroku:
-echo    heroku login
-echo.
-echo 2. Create your Heroku app (choose a unique name):
-echo    heroku create your-app-name-here
-echo.
-echo 3. Set environment variables:
-echo    heroku config:set SECRET_KEY="django-insecure-m371w$zxn1)jppki6r_#evnr761@^mx2-(48s^&cx_vylu1-zq"
-echo    heroku config:set DEBUG=False
-echo    heroku config:set USE_S3=True
-echo    heroku config:set AWS_ACCESS_KEY_ID=AKIAW7AD7VICGSICRT66
-echo    heroku config:set AWS_SECRET_ACCESS_KEY=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
-echo    heroku config:set AWS_STORAGE_BUCKET_NAME=litework-erp
-echo    heroku config:set AWS_S3_REGION_NAME=ap-northeast-2
-echo    heroku config:set EMAIL_HOST_USER=wlite0990@gmail.com
-echo    heroku config:set EMAIL_HOST_PASSWORD=fvlwllnqfemtadap
-echo    heroku config:set IMAP_USER=wlite0990@gmail.com
-echo    heroku config:set IMAP_PASSWORD=fvlwllnqfemtadap
-echo.
-echo 4. Add PostgreSQL database:
-echo    heroku addons:create heroku-postgresql:essential-0
-echo.
-echo 5. Deploy the app:
-echo    git push heroku main
-echo.
-echo 6. Run migrations:
-echo    heroku run python manage.py migrate
-echo.
-echo 7. Create superuser (optional):
-echo    heroku run python manage.py createsuperuser
-echo.
-echo 📖 For detailed instructions, see HEROKU_DEPLOYMENT_STEPS.md
-echo.
+
+REM Check if Heroku remote exists
+heroku git:remote -a %HEROKU_APP_NAME% >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo 🌐 Creating new Heroku app...
+    heroku create
+    if %ERRORLEVEL% NEQ 0 (
+        echo ERROR: Failed to create Heroku app.
+        pause
+        exit /b 1
+    )
+)
+
+REM Add Heroku Postgres if not already added
+heroku addons | findstr /C:"heroku-postgresql" >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo 🗄️ Adding Heroku Postgres...
+    heroku addons:create heroku-postgresql:hobby-dev
+)
+
+REM Set essential environment variables
+set /p SECRET_KEY_INPUT="Enter your Django SECRET_KEY (leave blank to auto-generate): "
+if "%SECRET_KEY_INPUT%"=="" (
+    for /f %%i in ('python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"') do set SECRET_KEY_INPUT=%%i
+)
+heroku config:set SECRET_KEY=%SECRET_KEY_INPUT%
+heroku config:set DEBUG=False
+
+REM Optional: Set email and S3 environment variables here if needed
+REM heroku config:set EMAIL_HOST_USER=your_email@gmail.com EMAIL_HOST_PASSWORD=your_app_password
+REM heroku config:set USE_S3=False
+
+REM Push code to Heroku
+if exist .git (
+    echo 🚀 Pushing code to Heroku...
+    git push heroku main || git push heroku master
+) else (
+    echo ERROR: Git repository not found.
+    pause
+    exit /b 1
+)
+
+REM Run migrations
+heroku run python manage.py migrate
+
+REM Prompt to create superuser
+set /p CREATE_SU="Do you want to create a Django superuser now? (y/n): "
+if /I "%CREATE_SU%"=="y" (
+    heroku run python manage.py createsuperuser
+)
+
+REM Open the app in the browser
+heroku open
+
+echo ====================================
+echo   Deployment to Heroku Complete!
+echo ====================================
 pause

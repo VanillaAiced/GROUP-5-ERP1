@@ -215,6 +215,49 @@ COPY . .
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 ```
 
+## 🚀 Heroku Deployment
+
+You can deploy this project to Heroku with a single command using the provided deployment script. This will:
+- Check prerequisites (Git, Heroku CLI)
+- Initialize a git repository (if needed)
+- Create a Heroku app (if needed)
+- Add Heroku Postgres
+- Set essential environment variables (SECRET_KEY, DEBUG)
+- Push your code to Heroku
+- Run migrations
+- Optionally create a Django superuser
+- Open your deployed app in the browser
+
+### Steps
+
+1. **Install prerequisites:**
+   - [Git](https://git-scm.com/download/windows)
+   - [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
+   - Python 3.8+
+
+2. **Run the deployment script:**
+   ```cmd
+   deploy_to_heroku.bat
+   ```
+   - Follow the prompts to set your SECRET_KEY and create a superuser if desired.
+
+3. **Set additional environment variables (optional):**
+   If you use email or S3 features, set these in the Heroku dashboard or via CLI:
+   ```cmd
+   heroku config:set EMAIL_HOST_USER=your_email@gmail.com EMAIL_HOST_PASSWORD=your_app_password
+   heroku config:set USE_S3=True AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... AWS_STORAGE_BUCKET_NAME=...
+   ```
+
+4. **Access your app:**
+   The script will open your deployed app in your browser. You can also run:
+   ```cmd
+   heroku open
+   ```
+
+5. **Troubleshooting:**
+   - Check logs with: `heroku logs --tail`
+   - Ensure all required environment variables are set for production
+
 ## 📊 API Endpoints
 
 The system provides REST API endpoints for external integrations:
