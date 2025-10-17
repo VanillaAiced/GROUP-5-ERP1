@@ -5,6 +5,8 @@ class StaticStorage(S3Boto3Storage):
     """Custom storage for static files"""
     location = 'static'
     default_acl = 'public-read'
+    file_overwrite = False
+    custom_domain = None  # Use bucket domain
 
 
 class MediaStorage(S3Boto3Storage):
